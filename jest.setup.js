@@ -27,6 +27,32 @@ jest.mock('@clerk/nextjs', () => ({
   SignUp: () => <div>Mock Sign Up</div>
 }))
 
+// Mock Clerk server functions
+jest.mock('@clerk/nextjs/server', () => ({
+  auth: () => Promise.resolve({
+    userId: 'test-user-id',
+    sessionClaims: {
+      company_id: 'test-company-id'
+    }
+  }),
+  currentUser: () => Promise.resolve({
+    id: 'test-user-id',
+    emailAddresses: [{ emailAddress: 'test@example.com' }],
+    publicMetadata: { company_id: 'test-company-id' }
+  }),
+  clerkClient: () => Promise.resolve({
+    users: {
+      getUser: () => Promise.resolve({
+        id: 'test-user-id',
+        emailAddresses: [{ emailAddress: 'test@example.com' }],
+        firstName: 'Test',
+        lastName: 'User'
+      }),
+      updateUserMetadata: () => Promise.resolve({})
+    }
+  })
+}))
+
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({
   supabase: {
