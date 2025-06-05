@@ -36,6 +36,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "answers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "answers_question_instance_id_fkey"
             columns: ["question_instance_id"]
             isOneToOne: false
@@ -123,7 +130,15 @@ export type Database = {
           response?: string | null
           source?: Database["public"]["Enums"]["prompt_source"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prompt_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       question_instances: {
         Row: {
@@ -151,6 +166,13 @@ export type Database = {
           question_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "question_instances_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "question_instances_employee_id_fkey"
             columns: ["employee_id"]

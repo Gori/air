@@ -116,4 +116,123 @@ STRATEGIC ALIGNMENT:
 - pace_satisfaction: Comfort with speed of AI adoption
 - leadership_confidence: Trust in leadership's AI implementation
 - future_roles_skills: Vision for evolving roles and needed skills
-` 
+`
+
+/**
+ * System prompt for generating follow-up questions
+ */
+export const FOLLOW_UP_QUESTION_SYSTEM_PROMPT = `You are an expert interviewer conducting an AI-readiness assessment for employees. 
+
+Your task is to generate relevant follow-up questions based on the employee's previous answer. The follow-up should:
+- Dig deeper into their response to uncover more specific insights
+- Explore practical examples or specific scenarios they mentioned
+- Clarify any ambiguous statements
+- Probe for concrete details about their experience
+
+Rules:
+- Generate maximum 1 follow-up question (not 3 as originally specified)
+- Keep questions conversational and non-judgmental
+- Focus on actionable insights that would help assess AI readiness
+- Avoid leading questions or assumptions
+- Maximum 150 characters per question
+
+If the answer is comprehensive and doesn't warrant a follow-up, return an empty response.`
+
+/**
+ * Generate follow-up question prompt
+ */
+export function buildFollowUpPrompt(
+  originalQuestion: string,
+  employeeAnswer: string,
+  employeeContext?: {
+    role?: string
+    department?: string
+    company?: string
+  }
+): string {
+  const context = employeeContext ? 
+    `Employee context: ${employeeContext.role || 'Unknown role'} at ${employeeContext.company || 'the company'}` : 
+    'No additional employee context available.'
+
+  return `${context}
+
+Original question: "${originalQuestion}"
+
+Employee's answer: "${employeeAnswer}"
+
+Based on this answer, generate ONE relevant follow-up question to gather more specific insights about their AI readiness. If no follow-up is needed, respond with just "NO_FOLLOWUP".
+
+Follow-up question:`
+}
+
+/**
+ * System prompt for generating comprehensive AI readiness reports
+ */
+export const REPORT_GENERATION_SYSTEM_PROMPT = `You are an AI readiness assessment expert tasked with analyzing employee responses and generating a comprehensive company report.
+
+Your analysis should evaluate responses across these 13 dimensions (score 0-5 scale):
+1. ai_literacy - Understanding of AI concepts
+2. existing_ai_skills - Current AI-related skills
+3. current_ai_usage - Active use of AI tools
+4. ai_sentiment - Overall attitude toward AI
+5. ai_expected_benefits - Perceived benefits of AI
+6. ai_concerns - Concerns about AI implementation
+7. workflow_integration - Current automation in workflows
+8. ai_opportunity_ideas - Ideas for AI integration
+9. integration_barriers - Obstacles to technology adoption
+10. org_support - Company support for technology adoption
+11. culture_experimentation - Culture of experimentation
+12. policy_awareness - Awareness of AI policies
+13. support_requests - Specific support needs
+
+For each dimension, provide:
+- A score from 0-5 (0 = very low readiness, 5 = very high readiness)
+- Brief justification for the score
+
+Also provide narrative insights in these categories:
+- strengths: Key organizational strengths for AI adoption
+- gaps: Major gaps or areas of concern
+- recommendations: Specific, actionable recommendations
+
+Return your analysis as a JSON object with this exact structure:
+{
+  "scores": {
+    "ai_literacy": { "score": X, "justification": "..." },
+    // ... all 13 dimensions
+  },
+  "narrative": {
+    "strengths": ["strength 1", "strength 2", ...],
+    "gaps": ["gap 1", "gap 2", ...], 
+    "recommendations": ["rec 1", "rec 2", ...]
+  }
+}`
+
+/**
+ * Build report generation prompt
+ */
+export function buildReportPrompt(
+  companyName: string,
+  employeeResponses: Array<{
+    employee_id: string
+    role?: string
+    question: string
+    dimension: string
+    answer: string
+  }>
+): string {
+  const responseText = employeeResponses
+    .map(r => `Employee: ${r.role || 'Unknown role'}
+Question: ${r.question}
+Dimension: ${r.dimension}
+Answer: ${r.answer}
+---`)
+    .join('\n')
+
+  return `Company: ${companyName}
+Total employees surveyed: ${new Set(employeeResponses.map(r => r.employee_id)).size}
+
+Employee Responses:
+${responseText}
+
+Analyze these responses and generate a comprehensive AI readiness assessment report following the JSON structure specified in the system prompt.`
+} 

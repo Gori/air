@@ -16,7 +16,7 @@ const companyOnboardingSchema = z.object({
   name: z.string().min(1, 'Company name is required'),
   domain: z.string().email('Please enter a valid email address'),
   headcount: z.string().min(1, 'Headcount is required'),
-  industry: z.string().optional(),
+  industry: z.string().min(1, 'Industry is required'),
   region: z.string().optional(),
 })
 
@@ -67,7 +67,8 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
       if (onSuccess) {
         onSuccess(result.data)
       } else {
-        router.push('/dashboard')
+        // Force page refresh to update JWT claims
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')

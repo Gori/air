@@ -3,14 +3,14 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
-import { randomBytes } from 'crypto'
-import type { Database } from '@/lib/supabase/database.types'
+import { randomBytes, randomUUID } from 'crypto'
+import type { Database } from '@/types/database'
 
 const registerCompanySchema = z.object({
   name: z.string().min(1, 'Company name is required'),
   domain: z.string().email('Invalid domain format').transform(email => email.split('@')[1]),
   headcount: z.number().min(1, 'Headcount must be at least 1'),
-  industry: z.string().optional(),
+  industry: z.string().min(1, 'Industry is required'),
   region: z.string().optional(),
 })
 
@@ -72,19 +72,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique invite code
-    const inviteCode = randomBytes(4).toString('hex').toUpperCase()
+    // Generate a simple text-based company ID
+    const companyId = `comp_${randomBytes(8).toString('hex')}`
 
-    // Create company
+    // Create company with explicit text ID
     const { data: company, error: companyError } = await supabase
       .from('companies')
       .insert({
+        id: companyId,
         name,
         domain: domain.toLowerCase(),
         headcount,
         industry,
         region,
-        invite_code: inviteCode,
       })
       .select()
       .single()
@@ -97,11 +97,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Generate invite code
+    const inviteCode = `INV-${randomBytes(3).toString('hex').toUpperCase()}`
+    
+    // Update company with invite code
+    const { error: updateError } = await supabase
+      .from('companies')
+      .update({ invite_code: inviteCode })
+      .eq('id', company.id)
+
+    if (updateError) {
+      console.error('Invite code update error:', updateError)
+    }
+
     // Get current user details
     const client = await clerkClient()
     const user = await client.users.getUser(userId)
 
-    // Create user record
+    // Create user record with Clerk ID
     const { error: userError } = await supabase
       .from('users')
       .insert({
@@ -139,7 +152,7 @@ export async function POST(request: NextRequest) {
           id: company.id,
           name: company.name,
           domain: company.domain,
-          invite_code: company.invite_code,
+          invite_code: inviteCode,
         }
       }
     })
