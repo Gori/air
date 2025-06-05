@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AIR
+
+**AI-Readiness Assessment SaaS Tool**
+
+A single-tenant SaaS platform where managers assess their organization's AI readiness through employee surveys, AI-powered analysis, and comprehensive reporting.
+
+## Features
+
+- **Employee Surveys**: 20 core questions across 6 modules (AI literacy, attitudes, workflows, etc.)
+- **AI-Powered Follow-ups**: GPT-4.1 generates contextual follow-up questions
+- **Intelligent Scoring**: Automated scoring across 13 dimensions (0-5 scale)
+- **Visual Reports**: Bar charts, radar charts, and heatmaps with export options
+- **Secure Sharing**: Public report links with company domain validation
+- **Real-time Progress**: Dashboard tracking for managers
+
+## Tech Stack
+
+- **Frontend**: Next.js 15.3 + React 19.1 + TailwindCSS 4.x + ShadCN/ui
+- **Backend**: Next.js Route Handlers + Vercel AI SDK
+- **Database**: Supabase (Postgres + Row-Level Security)
+- **Auth**: Clerk (Google OAuth + Email/Password)
+- **AI**: OpenAI GPT-4.1 for question generation and report analysis
+- **Email**: Resend for invitations and notifications
+- **Testing**: Jest + React Testing Library + Playwright
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Run tests
+npm run test:all
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [`docs/project.md`](docs/project.md) - Complete technical specification
+- [`docs/roadmap.md`](docs/roadmap.md) - Development roadmap and phases
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build Rules
 
-## Learn More
+1. Always build the minimal, clean, performant solution
+2. Always use the latest versions of everything
+3. Never build fallbacks or workarounds to anything
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Built with modern tools for maximum performance and developer experience.*
