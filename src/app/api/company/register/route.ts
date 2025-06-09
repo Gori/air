@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { randomBytes, randomUUID } from 'crypto'
+import { sendEmail } from '@/lib/email/client'
 import type { Database } from '@/types/database'
 
 const registerCompanySchema = z.object({
@@ -144,6 +145,23 @@ export async function POST(request: NextRequest) {
         company_domain: company.domain,
       }
     })
+
+    // Send welcome email to the manager
+    try {
+      await sendEmail({
+        to: user.emailAddresses[0]?.emailAddress || '',
+        subject: `Welcome to AIR - ${company.name} Registration Complete`,
+        template: 'welcome',
+        data: {
+          userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Manager',
+          companyName: company.name,
+          dashboardUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard`
+        }
+      })
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError)
+      // Don't fail the registration if email fails
+    }
 
     return NextResponse.json({
       success: true,

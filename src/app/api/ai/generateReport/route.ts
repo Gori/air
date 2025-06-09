@@ -6,8 +6,9 @@ import {
   REPORT_GENERATION_SYSTEM_PROMPT, 
   buildReportPrompt 
 } from '@/lib/ai/prompts'
-import { getCompany, getCompanyEmployees } from '@/lib/supabase/queries'
+import { getCompany, getCompanyEmployees, getUser } from '@/lib/supabase/queries'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { sendEmail } from '@/lib/email/client'
 import { z } from 'zod'
 
 // Validation schema for report generation request
@@ -197,6 +198,27 @@ export async function POST(request: NextRequest) {
     const totalEmployees = new Set(employeeResponses.map(r => r.employee_id)).size
     const avgScore = Object.values(parsedReport.scores)
       .reduce((sum, score) => sum + score.score, 0) / Object.keys(parsedReport.scores).length
+
+    // Send email notification to the manager
+    try {
+      const manager = await getUser(clerkUserId)
+      if (manager?.email) {
+        await sendEmail({
+          to: manager.email,
+          subject: `AI Readiness Report Ready - ${company.name}`,
+          template: 'report-ready',
+          data: {
+            managerName: manager.full_name || 'Manager',
+            companyName: company.name,
+            reportUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/report`,
+            shareUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/share/${report.shared_slug}`
+          }
+        })
+      }
+    } catch (emailError) {
+      console.error('Failed to send report ready email:', emailError)
+      // Don't fail the report generation if email fails
+    }
 
     return NextResponse.json({
       success: true,
