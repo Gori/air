@@ -53,18 +53,18 @@ export default async function JoinPage({ params }: JoinPageProps) {
 
   if (!company) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center ">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="  mb-4">
             Invalid Invitation
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className=" mb-6">
             This invitation link is not valid or has expired.
           </p>
           <a 
             href="/sign-up"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-          >
+            className="inline-flex items-center px-4 py-2 border border-transparent   rounded-md text-white  hover:"
+>
             Sign Up Instead
           </a>
         </div>
@@ -78,16 +78,16 @@ export default async function JoinPage({ params }: JoinPageProps) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center  py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6  ">
             Join {company.name}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2  ">
             You&apos;ve been invited to complete an AI readiness assessment
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="  mt-1">
             Domain: {company.domain}
           </p>
         </div>

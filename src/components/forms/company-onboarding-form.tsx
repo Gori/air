@@ -81,7 +81,7 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle>Company Registration</CardTitle>
-        <p className="text-sm text-gray-600">
+        <p >
           Set up your organization to start assessing AI readiness
         </p>
       </CardHeader>
@@ -115,7 +115,7 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
                       {...field} 
                     />
                   </FormControl>
-                  <p className="text-sm text-gray-500">
+                  <p >
                     This will determine your company domain for employee invitations
                   </p>
                   <FormMessage />

@@ -89,10 +89,10 @@ export default function DashboardPage() {
       {/* Header with UserButton */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            AI Readiness Assessment Dashboard
+          <h1 className="text-5xl font-medium uppercase">
+            Assessment
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className=" mt-2">
             Track your progress and contribute to your organization's AI readiness insights.
           </p>
         </div>
@@ -110,32 +110,32 @@ export default function DashboardPage() {
         {/* Survey Progress Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Survey Progress</CardTitle>
+            <CardTitle >Survey Progress</CardTitle>
             {isCompleted ? (
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 " />
             ) : hasStarted ? (
-              <Clock className="h-4 w-4 text-orange-600" />
+              <Clock className="h-4 w-4 " />
             ) : (
-              <PlayCircle className="h-4 w-4 text-blue-600" />
+              <PlayCircle className="h-4 w-4 " />
             )}
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-2 bg-gray-200 rounded w-full"></div>
+                <div className="h-4  rounded w-3/4 mb-2"></div>
+                <div className="h-2  rounded w-full"></div>
               </div>
             ) : surveyProgress ? (
               <div>
-                <div className="text-2xl font-bold">
+                <div >
                   {surveyProgress.completed}/{surveyProgress.total}
                 </div>
-                <p className="text-xs text-gray-600 mb-2">Questions completed</p>
+                <p className="  mb-2">Questions completed</p>
                 <Progress value={progressPercentage} className="w-full" />
-                <p className="text-xs text-gray-500 mt-1">{progressPercentage}% complete</p>
+                <p className="  mt-1">{progressPercentage}% complete</p>
               </div>
             ) : (
-              <div className="text-sm text-gray-500">Not started</div>
+              <div >Not started</div>
             )}
           </CardContent>
         </Card>
@@ -143,20 +143,20 @@ export default function DashboardPage() {
         {/* Status Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <CardTitle >Status</CardTitle>
             <Badge 
               variant={isCompleted ? "default" : hasStarted ? "secondary" : "outline"}
               className={
-                isCompleted ? "bg-green-100 text-green-800" :
-                hasStarted ? "bg-orange-100 text-orange-800" :
-                "bg-gray-100 text-gray-800"
+                isCompleted ? " " :
+                hasStarted ? " " :
+                " "
               }
-            >
+>
               {isCompleted ? "Completed" : hasStarted ? "In Progress" : "Not Started"}
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-gray-600">
+            <div >
               {isCompleted ? 
                 "Your assessment is complete. Thank you for participating!" :
                 hasStarted ?
@@ -170,22 +170,22 @@ export default function DashboardPage() {
         {/* Quick Stats Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assessment Info</CardTitle>
-            <BarChart3 className="h-4 w-4 text-gray-600" />
+            <CardTitle >Assessment Info</CardTitle>
+            <BarChart3 className="h-4 w-4 " />
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Estimated time:</span>
-                <span className="font-medium">15-20 minutes</span>
+              <div className="flex justify-between ">
+                <span >Estimated time:</span>
+                <span >15-20 minutes</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Question types:</span>
-                <span className="font-medium">Open-ended</span>
+              <div className="flex justify-between ">
+                <span >Question types:</span>
+                <span >Open-ended</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Follow-ups:</span>
-                <span className="font-medium">AI-generated</span>
+              <div className="flex justify-between ">
+                <span >Follow-ups:</span>
+                <span >AI-generated</span>
               </div>
             </div>
           </CardContent>
@@ -198,12 +198,12 @@ export default function DashboardPage() {
           <CardTitle className="flex items-center">
             {isCompleted ? (
               <>
-                <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
+                <CheckCircle className="mr-2 h-5 w-5 " />
                 Assessment Complete
               </>
             ) : (
               <>
-                <PlayCircle className="mr-2 h-5 w-5 text-blue-600" />
+                <PlayCircle className="mr-2 h-5 w-5 " />
                 {hasStarted ? "Continue Assessment" : "Start Assessment"}
               </>
             )}
@@ -212,7 +212,7 @@ export default function DashboardPage() {
         <CardContent>
           {isCompleted ? (
             <div className="space-y-4">
-              <p className="text-gray-600">
+              <p >
                 Your AI readiness assessment is complete! Your responses are being analyzed 
                 and will contribute to your organization's comprehensive AI readiness report.
               </p>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-gray-600">
+              <p >
                 {hasStarted ? 
                   `You've completed ${surveyProgress?.completed || 0} out of ${surveyProgress?.total || 0} questions. 
                    Continue where you left off to finish your assessment.` :
@@ -262,8 +262,8 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold mb-2">What to Expect</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h4 className=" mb-2 text-lg font-medium">What to Expect</h4>
+              <ul className="  space-y-1">
                 <li>• Open-ended questions about AI experience and perspectives</li>
                 <li>• AI-generated follow-up questions for deeper insights</li>
                 <li>• Focus on practical examples and specific scenarios</li>
@@ -271,8 +271,8 @@ export default function DashboardPage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Your Privacy</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h4 className=" mb-2 text-lg font-medium">Your Privacy</h4>
+              <ul className="  space-y-1">
                 <li>• Responses are aggregated for organizational insights</li>
                 <li>• Individual responses remain confidential</li>
                 <li>• Data used solely for AI readiness assessment</li>

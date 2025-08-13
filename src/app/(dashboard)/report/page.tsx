@@ -87,15 +87,11 @@ export default function ReportPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p >Loading reports...</p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -103,10 +99,10 @@ export default function ReportPage() {
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 >
           AI Readiness Reports
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className=" mt-2">
           Generate comprehensive AI readiness assessments for your organization.
         </p>
       </div>
@@ -129,7 +125,7 @@ export default function ReportPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-gray-600">
+              <p >
                 Create a comprehensive AI readiness assessment report based on employee survey responses. 
                 The report includes scoring across 13 dimensions and actionable recommendations.
               </p>
@@ -139,10 +135,10 @@ export default function ReportPage() {
                   onClick={generateReport} 
                   disabled={isGenerating}
                   className="flex items-center"
-                >
+>
                   {isGenerating ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <Clock className="mr-2 h-4 w-4 animate-pulse" />
                       Generating Report...
                     </>
                   ) : (
@@ -155,14 +151,14 @@ export default function ReportPage() {
               </div>
 
               {isGenerating && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border-blue-200 border">
+                <div className="mt-4 p-4  rounded-lg  border">
                   <div className="flex items-center mb-2">
-                    <Clock className="h-4 w-4 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-blue-800">
+                    <Clock className="h-4 w-4  mr-2" />
+                    <span>
                       Analyzing survey responses...
                     </span>
                   </div>
-                  <p className="text-sm text-blue-600">
+                  <p >
                     This may take 30-60 seconds as we process all employee responses and generate insights.
                   </p>
                 </div>
@@ -180,11 +176,11 @@ export default function ReportPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center text-green-700">
+                  <CardTitle className="flex items-center ">
                     <CheckCircle className="mr-2 h-5 w-5" />
                     Report Generated Successfully
                   </CardTitle>
-                  <p className="text-gray-600 mt-1">
+                  <p className=" mt-1">
                     Generated on {new Date(report.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -206,29 +202,29 @@ export default function ReportPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Employees Surveyed</CardTitle>
-                <Users className="h-4 w-4 text-gray-600" />
+                <CardTitle >Employees Surveyed</CardTitle>
+                <Users className="h-4 w-4 " />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{report.summary.totalEmployees}</div>
-                <p className="text-xs text-gray-600">{report.summary.totalResponses} total responses</p>
+                <div >{report.summary.totalEmployees}</div>
+                <p >{report.summary.totalResponses} total responses</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Overall Score</CardTitle>
-                <TrendingUp className="h-4 w-4 text-gray-600" />
+                <CardTitle >Overall Score</CardTitle>
+                <TrendingUp className="h-4 w-4 " />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{report.summary.averageScore}/5.0</div>
+                <div >{report.summary.averageScore}/5.0</div>
                 <Progress value={report.summary.averageScore * 20} className="mt-2" />
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Readiness Level</CardTitle>
+                <CardTitle >Readiness Level</CardTitle>
                 <Badge variant={
                   report.summary.averageScore >= 4 ? "default" :
                   report.summary.averageScore >= 3 ? "secondary" : "destructive"
@@ -238,7 +234,7 @@ export default function ReportPage() {
                 </Badge>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-gray-600">
+                <p >
                   Based on 13 assessment dimensions
                 </p>
               </CardContent>
@@ -246,12 +242,12 @@ export default function ReportPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Report Status</CardTitle>
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CardTitle >Report Status</CardTitle>
+                <CheckCircle className="h-4 w-4 " />
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-medium text-green-700">Complete</div>
-                <p className="text-xs text-gray-600">Ready for sharing</p>
+                <div>Complete</div>
+                <p >Ready for sharing</p>
               </CardContent>
             </Card>
           </div>
@@ -266,13 +262,13 @@ export default function ReportPage() {
                 {Object.entries(report.scores).map(([dimension, data]) => (
                   <div key={dimension} className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium capitalize">
+                      <span className="  capitalize">
                         {dimension.replace(/_/g, ' ')}
                       </span>
-                      <span className="text-sm font-bold">{data.score}/5</span>
+                      <span >{data.score}/5</span>
                     </div>
                     <Progress value={data.score * 20} className="h-2" />
-                    <p className="text-xs text-gray-600">{data.justification}</p>
+                    <p >{data.justification}</p>
                   </div>
                 ))}
               </div>
@@ -283,12 +279,12 @@ export default function ReportPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-green-700">Strengths</CardTitle>
+                <CardTitle >Strengths</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
                   {report.narrative.strengths.map((strength, index) => (
-                    <li key={index} className="text-sm text-gray-700">
+                    <li key={index} >
                       • {strength}
                     </li>
                   ))}
@@ -298,12 +294,12 @@ export default function ReportPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-700">Areas for Improvement</CardTitle>
+                <CardTitle >Areas for Improvement</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
                   {report.narrative.gaps.map((gap, index) => (
-                    <li key={index} className="text-sm text-gray-700">
+                    <li key={index} >
                       • {gap}
                     </li>
                   ))}
@@ -313,12 +309,12 @@ export default function ReportPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-blue-700">Recommendations</CardTitle>
+                <CardTitle >Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
                   {report.narrative.recommendations.map((rec, index) => (
-                    <li key={index} className="text-sm text-gray-700">
+                    <li key={index} >
                       • {rec}
                     </li>
                   ))}
@@ -334,7 +330,7 @@ export default function ReportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-gray-600">
+                <p >
                   Your AI readiness report is complete and ready to share with stakeholders. 
                   Use the insights to guide your organization's AI adoption strategy.
                 </p>

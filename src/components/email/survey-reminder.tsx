@@ -24,7 +24,7 @@ export function SurveyReminderEmail({
     <Html>
       <Head />
       <Preview>Reminder: Complete your AI Readiness Assessment</Preview>
-      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'system-ui' }}>
+      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'Lora, ui-serif, Georgia, serif' }}>
         <Container style={{ 
           backgroundColor: '#ffffff', 
           margin: '0 auto', 

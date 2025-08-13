@@ -21,10 +21,10 @@ export function EmployeeJoinForm({
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">Join {companyName}</CardTitle>
+        <CardTitle >Join {companyName}</CardTitle>
         <div className="space-y-2">
           <Badge variant="outline">@{companyDomain}</Badge>
-          <p className="text-sm text-gray-600">
+          <p >
             Complete the sign-up process to access your AI readiness assessment
           </p>
         </div>
@@ -48,20 +48,20 @@ export function EmployeeJoinForm({
               card: "shadow-none border-0 p-0",
               headerTitle: "hidden",
               headerSubtitle: "hidden",
-              socialButtonsBlockButton: "border border-gray-300",
-              formFieldInput: "border border-gray-300",
-              footerActionLink: "text-blue-600 hover:text-blue-700"
+              socialButtonsBlockButton: "border ",
+              formFieldInput: "border ",
+              footerActionLink: " hover:"
             }
           }}
         />
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p >
             Already have an account?{' '}
             <a 
               href={`/sign-in?redirect_url=/api/auth/join/${inviteCode}`}
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
+              
+>
               Sign in instead
             </a>
           </p>

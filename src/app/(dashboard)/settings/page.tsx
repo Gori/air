@@ -15,6 +15,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface CompanyInfo {
   id: string
@@ -92,14 +93,11 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2].map(i => (
-              <div key={i} className="h-48 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p >Loading settings...</p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -109,8 +107,8 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Company Settings</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 >Company Settings</h1>
+          <p className=" mt-2">
             Manage your company information and employee invitations.
           </p>
         </div>
@@ -136,20 +134,20 @@ export default function SettingsPage() {
             {company && (
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Company Name</label>
-                  <p className="text-lg font-semibold">{company.name}</p>
+                  <label>Company Name</label>
+                  <p >{company.name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Domain</label>
-                  <p className="text-gray-900">{company.domain}</p>
+                  <label>Domain</label>
+                  <p >{company.domain}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Industry</label>
-                  <p className="text-gray-900">{company.industry}</p>
+                  <label>Industry</label>
+                  <p >{company.industry}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Headcount</label>
-                  <p className="text-gray-900">{company.headcount} employees</p>
+                  <label>Headcount</label>
+                  <p >{company.headcount} employees</p>
                 </div>
               </div>
             )}
@@ -167,9 +165,9 @@ export default function SettingsPage() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Invite Code</label>
+                <label>Invite Code</label>
                 <div className="flex items-center space-x-2 mt-1">
-                  <code className="bg-gray-100 px-3 py-2 rounded text-sm font-mono">
+                  <code className=" px-3 py-2 rounded  font-mono">
                     {company?.invite_code}
                   </code>
                   <Button 
@@ -177,24 +175,24 @@ export default function SettingsPage() {
                     variant="outline" 
                     onClick={copyInviteCode}
                     className="flex items-center"
-                  >
+>
                     {copySuccess ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
                 {copySuccess && (
-                  <p className="text-sm text-green-600 mt-1">Invite URL copied to clipboard!</p>
+                  <p className="  mt-1">Invite URL copied to clipboard!</p>
                 )}
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500">Share this URL with employees:</label>
-                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded mt-1 break-all">
+                <label>Share this URL with employees:</label>
+                <p className="   p-2 rounded mt-1 break-all">
                   {company && `${window.location.origin}/join/${company.invite_code}`}
                 </p>
               </div>
 
               <div className="pt-2 border-t">
-                <p className="text-sm text-gray-600">
+                <p >
                   Employees can use this code to join your organization and participate in the AI readiness assessment.
                 </p>
               </div>
@@ -215,39 +213,39 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           {employees.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 ">
+              <Users className="h-12 w-12 mx-auto mb-4 " />
               <p>No employees have joined yet.</p>
-              <p className="text-sm">Share the invite code above to get started.</p>
+              <p >Share the invite code above to get started.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {employees.map((employee) => (
                 <div key={employee.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 font-medium">
+                    <Avatar>
+                      <AvatarFallback >
                         {employee.full_name?.charAt(0) || employee.email.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
-                      <p className="font-medium">{employee.full_name || 'Anonymous'}</p>
-                      <p className="text-sm text-gray-600">{employee.email}</p>
+                      <p >{employee.full_name || 'Anonymous'}</p>
+                      <p >{employee.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Badge variant={employee.role === 'manager' ? 'default' : 'secondary'}>
                       {employee.role}
                     </Badge>
-                    <div className="flex items-center text-sm text-gray-500">
+                    <div className="flex items-center  ">
                       {employee.last_login_at ? (
                         <>
-                          <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+                          <CheckCircle className="h-4 w-4 mr-1 " />
                           Active
                         </>
                       ) : (
                         <>
-                          <Clock className="h-4 w-4 mr-1 text-orange-500" />
+                          <Clock className="h-4 w-4 mr-1 " />
                           Pending
                         </>
                       )}

@@ -145,8 +145,7 @@ export default function SurveyPage() {
       <div className="container mx-auto p-6">
         <Card>
           <CardContent className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading your survey...</p>
+            <p >Loading your survey...</p>
           </CardContent>
         </Card>
       </div>
@@ -158,13 +157,13 @@ export default function SurveyPage() {
       <div className="container mx-auto p-6">
         <Card>
           <CardHeader className="text-center">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <CardTitle className="text-2xl text-green-700">
+            <CheckCircle className="w-16 h-16  mx-auto mb-4" />
+            <CardTitle >
               Survey Completed!
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-gray-600 mb-6">
+            <p className=" mb-6">
               Thank you for completing the AI Readiness Assessment. Your responses will help create valuable insights for your organization.
             </p>
             <Button onClick={() => router.push('/dashboard')}>
@@ -183,16 +182,16 @@ export default function SurveyPage() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       {/* Header with UserButton */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">AI Readiness Assessment</h1>
+      <div className="flex justify-between items-center mb-6 uppercase">
+        <h1 >Assessment</h1>
         <UserButton />
       </div>
       
       {/* Progress indicator */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-lg font-medium">Survey Progress</span>
-          <span className="text-sm text-gray-600">
+          <span >Survey Progress</span>
+          <span >
             Question {progress.current} of {progress.total}
           </span>
         </div>
@@ -209,11 +208,11 @@ export default function SurveyPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">
+            <CardTitle >
               {questionDimension}
             </CardTitle>
             {currentQuestion?.parent_instance && (
-              <span className="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+              <span className=" px-2 py-1 rounded-full">
                 Follow-up
               </span>
             )}
@@ -222,11 +221,10 @@ export default function SurveyPage() {
         <CardContent>
           <div className="space-y-6">
             <div>
-              <Label htmlFor="question" className="text-base font-medium">
+              <label htmlFor="question">
                 {questionText}
-              </Label>
+              </label>
             </div>
-            
             <div>
               <Textarea
                 id="answer"
@@ -238,11 +236,11 @@ export default function SurveyPage() {
                 disabled={isSubmitting}
               />
               <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-500">
+                <span >
                   {answer.length}/2000 characters
                 </span>
                 {answer.length > 1800 && (
-                  <span className="text-sm text-amber-600">
+                  <span >
                     Approaching character limit
                   </span>
                 )}
@@ -254,7 +252,7 @@ export default function SurveyPage() {
                 variant="outline"
                 onClick={() => router.push('/dashboard')}
                 disabled={isSubmitting}
-              >
+>
                 Save & Exit
               </Button>
               
@@ -262,15 +260,8 @@ export default function SurveyPage() {
                 onClick={submitAnswer}
                 disabled={isSubmitting || !answer.trim()}
                 className="min-w-[120px]"
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </div>
-                ) : (
-                  'Continue'
-                )}
+>
+                {isSubmitting ? 'Saving...' : 'Continue'}
               </Button>
             </div>
           </div>
@@ -278,9 +269,9 @@ export default function SurveyPage() {
       </Card>
 
       {/* Question help text */}
-      <Card className="mt-6 bg-blue-50 border-blue-200">
+      <Card className="mt-6  ">
         <CardContent className="p-4">
-          <p className="text-sm text-blue-700">
+          <p >
             💡 <strong>Tip:</strong> Be specific and provide examples where possible. 
             Your detailed responses help create more accurate insights and recommendations.
           </p>

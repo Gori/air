@@ -34,18 +34,20 @@ function Alert({
   )
 }
 
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={cn(
-        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5
+    ref={ref}
+    className={cn(
+      "col-start-2 line-clamp-1 min-h-4 font-serif font-normal text-lg tracking-tight",
+      className
+    )}
+    {...props}
+  />
+))
+AlertTitle.displayName = "AlertTitle"
 
 function AlertDescription({
   className,

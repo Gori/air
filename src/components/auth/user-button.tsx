@@ -13,14 +13,14 @@ export function UserButton() {
 
   return (
     <div className="flex items-center space-x-3">
-      <div className="text-right text-sm">
-        <div className="font-medium text-gray-900">{user.fullName}</div>
+      <div className="text-right ">
+        <div>{user.fullName}</div>
         <div className="flex items-center space-x-2">
           <Badge variant={userRole === 'manager' ? 'default' : 'secondary'}>
             {userRole || 'user'}
           </Badge>
           {companyName && (
-            <span className="text-gray-500">{companyName}</span>
+            <span>{companyName}</span>
           )}
         </div>
       </div>
@@ -28,7 +28,7 @@ export function UserButton() {
         appearance={{
           elements: {
             userButtonAvatarBox: "w-10 h-10",
-            userButtonPopoverCard: "shadow-lg border border-gray-200"
+            userButtonPopoverCard: ""
           }
         }}
         afterSignOutUrl="/sign-in"

@@ -80,18 +80,9 @@ export default function SharePage({ params }: SharePageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3 mx-auto"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-            <div className="h-96 bg-gray-200 rounded"></div>
-          </div>
+      <div className="min-h-screen py-12">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <p>Loading report...</p>
         </div>
       </div>
     )
@@ -99,13 +90,13 @@ export default function SharePage({ params }: SharePageProps) {
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen py-12">
         <div className="container mx-auto px-4 max-w-2xl text-center">
-          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <AlertTriangle className="h-16 w-16 mx-auto mb-4" />
+          <h1 className="mb-2">
             Report Not Available
           </h1>
-          <p className="text-gray-600">
+          <p>
             {error || 'The requested report could not be found or is no longer available.'}
           </p>
         </div>
@@ -120,9 +111,7 @@ export default function SharePage({ params }: SharePageProps) {
   }))
 
   const getScoreColor = (score: number) => {
-    if (score >= 4) return 'text-green-600 bg-green-100'
-    if (score >= 3) return 'text-yellow-600 bg-yellow-100'
-    return 'text-red-600 bg-red-100'
+    return ''
   }
 
   const getScoreLabel = (score: number) => {
@@ -133,18 +122,18 @@ export default function SharePage({ params }: SharePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="border-b">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="mb-2">
               AI Readiness Assessment Report
             </h1>
-            <p className="text-lg text-gray-600 mb-4">
+            <p className="mb-4">
               {report.companyName}
             </p>
-            <div className="flex justify-center items-center space-x-6 text-sm text-gray-500">
+            <div className="flex justify-center items-center space-x-6">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
                 Generated {new Date(report.generatedAt).toLocaleDateString()}
@@ -167,37 +156,37 @@ export default function SharePage({ params }: SharePageProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6 text-center">
-              <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{report.totalResponses}</div>
-              <div className="text-sm text-gray-600">Employee Responses</div>
+              <Users className="h-8 w-8 mx-auto mb-2" />
+              <div>{report.totalResponses}</div>
+              <div>Employee Responses</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{report.averageScore.toFixed(1)}</div>
-              <div className="text-sm text-gray-600">Average Score</div>
+              <TrendingUp className="h-8 w-8 mx-auto mb-2" />
+              <div>{report.averageScore.toFixed(1)}</div>
+              <div>Average Score</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Award className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">
+              <Award className="h-8 w-8 mx-auto mb-2" />
+              <div>
                 {dimensionScores.filter(d => d.score >= 4).length}
               </div>
-              <div className="text-sm text-gray-600">Strong Areas</div>
+              <div>Strong Areas</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <AlertTriangle className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">
+              <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+              <div>
                 {dimensionScores.filter(d => d.score < 3).length}
               </div>
-              <div className="text-sm text-gray-600">Focus Areas</div>
+              <div>Focus Areas</div>
             </CardContent>
           </Card>
         </div>
@@ -233,16 +222,16 @@ export default function SharePage({ params }: SharePageProps) {
               {dimensionScores.map((item, index) => (
                 <div key={index} className="border-b pb-4 last:border-b-0">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{item.dimension}</h4>
+                    <h4>{item.dimension}</h4>
                     <div className="flex items-center space-x-2">
                       <Badge className={getScoreColor(item.score)}>
                         {getScoreLabel(item.score)}
                       </Badge>
-                      <span className="font-bold text-lg">{item.score.toFixed(1)}</span>
+                      <span>{item.score.toFixed(1)}</span>
                     </div>
                   </div>
                   <Progress value={(item.score / 5) * 100} className="mb-2" />
-                  <p className="text-sm text-gray-600">{item.justification}</p>
+                  <p>{item.justification}</p>
                 </div>
               ))}
             </div>
@@ -253,7 +242,7 @@ export default function SharePage({ params }: SharePageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center text-green-700">
+              <CardTitle className="flex items-center">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 Strengths
               </CardTitle>
@@ -261,8 +250,8 @@ export default function SharePage({ params }: SharePageProps) {
             <CardContent>
               <ul className="space-y-2">
                 {report.narrative.strengths.map((strength, index) => (
-                  <li key={index} className="text-sm flex items-start">
-                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <li key={index} className="flex items-start">
+                    <span className="inline-block w-2 h-2 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     {strength}
                   </li>
                 ))}
@@ -272,7 +261,7 @@ export default function SharePage({ params }: SharePageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center text-orange-700">
+              <CardTitle className="flex items-center">
                 <AlertTriangle className="h-5 w-5 mr-2" />
                 Areas for Development
               </CardTitle>
@@ -280,8 +269,8 @@ export default function SharePage({ params }: SharePageProps) {
             <CardContent>
               <ul className="space-y-2">
                 {report.narrative.gaps.map((gap, index) => (
-                  <li key={index} className="text-sm flex items-start">
-                    <span className="inline-block w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <li key={index} className="flex items-start">
+                    <span className="inline-block w-2 h-2 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     {gap}
                   </li>
                 ))}
@@ -291,7 +280,7 @@ export default function SharePage({ params }: SharePageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center text-blue-700">
+              <CardTitle className="flex items-center">
                 <TrendingUp className="h-5 w-5 mr-2" />
                 Recommendations
               </CardTitle>
@@ -299,8 +288,8 @@ export default function SharePage({ params }: SharePageProps) {
             <CardContent>
               <ul className="space-y-2">
                 {report.narrative.recommendations.map((recommendation, index) => (
-                  <li key={index} className="text-sm flex items-start">
-                    <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <li key={index} className="flex items-start">
+                    <span className="inline-block w-2 h-2 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                     {recommendation}
                   </li>
                 ))}
@@ -311,7 +300,7 @@ export default function SharePage({ params }: SharePageProps) {
 
         {/* Footer */}
         <div className="text-center py-8 border-t">
-          <p className="text-sm text-gray-500">
+          <p>
             This report was generated using AI analysis of employee survey responses.
             <br />
             Powered by AIR - AI Readiness Assessment Platform

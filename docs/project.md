@@ -11,6 +11,8 @@
 1. **Always build the minimal, clean, performant solution.**
 2. **Always use the latest versions of everything.**
 3. **Never build fallbacks or workarounds to anything.**
+4. **Use Lora as the default copy font for the entire project.**
+5. **Use Bastardo Grotesk only for larger headlines.**
 
 ---
 

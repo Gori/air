@@ -13,7 +13,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">AIR</h1>
+        <h1>AIR</h1>
         <div className="space-x-4">
           <Link href="/sign-in">
             <Button variant="outline">Sign In</Button>

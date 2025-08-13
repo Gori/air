@@ -122,8 +122,8 @@ export function RadarChart({ data }: RadarChartProps) {
             y={point.labelY}
             textAnchor="middle"
             dominantBaseline="middle"
-            className="text-xs font-medium fill-gray-700"
-          >
+                            
+>
             <tspan x={point.labelX} dy="0">
               {point.dimension.split(' ')[0]}
             </tspan>
@@ -137,21 +137,21 @@ export function RadarChart({ data }: RadarChartProps) {
       </svg>
 
       {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-4 text-xs">
+      <div className="flex flex-wrap justify-center gap-4 ">
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <div className="w-3 h-3 rounded-full"></div>
           <span>Strong (4-5)</span>
         </div>
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 rounded-full"></div>
           <span>Moderate (3-4)</span>
         </div>
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+          <div className="w-3 h-3 rounded-full"></div>
           <span>Developing (2-3)</span>
         </div>
         <div className="flex items-center space-x-1">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 rounded-full"></div>
           <span>Needs Focus (0-2)</span>
         </div>
       </div>

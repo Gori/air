@@ -1,21 +1,35 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs'
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const lora = localFont({
+  src: [
+    {
+      path: "../../public/fonts/Lora[wght].woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lora-Italic[wght].woff2",
+      weight: "100 900", 
+      style: "italic",
+    },
+  ],
+  variable: "--font-lora",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const bastardoGrotesk = localFont({
+  src: "../../public/fonts/BastardoGrotesk-Variable.woff2",
+  weight: "100 900",
+  variable: "--font-bastardo-grotesk",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "AIR - AI-Readiness Assessment",
-  description: "AI-Readiness Assessment SaaS Tool",
+  title: "AIR - AI Readiness Assessment",
+  description: "Assess your organization's AI readiness with our comprehensive survey tool.",
 };
 
 export default function RootLayout({
@@ -27,8 +41,8 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+          className={`${lora.variable} ${bastardoGrotesk.variable} antialiased`}
+>
           {children}
         </body>
       </html>
