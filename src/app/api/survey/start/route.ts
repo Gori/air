@@ -1,17 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
 import { getCompanyId, getUserId } from '@/lib/supabase/server'
 import { 
-  getEmployeeQuestionInstances, 
-  getUser 
+  getEmployeeQuestionInstances 
 } from '@/lib/supabase/queries'
 import { 
   initializeEmployeeQuestions, 
-  getNextQuestion,
-  upsertUser 
+  getNextQuestion 
 } from '@/lib/supabase/mutations'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get authentication details
     const { userId: clerkUserId } = await auth()

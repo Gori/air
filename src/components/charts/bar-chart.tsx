@@ -12,11 +12,10 @@ export function BarChart({ data }: BarChartProps) {
   const maxScore = 5
   
   const getBarColor = (score: number) => {
-    return ''
-  }
-
-  const getScoreColor = (score: number): string => {
-    return ''
+    if (score >= 4) return 'bg-green-500'
+    if (score >= 3) return 'bg-yellow-500'
+    if (score >= 2) return 'bg-orange-500'
+    return 'bg-red-500'
   }
 
   return (

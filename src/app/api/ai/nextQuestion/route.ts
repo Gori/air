@@ -7,8 +7,7 @@ import {
   buildFollowUpPrompt 
 } from '@/lib/ai/prompts'
 import { 
-  createQuestionInstance, 
-  saveAnswer 
+  createQuestionInstance 
 } from '@/lib/supabase/mutations'
 import { getUser, getCompany } from '@/lib/supabase/queries'
 import { supabaseAdmin } from '@/lib/supabase/admin'

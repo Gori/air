@@ -27,7 +27,7 @@ export function EmployeeInvitationEmail({
   return (
     <Html>
       <Head />
-      <Preview>You've been invited to participate in {companyName}'s AI Readiness Assessment</Preview>
+      <Preview>You&apos;ve been invited to participate in {companyName}&apos;s AI Readiness Assessment</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>
@@ -39,7 +39,7 @@ export function EmployeeInvitationEmail({
           </Text>
           
           <Text style={text}>
-            {managerName} has invited you to participate in <strong>{companyName}</strong>'s 
+            {managerName} has invited you to participate in <strong>{companyName}</strong>&apos;s 
             AI Readiness Assessment. This survey will help your organization understand 
             its current AI capabilities and identify opportunities for growth.
           </Text>

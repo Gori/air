@@ -34,7 +34,7 @@ export function WelcomeEmail({
           <Heading>Welcome to AIR Platform</Heading>
           <Text>Hi {userName},</Text>
           <Text>
-            Welcome to the AI Readiness Assessment Platform! You're now part of {companyName}'s 
+            Welcome to the AI Readiness Assessment Platform! You&apos;re now part of {companyName}&apos;s 
             AI readiness journey.
           </Text>
           <Link href={dashboardUrl}>Go to Dashboard</Link>

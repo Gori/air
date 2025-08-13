@@ -332,7 +332,7 @@ export default function ReportPage() {
               <div className="space-y-4">
                 <p >
                   Your AI readiness report is complete and ready to share with stakeholders. 
-                  Use the insights to guide your organization's AI adoption strategy.
+                  Use the insights to guide your organization&apos;s AI adoption strategy.
                 </p>
                 <div className="flex space-x-4">
                   <Button onClick={() => setReport(null)}>

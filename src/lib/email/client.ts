@@ -1,11 +1,8 @@
 import { Resend } from 'resend'
 import { createElement } from 'react'
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY environment variable is required')
-}
-
-export const resend = new Resend(process.env.RESEND_API_KEY)
+const RESEND_API_KEY = process.env.RESEND_API_KEY
+export const resend: Resend | null = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
 export const EMAIL_CONFIG = {
   from: 'AIR Platform <noreply@air-assessment.com>',
@@ -22,12 +19,16 @@ export interface EmailData {
   to: string | string[]
   subject?: string
   template: EmailTemplate
-  data: Record<string, any>
+  data: Record<string, unknown>
 }
 
 export async function sendEmail({ to, subject, template, data }: EmailData) {
   try {
+    if (!resend) {
+      throw new Error('RESEND_API_KEY environment variable is required')
+    }
     // Import and render the appropriate email template component
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let EmailComponent: React.ComponentType<any>
     
     switch (template) {

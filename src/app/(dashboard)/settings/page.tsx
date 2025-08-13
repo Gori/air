@@ -11,7 +11,6 @@ import {
   Link as LinkIcon, 
   Copy, 
   Building, 
-  Mail,
   CheckCircle,
   Clock
 } from 'lucide-react'

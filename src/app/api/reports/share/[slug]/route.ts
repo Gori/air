@@ -53,7 +53,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       employeeStats?.map(stat => stat.employee_id).filter(Boolean) || []
     )
     const totalResponses = uniqueEmployees.size
-    const totalAnswers = employeeStats?.length || 0
 
     // Calculate average score from the scores JSON
     const scores = report.scores_json as Record<string, { score: number; justification: string }>

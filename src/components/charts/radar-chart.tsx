@@ -34,7 +34,7 @@ export function RadarChart({ data }: RadarChartProps) {
         labelY: center + Math.sin(angle) * (maxRadius + 30),
       }
     })
-  }, [data])
+  }, [data, center, maxRadius])
 
   // Generate grid circles
   const gridCircles = [1, 2, 3, 4, 5].map(level => ({

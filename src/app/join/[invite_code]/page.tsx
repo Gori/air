@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 import type { Database } from '@/lib/supabase/database.types'
 import { EmployeeJoinForm } from '@/components/forms/employee-join-form'
+import Link from 'next/link'
 
 interface JoinPageProps {
   params: Promise<{ invite_code: string }>
@@ -61,12 +62,12 @@ export default async function JoinPage({ params }: JoinPageProps) {
           <p className=" mb-6">
             This invitation link is not valid or has expired.
           </p>
-          <a 
+          <Link 
             href="/sign-up"
             className="inline-flex items-center px-4 py-2 border border-transparent   rounded-md text-white  hover:"
->
+          >
             Sign Up Instead
-          </a>
+          </Link>
         </div>
       </div>
     )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const loadProgress = async () => {
+  const loadProgress = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -70,11 +70,11 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   useEffect(() => {
-    loadProgress()
-  }, [])
+    void loadProgress()
+  }, [loadProgress])
 
   const handleStartSurvey = () => {
     router.push('/survey')
@@ -93,7 +93,7 @@ export default function DashboardPage() {
             Assessment
           </h1>
           <p className=" mt-2">
-            Track your progress and contribute to your organization's AI readiness insights.
+            Track your progress and contribute to your organization&apos;s AI readiness insights.
           </p>
         </div>
         <UserButton />
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <p >
                 Your AI readiness assessment is complete! Your responses are being analyzed 
-                and will contribute to your organization's comprehensive AI readiness report.
+                and will contribute to your organization&apos;s comprehensive AI readiness report.
               </p>
               <div className="flex space-x-4">
                 <Button variant="outline" onClick={() => router.push('/survey')}>
@@ -228,10 +228,10 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-4">
               <p >
-                {hasStarted ? 
-                  `You've completed ${surveyProgress?.completed || 0} out of ${surveyProgress?.total || 0} questions. 
+                  {hasStarted ? 
+                  `You&apos;ve completed ${surveyProgress?.completed || 0} out of ${surveyProgress?.total || 0} questions. 
                    Continue where you left off to finish your assessment.` :
-                  "The AI Readiness Assessment helps evaluate your organization's preparedness for AI adoption. " +
+                  "The AI Readiness Assessment helps evaluate your organization&apos;s preparedness for AI adoption. " +
                   "Your thoughtful responses will contribute to valuable insights and recommendations."
                 }
               </p>

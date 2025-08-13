@@ -11,7 +11,6 @@ import {
   TrendingUp, 
   Users, 
   Calendar,
-  Building,
   Award,
   AlertTriangle,
   CheckCircle
@@ -111,7 +110,10 @@ export default function SharePage({ params }: SharePageProps) {
   }))
 
   const getScoreColor = (score: number) => {
-    return ''
+    if (score >= 4) return 'bg-green-100 text-green-800'
+    if (score >= 3) return 'bg-yellow-100 text-yellow-800'
+    if (score >= 2) return 'bg-orange-100 text-orange-800'
+    return 'bg-red-100 text-red-800'
   }
 
   const getScoreLabel = (score: number) => {

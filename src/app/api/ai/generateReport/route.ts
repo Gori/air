@@ -6,7 +6,7 @@ import {
   REPORT_GENERATION_SYSTEM_PROMPT, 
   buildReportPrompt 
 } from '@/lib/ai/prompts'
-import { getCompany, getCompanyEmployees, getUser } from '@/lib/supabase/queries'
+import { getCompany, getUser } from '@/lib/supabase/queries'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/email/client'
 import { z } from 'zod'
@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body = await request.json()
     const { includeAllEmployees } = reportRequestSchema.parse(body)
+    void includeAllEmployees
 
     // Get company information
     const company = await getCompany(companyId)
