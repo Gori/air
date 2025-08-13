@@ -68,5 +68,5 @@ export const REPORT_CONFIG = {
 export const AI_CONFIG = {
   MAX_TOKENS: 4000,
   TEMPERATURE: 0.7,
-  MODEL: process.env.OPENAI_MODEL || 'gpt-4.1-mini-2025-04-14',
+  MODEL: process.env.OPENAI_MODEL || 'gpt-5-mini',
 } as const 

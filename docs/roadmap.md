@@ -166,7 +166,7 @@ npm run test:e2e
 - **Database Schema**: Changed from UUID to TEXT for all user/company IDs to work directly with Clerk user IDs
 - **RLS Strategy**: Use admin client (service role) for API operations instead of RLS-enabled client to avoid JWT complexity
 - **Authentication Flow**: Full integration between Clerk and Supabase with proper metadata syncing
-- **AI Integration**: GPT-4.1 model (gpt-4.1-mini-2025-04-14) configured via environment variable
+- **AI Integration**: Model configured via environment variable: `gpt-5-mini`
 - **Survey System**: Complete question flow with AI-powered follow-up questions (simplified to 1 per question)
 - **UI Components**: Added UserButton for logout functionality in dashboard and survey pages
 - **Error Handling**: Comprehensive validation and error states throughout the application
@@ -235,7 +235,7 @@ npm run test:e2e
 
   # OpenAI
   OPENAI_API_KEY=
-  OPENAI_MODEL=gpt-4.1-mini-2025-04-14
+  OPENAI_MODEL=gpt-5-mini
 
   # Resend Email
   RESEND_API_KEY=

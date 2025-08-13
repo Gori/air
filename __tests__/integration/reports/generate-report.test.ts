@@ -41,7 +41,7 @@ jest.mock('@/lib/ai/client', () => ({
         recommendations: ['Implement AI training program', 'Develop AI strategy']
       }
     }),
-    model: 'gpt-4.1-mini-2025-04-14',
+    model: 'gpt-5-mini',
     usage: { total_tokens: 500 }
   })
 }))

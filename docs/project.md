@@ -25,7 +25,7 @@
 | **TanStack Router** | 1.0.5                                |
 | **Tailwind CSS**    | 4.1.8                                |
 | **ShadCN/ui**       | commit `f31a97`                      |
-| **OpenAI model**    | `gpt-4o-mini-2025-05-28` (“GPT-4.1”) |
+| **OpenAI model**    | `gpt-5-mini` |
 
 ---
 
@@ -302,7 +302,7 @@ create table prompt_logs (
   source      prompt_source,
   prompt      text,
   response    text,
-  model       text default 'gpt-4.1',
+  model       text default 'gpt-5-mini',
   created_at  timestamptz default now()
 );
 
