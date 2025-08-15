@@ -26,7 +26,7 @@ export function ReportReadyEmail({
     <Html>
       <Head />
       <Preview>Your AI Readiness Assessment report is ready</Preview>
-      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'Lora, ui-serif, Georgia, serif' }}>
+      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
         <Container style={{ 
           backgroundColor: '#ffffff', 
           margin: '0 auto', 

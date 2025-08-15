@@ -24,7 +24,7 @@ export function WelcomeEmail({
     <Html>
       <Head />
       <Preview>Welcome to the AI Readiness Assessment Platform</Preview>
-      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'Lora, ui-serif, Georgia, serif' }}>
+      <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
         <Container style={{ 
           backgroundColor: '#ffffff', 
           margin: '0 auto', 

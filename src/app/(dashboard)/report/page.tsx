@@ -6,16 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  FileText, 
-  Download, 
-  Share, 
-  Users, 
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock
-} from 'lucide-react'
+// icons removed
 
 interface ReportSummary {
   totalEmployees: number
@@ -109,7 +100,6 @@ export default function ReportPage() {
 
       {error && (
         <Alert className="mb-6" variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -118,10 +108,7 @@ export default function ReportPage() {
       {!report && (
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
-              Generate New Report
-            </CardTitle>
+            <CardTitle className="flex items-center">Generate New Report</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -137,27 +124,16 @@ export default function ReportPage() {
                   className="flex items-center"
 >
                   {isGenerating ? (
-                    <>
-                      <Clock className="mr-2 h-4 w-4 animate-pulse" />
-                      Generating Report...
-                    </>
+                    <>Generating Report...</>
                   ) : (
-                    <>
-                      <TrendingUp className="mr-2 h-4 w-4" />
-                      Generate Report
-                    </>
+                    <>Generate Report</>
                   )}
                 </Button>
               </div>
 
               {isGenerating && (
                 <div className="mt-4 p-4  rounded-lg  border">
-                  <div className="flex items-center mb-2">
-                    <Clock className="h-4 w-4  mr-2" />
-                    <span>
-                      Analyzing survey responses...
-                    </span>
-                  </div>
+                  <div className="flex items-center mb-2">Analyzing survey responses...</div>
                   <p >
                     This may take 30-60 seconds as we process all employee responses and generate insights.
                   </p>
@@ -176,23 +152,14 @@ export default function ReportPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center ">
-                    <CheckCircle className="mr-2 h-5 w-5" />
-                    Report Generated Successfully
-                  </CardTitle>
+                  <CardTitle className="flex items-center ">Report Generated Successfully</CardTitle>
                   <p className=" mt-1">
                     Generated on {new Date(report.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex space-x-2">
-                  <Button variant="outline" onClick={shareReport}>
-                    <Share className="mr-2 h-4 w-4" />
-                    Share
-                  </Button>
-                  <Button variant="outline">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
+                  <Button variant="outline" onClick={shareReport}>Share</Button>
+                  <Button variant="outline">Download</Button>
                 </div>
               </div>
             </CardHeader>
@@ -201,10 +168,9 @@ export default function ReportPage() {
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle >Employees Surveyed</CardTitle>
-                <Users className="h-4 w-4 " />
-              </CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle >Employees Surveyed</CardTitle>
+                </CardHeader>
               <CardContent>
                 <div >{report.summary.totalEmployees}</div>
                 <p >{report.summary.totalResponses} total responses</p>
@@ -212,10 +178,9 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle >Overall Score</CardTitle>
-                <TrendingUp className="h-4 w-4 " />
-              </CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle >Overall Score</CardTitle>
+                </CardHeader>
               <CardContent>
                 <div >{report.summary.averageScore}/5.0</div>
                 <Progress value={report.summary.averageScore * 20} className="mt-2" />
@@ -241,10 +206,9 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle >Report Status</CardTitle>
-                <CheckCircle className="h-4 w-4 " />
-              </CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle >Report Status</CardTitle>
+                </CardHeader>
               <CardContent>
                 <div>Complete</div>
                 <p >Ready for sharing</p>
@@ -338,10 +302,7 @@ export default function ReportPage() {
                   <Button onClick={() => setReport(null)}>
                     Generate New Report
                   </Button>
-                  <Button variant="outline" onClick={shareReport}>
-                    <Share className="mr-2 h-4 w-4" />
-                    Share with Team
-                  </Button>
+                  <Button variant="outline" onClick={shareReport}>Share with Team</Button>
                 </div>
               </div>
             </CardContent>

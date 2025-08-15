@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
-import { ChevronDownIcon } from "lucide-react"
+// icons removed
 
 import { cn } from "@/lib/utils"
 
@@ -59,7 +59,7 @@ function NavigationMenuItem({
 }
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-lg font-serif font-normal hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1"
+  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-lg font-mono font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1"
 )
 
 function NavigationMenuTrigger({
@@ -73,11 +73,7 @@ function NavigationMenuTrigger({
       className={cn(navigationMenuTriggerStyle(), "group", className)}
       {...props}
     >
-      {children}{" "}
-      <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
-        aria-hidden="true"
-      />
+      {children}
     </NavigationMenuPrimitive.Trigger>
   )
 }
@@ -128,7 +124,7 @@ const NavigationMenuLink = React.forwardRef<
   <NavigationMenuPrimitive.Link
     ref={ref}
     className={cn(
-      "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-lg font-serif font-normal hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:bg-accent/50",
+      "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-lg font-mono font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:bg-accent/50",
       className
     )}
     {...props}

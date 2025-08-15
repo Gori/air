@@ -7,14 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { BarChart } from '@/components/charts/bar-chart'
 import { RadarChart } from '@/components/charts/radar-chart'
-import { 
-  TrendingUp, 
-  Users, 
-  Calendar,
-  Award,
-  AlertTriangle,
-  CheckCircle
-} from 'lucide-react'
+// icons removed
 
 interface ReportData {
   id: string
@@ -91,7 +84,6 @@ export default function SharePage({ params }: SharePageProps) {
     return (
       <div className="min-h-screen py-12">
         <div className="container mx-auto px-4 max-w-2xl text-center">
-          <AlertTriangle className="h-16 w-16 mx-auto mb-4" />
           <h1 className="mb-2">
             Report Not Available
           </h1>
@@ -137,15 +129,12 @@ export default function SharePage({ params }: SharePageProps) {
             </p>
             <div className="flex justify-center items-center space-x-6">
               <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
                 Generated {new Date(report.generatedAt).toLocaleDateString()}
               </div>
               <div className="flex items-center">
-                <Users className="h-4 w-4 mr-1" />
                 {report.totalResponses} responses
               </div>
               <div className="flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1" />
                 {report.averageScore.toFixed(1)}/5.0 average
               </div>
             </div>
@@ -158,7 +147,6 @@ export default function SharePage({ params }: SharePageProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6 text-center">
-              <Users className="h-8 w-8 mx-auto mb-2" />
               <div>{report.totalResponses}</div>
               <div>Employee Responses</div>
             </CardContent>
@@ -166,7 +154,6 @@ export default function SharePage({ params }: SharePageProps) {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2" />
               <div>{report.averageScore.toFixed(1)}</div>
               <div>Average Score</div>
             </CardContent>
@@ -174,7 +161,6 @@ export default function SharePage({ params }: SharePageProps) {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Award className="h-8 w-8 mx-auto mb-2" />
               <div>
                 {dimensionScores.filter(d => d.score >= 4).length}
               </div>
@@ -184,7 +170,6 @@ export default function SharePage({ params }: SharePageProps) {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
               <div>
                 {dimensionScores.filter(d => d.score < 3).length}
               </div>
@@ -216,9 +201,9 @@ export default function SharePage({ params }: SharePageProps) {
 
         {/* Detailed Scores */}
         <Card>
-          <CardHeader>
-            <CardTitle>Detailed Assessment</CardTitle>
-          </CardHeader>
+            <CardHeader>
+              <CardTitle>Detailed Assessment</CardTitle>
+            </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {dimensionScores.map((item, index) => (
@@ -244,10 +229,7 @@ export default function SharePage({ params }: SharePageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                Strengths
-              </CardTitle>
+              <CardTitle className="flex items-center">Strengths</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
@@ -263,10 +245,7 @@ export default function SharePage({ params }: SharePageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <AlertTriangle className="h-5 w-5 mr-2" />
-                Areas for Development
-              </CardTitle>
+              <CardTitle className="flex items-center">Areas for Development</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
@@ -282,10 +261,7 @@ export default function SharePage({ params }: SharePageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Recommendations
-              </CardTitle>
+              <CardTitle className="flex items-center">Recommendations</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">

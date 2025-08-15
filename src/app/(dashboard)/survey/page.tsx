@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Textarea } from '@/components/ui/textarea'
 import { UserButton } from '@/components/auth/user-button'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+// icons removed
 
 interface QuestionInstance {
   id: string
@@ -156,7 +156,6 @@ export default function SurveyPage() {
       <div className="container mx-auto p-6">
         <Card>
           <CardHeader className="text-center">
-            <CheckCircle className="w-16 h-16  mx-auto mb-4" />
             <CardTitle >
               Survey Completed!
             </CardTitle>
@@ -181,7 +180,7 @@ export default function SurveyPage() {
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       {/* Header with UserButton */}
-      <div className="flex justify-between items-center mb-6 uppercase">
+      <div className="flex justify-between items-center mb-6">
         <h1 >Assessment</h1>
         <UserButton />
       </div>
@@ -199,7 +198,6 @@ export default function SurveyPage() {
 
       {error && (
         <Alert className="mb-6" variant="destructive">
-          <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}

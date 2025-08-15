@@ -75,7 +75,7 @@ export function EmployeeInvitationEmail({
 
 const main = {
   backgroundColor: '#f6f9fc',
-                fontFamily: 'Lora, ui-serif, Georgia, serif',
+                fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
 }
 
 const container = {

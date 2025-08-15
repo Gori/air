@@ -6,14 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  Users, 
-  Link as LinkIcon, 
-  Copy, 
-  Building, 
-  CheckCircle,
-  Clock
-} from 'lucide-react'
+// icons removed
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface CompanyInfo {
@@ -124,10 +117,7 @@ export default function SettingsPage() {
         {/* Company Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Building className="mr-2 h-5 w-5" />
-              Company Information
-            </CardTitle>
+            <CardTitle className="flex items-center">Company Information</CardTitle>
           </CardHeader>
           <CardContent>
             {company && (
@@ -156,10 +146,7 @@ export default function SettingsPage() {
         {/* Employee Invitation */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <LinkIcon className="mr-2 h-5 w-5" />
-              Employee Invitation
-            </CardTitle>
+            <CardTitle className="flex items-center">Employee Invitation</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -175,7 +162,7 @@ export default function SettingsPage() {
                     onClick={copyInviteCode}
                     className="flex items-center"
 >
-                    {copySuccess ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copySuccess ? 'Copied' : 'Copy'}
                   </Button>
                 </div>
                 {copySuccess && (
@@ -205,7 +192,6 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center">
-              <Users className="mr-2 h-5 w-5" />
               Team Members ({employees.length})
             </div>
           </CardTitle>
@@ -213,7 +199,6 @@ export default function SettingsPage() {
         <CardContent>
           {employees.length === 0 ? (
             <div className="text-center py-8 ">
-              <Users className="h-12 w-12 mx-auto mb-4 " />
               <p>No employees have joined yet.</p>
               <p >Share the invite code above to get started.</p>
             </div>
@@ -237,17 +222,7 @@ export default function SettingsPage() {
                       {employee.role}
                     </Badge>
                     <div className="flex items-center  ">
-                      {employee.last_login_at ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-1 " />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="h-4 w-4 mr-1 " />
-                          Pending
-                        </>
-                      )}
+                      {employee.last_login_at ? 'Active' : 'Pending'}
                     </div>
                   </div>
                 </div>
