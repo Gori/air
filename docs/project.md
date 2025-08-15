@@ -96,7 +96,76 @@ prompt_logs
 
 ---
 
-## 5 · Complete Question Bank (20 core questions)
+## 5 · Question Bank
+
+### 5.1 · New Usage Matrix (6 questions – asked first)
+
+These six category questions appear at the start of the survey. Each renders a matrix of sub-categories where employees must select one of four options per item: "Never tried", "I've tried it", "I use it regularly", "I'm dependant on it". Answers are saved as JSON in `answers.answer_text` with shape:
+
+```json
+{
+  "type": "usage_matrix",
+  "selections": [
+    { "name": "Image & graphic creation (art, photography, design)", "level": "I've tried it" },
+    { "name": "Video generation & editing (including AI upscaling, special effects, deepfakes)", "level": "I use it regularly" }
+  ]
+}
+```
+
+Dimension tags (used by the app to render the matrix):
+
+- `usage_creative_content` — 🎨 Creative & Content Generation
+  - Image & graphic creation (art, photography, design)
+  - Video generation & editing (including AI upscaling, special effects, deepfakes)
+  - Music & audio creation (composition, mixing, mastering, voice synthesis/cloning)
+  - Writing & storytelling (articles, scripts, ads, social media content)
+  - Game asset creation & NPC dialogue generation
+
+- `usage_research_knowledge` — 📚 Research & Knowledge Work
+  - Summarizing and synthesizing information from large datasets or literature
+  - Assisting with academic research & hypothesis generation
+  - Language translation, transcription, and subtitling
+  - Code generation, debugging, and software optimization
+  - Personalized learning and tutoring
+
+- `usage_business_productivity` — 💼 Business & Productivity
+  - Customer service automation (chatbots, virtual agents)
+  - Meeting, email, and document summarization
+  - Market and trend analysis
+  - Business forecasting and risk modeling
+  - Workflow & process automation
+
+- `usage_decision_support` — 🧠 Decision Support & Analysis
+  - Predictive analytics (finance, marketing, user behavior)
+  - Medical decision support & diagnostics assistance
+  - Fraud detection & anomaly detection
+  - Sentiment analysis (brand monitoring, user feedback)
+
+- `usage_personal_assistance` — 🤝 Personal Assistance & Lifestyle
+  - AI personal assistants (task management, reminders, scheduling)
+  - Smart content recommendations (music, articles, videos)
+  - Wellness & mental health chat support
+
+- `usage_security_moderation` — 🛡️ Security & Moderation
+  - Cybersecurity threat detection & prevention
+  - Content moderation (detecting harmful, illegal, or spam content)
+  - Identity verification & fraud prevention
+
+Seeding (prepend these rows to `questions`):
+
+```sql
+insert into questions (module_id, dimension, text) values
+  (3,'usage_creative_content','For each item below, choose how much you are using it.'),
+  (3,'usage_research_knowledge','For each item below, choose how much you are using it.'),
+  (3,'usage_business_productivity','For each item below, choose how much you are using it.'),
+  (3,'usage_decision_support','For each item below, choose how much you are using it.'),
+  (3,'usage_personal_assistance','For each item below, choose how much you are using it.'),
+  (3,'usage_security_moderation','For each item below, choose how much you are using it.');
+```
+
+Note: The app automatically shows these six first by ordering any `questions.dimension` that starts with `usage_` to the beginning of each employee’s question sequence.
+
+### 5.2 · Core Question Bank (20 questions)
 
 | ID    | Module                    | Dimension tag             | Question text                                                                               |
 | ----- | ------------------------- | ------------------------- | ------------------------------------------------------------------------------------------- |

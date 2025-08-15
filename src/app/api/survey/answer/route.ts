@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 const answerSchema = z.object({
   questionInstanceId: z.string().uuid(),
-  answerText: z.string().min(1, 'Answer cannot be empty').max(2000, 'Answer too long')
+  answerText: z.string().min(1, 'Answer cannot be empty').max(8000, 'Answer too long')
 })
 
 export async function POST(request: NextRequest) {

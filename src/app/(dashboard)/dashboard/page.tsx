@@ -72,7 +72,7 @@ export default function DashboardPage() {
   }
 
   const isCompleted = surveyProgress?.completed === surveyProgress?.total && (surveyProgress?.total ?? 0) > 0
-  const hasStarted = surveyProgress && surveyProgress.total > 0
+  const hasStarted = !!(surveyProgress && surveyProgress.completed > 0)
   const progressPercentage = surveyProgress ? Math.round(surveyProgress.progress * 100) : 0
   const remaining = surveyProgress ? Math.max((surveyProgress.total || 0) - (surveyProgress.completed || 0), 0) : 0
   const AVERAGE_MINUTES_PER_QUESTION = 1

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,6 +30,7 @@ interface SurveyProgress {
 export default function SurveyPage() {
   const [currentQuestion, setCurrentQuestion] = useState<QuestionInstance | null>(null)
   const [answer, setAnswer] = useState('')
+  const [usageSelections, setUsageSelections] = useState<Record<string, 'Never tried' | "I've tried it" | 'I use it regularly' | "I'm dependant on it">>({})
   const [progress, setProgress] = useState<SurveyProgress>({ current: 0, total: 0 })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -71,23 +72,113 @@ export default function SurveyPage() {
     }
   }
 
+  const USAGE_CATEGORIES: Record<string, { title: string, subcategories: string[] }> = useMemo(() => ({
+    usage_creative_content: {
+      title: '🎨 Creative & Content Generation',
+      subcategories: [
+        'Image & graphic creation (art, photography, design)',
+        'Video generation & editing (including AI upscaling, special effects, deepfakes)',
+        'Music & audio creation (composition, mixing, mastering, voice synthesis/cloning)',
+        'Writing & storytelling (articles, scripts, ads, social media content)',
+        'Game asset creation & NPC dialogue generation'
+      ]
+    },
+    usage_research_knowledge: {
+      title: '📚 Research & Knowledge Work',
+      subcategories: [
+        'Summarizing and synthesizing information from large datasets or literature',
+        'Assisting with academic research & hypothesis generation',
+        'Language translation, transcription, and subtitling',
+        'Code generation, debugging, and software optimization',
+        'Personalized learning and tutoring'
+      ]
+    },
+    usage_business_productivity: {
+      title: '💼 Business & Productivity',
+      subcategories: [
+        'Customer service automation (chatbots, virtual agents)',
+        'Meeting, email, and document summarization',
+        'Market and trend analysis',
+        'Business forecasting and risk modeling',
+        'Workflow & process automation'
+      ]
+    },
+    usage_decision_support: {
+      title: '🧠 Decision Support & Analysis',
+      subcategories: [
+        'Predictive analytics (finance, marketing, user behavior)',
+        'Medical decision support & diagnostics assistance',
+        'Fraud detection & anomaly detection',
+        'Sentiment analysis (brand monitoring, user feedback)'
+      ]
+    },
+    usage_personal_assistance: {
+      title: '🤝 Personal Assistance & Lifestyle',
+      subcategories: [
+        'AI personal assistants (task management, reminders, scheduling)',
+        'Smart content recommendations (music, articles, videos)',
+        'Wellness & mental health chat support'
+      ]
+    },
+    usage_security_moderation: {
+      title: '🛡️ Security & Moderation',
+      subcategories: [
+        'Cybersecurity threat detection & prevention',
+        'Content moderation (detecting harmful, illegal, or spam content)',
+        'Identity verification & fraud prevention'
+      ]
+    }
+  }), [])
+
+  const isUsageQuestion = useMemo(() => {
+    const dim = currentQuestion?.questions?.dimension
+    return Boolean(dim && USAGE_CATEGORIES[dim as keyof typeof USAGE_CATEGORIES])
+  }, [currentQuestion, USAGE_CATEGORIES])
+
+  // Reset inputs when question changes
+  useEffect(() => {
+    setAnswer('')
+    setUsageSelections({})
+  }, [currentQuestion?.id])
+
   // Submit an answer
   const submitAnswer = async () => {
-    if (!currentQuestion || !answer.trim()) {
-      setError('Please provide an answer before continuing.')
-      return
+    if (!currentQuestion) return
+
+    // Usage question validation: all subcategories must be selected
+    if (isUsageQuestion) {
+      const dim = currentQuestion.questions?.dimension as string
+      const cfg = USAGE_CATEGORIES[dim as keyof typeof USAGE_CATEGORIES]
+      const allSelected = cfg && cfg.subcategories.every(sc => usageSelections[sc])
+      if (!allSelected) {
+        setError('Please select an option for every item before continuing.')
+        return
+      }
+    } else {
+      if (!answer.trim()) {
+        setError('Please provide an answer before continuing.')
+        return
+      }
     }
 
     try {
       setIsSubmitting(true)
       setError(null)
 
+      // Prepare payload
+      const preparedAnswer = isUsageQuestion
+        ? JSON.stringify({
+            type: 'usage_matrix',
+            selections: Object.entries(usageSelections).map(([name, level]) => ({ name, level }))
+          })
+        : answer.trim()
+
       const response = await fetch('/api/survey/answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           questionInstanceId: currentQuestion.id,
-          answerText: answer.trim()
+          answerText: preparedAnswer
         })
       })
 
@@ -95,31 +186,34 @@ export default function SurveyPage() {
         throw new Error('Failed to save answer')
       }
 
-      // Check if we need a follow-up question
-      const questionText = currentQuestion.text || currentQuestion.questions?.text || ''
-      const followUpResponse = await fetch('/api/ai/nextQuestion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          questionInstanceId: currentQuestion.id,
-          originalQuestion: questionText,
-          employeeAnswer: answer.trim(),
-          currentOrdinal: currentQuestion.ordinal
-        })
-      })
-
-      if (followUpResponse.ok) {
-        const followUpData = await followUpResponse.json()
-        
-        if (followUpData.hasFollowUp) {
-          // Show the follow-up question
-          setCurrentQuestion({
-            ...followUpData.followUpQuestion,
-            questions: null // Follow-up questions don't have base questions
+      // Skip AI follow-ups for usage matrix questions
+      if (!isUsageQuestion) {
+        // Check if we need a follow-up question
+        const questionText = currentQuestion.text || currentQuestion.questions?.text || ''
+        const followUpResponse = await fetch('/api/ai/nextQuestion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionInstanceId: currentQuestion.id,
+            originalQuestion: questionText,
+            employeeAnswer: preparedAnswer,
+            currentOrdinal: currentQuestion.ordinal
           })
-          setAnswer('')
-          setProgress(prev => ({ ...prev, current: followUpData.followUpQuestion.ordinal }))
-          return
+        })
+
+        if (followUpResponse.ok) {
+          const followUpData = await followUpResponse.json()
+          
+          if (followUpData.hasFollowUp) {
+            // Show the follow-up question
+            setCurrentQuestion({
+              ...followUpData.followUpQuestion,
+              questions: null // Follow-up questions don't have base questions
+            })
+            setAnswer('')
+            setProgress(prev => ({ ...prev, current: followUpData.followUpQuestion.ordinal }))
+            return
+          }
         }
       }
 
@@ -175,13 +269,14 @@ export default function SurveyPage() {
 
   const questionText = currentQuestion?.text || currentQuestion?.questions?.text || ''
   const questionDimension = currentQuestion?.questions?.dimension || 'AI Assessment'
+  const usageConfig = isUsageQuestion && questionDimension ? USAGE_CATEGORIES[questionDimension as keyof typeof USAGE_CATEGORIES] : null
   const progressPercentage = progress.total > 0 ? (progress.current / progress.total) * 100 : 0
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       {/* Header with UserButton */}
       <div className="flex justify-between items-center mb-6">
-        <h1 >Assessment</h1>
+        <h1 className="text-4xl font-sans" >Assessment</h1>
         <UserButton />
       </div>
       
@@ -206,7 +301,7 @@ export default function SurveyPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle >
-              {questionDimension}
+              {isUsageQuestion && usageConfig ? usageConfig.title : questionDimension}
             </CardTitle>
             {currentQuestion?.parent_instance && (
               <span className=" px-2 py-1 rounded-full">
@@ -217,32 +312,76 @@ export default function SurveyPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div>
-              <label htmlFor="question">
-                {questionText}
-              </label>
-            </div>
-            <div>
-              <Textarea
-                id="answer"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Share your thoughts, experiences, or specific examples..."
-                className="min-h-[120px] resize-none"
-                maxLength={2000}
-                disabled={isSubmitting}
-              />
-              <div className="flex justify-between items-center mt-2">
-                <span >
-                  {answer.length}/2000 characters
-                </span>
-                {answer.length > 1800 && (
-                  <span >
-                    Approaching character limit
-                  </span>
+            {isUsageQuestion && usageConfig ? (
+              <div className="space-y-6">
+                <p>
+                  For each item below, choose how much you are using it.
+                </p>
+                <div className="space-y-5">
+                  {usageConfig.subcategories.map(sub => {
+                    const current = usageSelections[sub]
+                    const options: Array<'Never tried' | "I've tried it" | 'I use it regularly' | "I'm dependant on it"> = [
+                      'Never tried',
+                      "I've tried it",
+                      'I use it regularly',
+                      "I'm dependant on it"
+                    ]
+                    return (
+                      <div key={sub} className="space-y-2">
+                        <div className="font-semibold text-lg">{sub}</div>
+                        <div className="flex flex-col gap-2">
+                          {options.map(opt => (
+                            <Button
+                              key={opt}
+                              type="button"
+                              variant={current === opt ? 'default' : 'outline'}
+                              className={current === opt ? 'bg-black text-white hover:bg-black' : ''}
+                              onClick={() => setUsageSelections(prev => ({ ...prev, [sub]: opt }))}
+                              disabled={isSubmitting}
+                            >
+                              {opt === 'Never tried' && '❌ '} 
+                              {opt === "I've tried it" && '✨ '} 
+                              {opt === 'I use it regularly' && '🚀 '} 
+                              {opt === "I'm dependant on it" && '🔒 '} 
+                              {opt}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                {/* Validation hint */}
+                {!usageConfig.subcategories.every(sc => usageSelections[sc]) && (
+                  <div className="text-sm  ">Please answer every item to continue.</div>
                 )}
               </div>
-            </div>
+            ) : (
+              <div>
+                <label htmlFor="question">
+                  {questionText}
+                </label>
+                <Textarea
+                  id="answer"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Share your thoughts, experiences, or specific examples..."
+                  className="min-h-[120px] resize-none mt-2"
+                  maxLength={2000}
+                  disabled={isSubmitting}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <span >
+                    {answer.length}/2000 characters
+                  </span>
+                  {answer.length > 1800 && (
+                    <span >
+                      Approaching character limit
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-between">
               <Button
@@ -255,7 +394,7 @@ export default function SurveyPage() {
               
               <Button
                 onClick={submitAnswer}
-                disabled={isSubmitting || !answer.trim()}
+                disabled={isSubmitting || (isUsageQuestion ? !(usageConfig && usageConfig.subcategories.every(sc => usageSelections[sc])) : !answer.trim())}
                 className="min-w-[120px]"
 >
                 {isSubmitting ? 'Saving...' : 'Continue'}

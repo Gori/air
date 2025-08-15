@@ -129,8 +129,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Generate the report using AI
-    const prompt = buildReportPrompt(company.name, employeeResponses)
+    // Generate the report using AI (exclude usage_* dimensions from scoring input)
+    const scoringInputs = employeeResponses.filter(r => !(r.dimension || '').startsWith('usage_'))
+    const prompt = buildReportPrompt(company.name, scoringInputs)
     const aiResponse = await generateAIResponse(prompt, REPORT_GENERATION_SYSTEM_PROMPT)
 
     // Parse and validate the AI response
@@ -200,6 +201,34 @@ export async function POST(request: NextRequest) {
     const avgScore = Object.values(parsedReport.scores)
       .reduce((sum, score) => sum + score.score, 0) / Object.keys(parsedReport.scores).length
 
+    // Aggregate usage matrix (usage_* dimensions): parse JSON answers and tally counts per level
+    type UsageItem = { name: string, level: string }
+    const usageRaw = responses
+      .filter(r => (r.questions?.dimension || '').startsWith('usage_') && r.answers?.[0]?.answer_text)
+      .map(r => {
+        try {
+          const parsed = JSON.parse(r.answers![0].answer_text)
+          if (parsed?.type === 'usage_matrix' && Array.isArray(parsed.selections)) {
+            return parsed.selections as UsageItem[]
+          }
+        } catch {}
+        return [] as UsageItem[]
+      })
+      .flat()
+
+    const usageSummary: Record<string, Record<string, number>> = {}
+    for (const item of usageRaw) {
+      if (!usageSummary[item.name]) usageSummary[item.name] = {
+        'Never tried': 0,
+        "I've tried it": 0,
+        'I use it regularly': 0,
+        "I'm dependant on it": 0
+      }
+      if (usageSummary[item.name][item.level] !== undefined) {
+        usageSummary[item.name][item.level] += 1
+      }
+    }
+
     // Send email notification to the manager
     try {
       const manager = await getUser(clerkUserId)
@@ -234,7 +263,8 @@ export async function POST(request: NextRequest) {
           totalResponses: employeeResponses.length,
           averageScore: Math.round(avgScore * 10) / 10,
           completionDate: new Date().toISOString()
-        }
+        },
+        usageSummary
       },
       tokenUsage: aiResponse.usage
     })

@@ -70,7 +70,7 @@ export async function initializeEmployeeQuestions(employeeId: string, companyId:
   // Get all active questions
   const { data: questions, error: questionsError } = await supabaseAdmin
     .from('questions')
-    .select('id')
+    .select('id, dimension')
     .eq('active', true)
     .order('id')
 
@@ -80,8 +80,17 @@ export async function initializeEmployeeQuestions(employeeId: string, companyId:
     throw new Error('No active questions found')
   }
 
+  // Ensure usage-matrix questions come first (without DB changes)
+  const isUsageDim = (dim?: string | null) => !!dim && dim.startsWith('usage_')
+  const ordered = [...questions].sort((a: { id: number, dimension?: string | null }, b: { id: number, dimension?: string | null }) => {
+    const au = isUsageDim(a.dimension) ? 0 : 1
+    const bu = isUsageDim(b.dimension) ? 0 : 1
+    if (au !== bu) return au - bu
+    return a.id - b.id
+  })
+
   // Create question instances for each question
-  const instances = questions.map((question: { id: number }, index: number) => ({
+  const instances = ordered.map((question: { id: number }, index: number) => ({
     employee_id: employeeId,
     company_id: companyId,
     question_id: question.id,
@@ -102,19 +111,27 @@ export async function initializeEmployeeQuestions(employeeId: string, companyId:
  * Get the next unanswered question instance for an employee
  */
 export async function getNextQuestion(employeeId: string) {
-  // Get all question instances for employee that don't have answers
-  const { data: unansweredInstances, error } = await supabaseAdmin
+  // Fetch all instances for the employee
+  const { data: instances, error: instancesError } = await supabaseAdmin
     .from('question_instances')
     .select(`
       *,
-      questions (*),
-      answers (id)
+      questions (*)
     `)
     .eq('employee_id', employeeId)
-    .is('answers.id', null)
     .order('ordinal')
-    .limit(1)
 
-  if (error) throw error
-  return unansweredInstances?.[0] || null
+  if (instancesError) throw instancesError
+
+  // Fetch all answered instance ids for the employee
+  const { data: answers, error: answersError } = await supabaseAdmin
+    .from('answers')
+    .select('question_instance_id')
+    .eq('employee_id', employeeId)
+
+  if (answersError) throw answersError
+
+  const answeredIds = new Set((answers || []).map((a: { question_instance_id: string | null }) => a.question_instance_id || ''))
+  const next = (instances || []).find((row: { id: string }) => !answeredIds.has(row.id)) || null
+  return next
 } 

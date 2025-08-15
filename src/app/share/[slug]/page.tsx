@@ -22,6 +22,7 @@ interface ReportData {
     gaps: string[]
     recommendations: string[]
   }
+  usageSummary?: Record<string, Record<string, number>>
 }
 
 interface SharePageProps {
@@ -198,6 +199,37 @@ export default function SharePage({ params }: SharePageProps) {
             </CardContent>
           </Card>
         </div>
+
+        {/* Usage Summary */}
+        {report.usageSummary && (
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Tool Usage Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(report.usageSummary).map(([name, counts]) => (
+                  <div key={name} className="space-y-2">
+                    <div className="font-medium">{name}</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {[
+                        'Never tried',
+                        "I've tried it",
+                        'I use it regularly',
+                        "I'm dependant on it"
+                      ].map(label => (
+                        <div key={label} className="flex items-center justify-between rounded border px-2 py-1">
+                          <span className="text-sm">{label}</span>
+                          <Badge variant="secondary">{counts[label] ?? 0}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Detailed Scores */}
         <Card>

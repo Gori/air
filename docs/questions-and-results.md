@@ -20,16 +20,17 @@ This document describes, in plain language and technical detail, how the survey 
 
 ## How the Survey Works (Logic Overview)
 
-1. When an employee opens the survey, the app ensures they have a full set of base question instances generated for them.
+1. When an employee opens the survey, the app ensures they have a full set of base question instances generated for them. The first six questions are a usage matrix (see below).
 2. The employee is shown the next unanswered question (by `ordinal`).
 3. After the employee submits an answer:
    - The system may ask at most one AI follow-up for that answer, shown immediately.
-   - If no follow-up is needed, the survey advances to the next base question.
+   - If no follow-up is needed, the survey advances to the next base question.  
 4. Progress updates as the employee answers questions.
 5. When all question instances for the employee are answered, the survey completes.
 
 Important:
-- Answers must be non-empty and ≤ 2000 characters.
+- Answers must be non-empty and ≤ 2000 characters for open-text questions.
+- The six usage-matrix questions require a selection for each subcategory item (mandatory per line). These are saved as JSON and do not trigger AI follow-ups.
 - Follow-up questions are not part of the base question bank; they are generated on-the-fly and linked to the just-answered question.
 
 ---
@@ -72,7 +73,7 @@ The project also defines `modules` and `users/companies` tables; relevant select
   - Auth: Clerk; requires a valid user and `company_id` from Clerk public metadata.
   - Steps:
     1. Load employee UUID (`getUserId`) and `company_id` (`getCompanyId`).
-    2. If the employee has no `question_instances`, call `initializeEmployeeQuestions(employeeId, companyId)` to create one instance per active base question, with sequential `ordinal` starting at 1.
+    2. If the employee has no `question_instances`, call `initializeEmployeeQuestions(employeeId, companyId)` to create one instance per active base question, with sequential `ordinal` starting at 1. Any questions whose `dimension` starts with `usage_` are ordered to the front so they appear first.
     3. Return the next unanswered instance by ascending `ordinal` via `getNextQuestion(employeeId)`.
     4. Include progress: `{ current: nextQuestion.ordinal, total: allInstances.length }`.
 
@@ -82,7 +83,7 @@ Implementation references:
 
 ### Answer Submission
 - Endpoint: `POST /api/survey/answer`
-  - Body: `{ questionInstanceId: uuid, answerText: string(1..2000) }`
+  - Body: `{ questionInstanceId: uuid, answerText: string }`
   - Behavior:
     - Validates auth (`clerkUserId`) and `company_id`.
     - If an answer already exists for the instance, it updates; else it inserts.
@@ -114,6 +115,7 @@ Client behavior (`/app/(dashboard)/survey/page.tsx`):
 Important current behavior:
 - Follow-up question text is not stored in the database; only the new `question_instance` id is. The client renders the follow-up from the API response data in memory.
 - `ordinal` for follow-ups is set to `currentOrdinal + 1`, which may overlap with the next base question’s `ordinal`. The server-side selection of the next question uses `order('ordinal')` without a tiebreaker; the client avoids ambiguity by showing the follow-up immediately from the same response.
+- Usage-matrix questions skip AI follow-ups entirely.
 
 Implementation references:
 - `src/app/api/ai/nextQuestion/route.ts`
@@ -131,9 +133,10 @@ Implementation references:
 
 ### Report Input (what is analyzed)
 - The backend queries `question_instances` for the company with non-null `answers` and joins `questions` (id, text, dimension) and `users` (full_name, email) for context.
-- It then filters to include only rows where `questions` is present:
-  - This means only base question answers are analyzed.
+- It then filters to include only rows where `questions` is present and excludes dimensions starting with `usage_` from AI scoring input:
+  - Only base question answers are analyzed.
   - AI-generated follow-up answers (which have `question_id = null`) are excluded by design.
+  - The six usage-matrix questions are aggregated into a `usageSummary` (counts per selection per subcategory) and attached to the API response; they do not affect the 13 scored dimensions.
 
 Implementation references:
 - Selection and transform in `src/app/api/ai/generateReport/route.ts` (see the `responses` query and subsequent `.filter(r => r.questions && r.answers?.[0]?.answer_text)`).
@@ -170,6 +173,7 @@ Returns a `report` object including:
 - scores (13 dimensions with `{ score, justification }`)
 - narrative (arrays of strings)
 - summary: totalEmployees (unique respondents), totalResponses, averageScore, completionDate
+- usageSummary: `{ [subcategoryName: string]: { 'Never tried': number, "I've tried it": number, 'I use it regularly': number, "I'm dependant on it": number } }`
 
 Implementation reference: `src/app/(dashboard)/report/page.tsx` consumes this response and renders cards, a list of dimension justifications, and actions.
 
@@ -184,10 +188,11 @@ Implementation reference: `src/app/(dashboard)/report/page.tsx` consumes this re
     - companyName, generatedAt
     - averageScore computed from `scores_json`
     - scores and narrative as saved in the report
-    - totalResponses and totalEmployees derived from answered `question_instances` (see note below)
+    - totalResponses and totalEmployees derived from answered `question_instances` (company_id filter uses UUID)
+    - usageSummary aggregated from usage-matrix answers (same shape as manager report API)
 
 Note on totals:
-- The current implementation attempts to fetch response counts by filtering `question_instances` where `company_id` equals the company name, not the company UUID. This likely yields zero rows. The charts and scores still render correctly because they come from the saved report JSON.
+- The company_id filter is applied using the UUID.
 
 Implementation references:
 - `src/app/api/reports/share/[slug]/route.ts`
@@ -491,9 +496,9 @@ STRATEGIC ALIGNMENT:
 
 ---
 
-## Full Base Question Bank (from project spec in this repository)
+## Question Bank (from project spec in this repository)
 
-These are the 20 core base questions and their dimension tags, as documented in `docs/project.md`. These questions are expected to be seeded into the `questions` table (only `active: true` are assigned to employees).
+The survey now begins with 6 usage-matrix questions (dimensions prefixed with `usage_`), followed by the 20 core base questions. The 20 core questions and their dimension tags are documented in `docs/project.md`. Only `active: true` are assigned to employees.
 
 ```100:124:docs/project.md
 ## 5 · Complete Question Bank (20 core questions)
