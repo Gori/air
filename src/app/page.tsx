@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
- 
+
 
 export default async function HomePage() {
   const { userId } = await auth()
@@ -29,8 +29,8 @@ export default async function HomePage() {
             Generate a beautiful, shareable report for your company.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
-            <Link href="/sign-up"><Button className="h-10 px-6">Start free</Button></Link>
-            <Link href="/sign-in"><Button variant="secondary" className="h-10 px-6">Sign in</Button></Link>
+            <Link href="/sign-up"><Button >Start free</Button></Link>
+            <Link href="/sign-in"><Button variant="secondary">Sign in</Button></Link>
           </div>
         </div>
 
@@ -63,13 +63,16 @@ export default async function HomePage() {
           <div key={f.title} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className={i % 2 === 1 ? 'md:order-2 h-full flex' : 'h-full flex'}>
               <div className="flex flex-col gap-2 h-full">
-              <span className="mb-3 font-mono uppercase tracking-widest text-sm pt-8">{f.kicker}</span>
-              <h3 className="text-4xl font-serif leading-tighter">{f.title}</h3>
-              <p className="mt-2 text-base text-muted-foreground">{f.description}</p>
-              <div className="mt-4 flex items-center gap-3 flex-1">
-                <Link href="/sign-up"><Button className="h-9 px-4">{f.cta}</Button></Link>
-                <Link href="/sign-in"><Button variant="secondary" className="h-9 px-3">Learn more</Button></Link>
-              </div>
+                <div className="mb-2">
+                  <span className="text-2xl pl-0 pr-3">{f.emoji}</span>
+                  <span className="mb-3 font-mono uppercase tracking-widest text-sm pt-8">{f.kicker}</span>
+                </div>
+                <h3 className="text-[44px] font-serif font-normal leading-[1.05]">{f.title}</h3>
+                <p className="mt-2 text-base text-muted-foreground">{f.description}</p>
+                <div className="mt-4 flex items-center gap-3 flex-1">
+                  <Link href="/sign-up"><Button>{f.cta}</Button></Link>
+                  <Link href="/sign-in"><Button variant="secondary">Learn more</Button></Link>
+                </div>
               </div>
             </div>
             <div className={i % 2 === 1 ? 'md:order-1' : ''}>
@@ -83,10 +86,10 @@ export default async function HomePage() {
 
       {/* Callout */}
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="rounded-2xl border bg-muted/40 p-10 text-center">
+        <div className="rounded-4xl bg-muted/40 p-10 text-center bg-rose-200">
           <h2 className="text-3xl sm:text-4xl leading-tight">One simple assessment to align your teams on AI</h2>
           <p className="mt-3 text-muted-foreground">Domain‑restricted sign‑in. RLS‑secured data. Minimal by design.</p>
-          <div className="mt-6"><Link href="/sign-up"><Button variant="secondary" className="h-10 px-6">Create your company</Button></Link></div>
+          <div className="mt-6"><Link href="/sign-up"><Button>Create your company</Button></Link></div>
         </div>
       </section>
 
@@ -112,6 +115,7 @@ export default async function HomePage() {
 
 const featureSlices = [
   {
+    emoji: '🎯',
     kicker: 'Plan',
     title: 'Keep your AI program visible',
     description: 'Track literacy, adoption, and organizational enablers with a single assessment everyone understands.',
@@ -120,6 +124,7 @@ const featureSlices = [
     bullets: ['20 core questions', 'No edits after submit', 'Shareable public report', 'CSV export'],
   },
   {
+    emoji: '🚀',
     kicker: 'Act',
     title: 'Focus on the biggest opportunities',
     description: 'See strengths and gaps across teams. Use follow‑ups to dig where signal is weak.',
@@ -128,6 +133,7 @@ const featureSlices = [
     bullets: ['Module & dimension scores', 'Narrative insights', 'Heat‑map matrix', 'Manager controls'],
   },
   {
+    emoji: '🏆',
     kicker: 'Deliver',
     title: 'A report you can share with leadership',
     description: 'One-click generate produces a clean HTML page hosted via signed URL.',
@@ -137,12 +143,12 @@ const featureSlices = [
   },
 ]
 
- 
+
 
 function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div className="space-y-3">
-      <div className="text-sm font-mono font-medium">{title}</div>
+      <div className="text-sm font-mono font-medium uppercase tracking-widest">{title}</div>
       <ul className="space-y-2 text-xs opacity-80">
         {links.map(([label, href]) => (
           <li key={label}><Link href={href} className="hover:opacity-100">{label}</Link></li>

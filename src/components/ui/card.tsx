@@ -7,7 +7,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-4 rounded-xl border py-4 px-5 shadow-sm",
+        "bg-white text-card-foreground flex flex-col gap-4 border border-gray-200 rounded-3xl py-6 px-8 shadow-[0_5px_15px_rgba(0,0,0,0.05)]",
         className
       )}
       {...props}
@@ -24,6 +24,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
         className
       )}
       {...props}
+      
     />
   )
 }
@@ -34,7 +35,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("leading-none font-sans text-xl", className)}
+    className={cn("leading-none font-mono uppercase tracking-widest text-gray-500 text-base", className)}
     {...props}
   />
 ))

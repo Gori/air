@@ -52,15 +52,15 @@
 
 :root {
   --radius: 0.5rem;
-  --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
+  --background: rgb(249, 250, 247);
+  --foreground: #03011e;
   --card: 0 0% 100%;
   --card-foreground: 20 14.3% 4.1%;
   --popover: 0 0% 100%;
   --popover-foreground: 20 14.3% 4.1%;
   --primary: 24 9.8% 10%;
   --primary-foreground: 60 9.1% 97.8%;
-  --secondary: 60 4.8% 95.9%;
+  --secondary: #f7ced3;
   --secondary-foreground: 24 9.8% 10%;
   --muted: 60 4.8% 95.9%;
   --muted-foreground: 25 5.3% 44.7%;
@@ -130,16 +130,13 @@
   }
   /* Large headlines use LyonDisplay */
   h1, h2 {
-    @apply font-serif font-normal;
+    @apply font-serif;
   }
   /* Smaller headlines use HafferMono */
   h3, h4, h5, h6 {
-    @apply font-mono font-medium;
+    @apply font-sans;
   }
-  /* Normalize headings to base size */
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-base;
-  }
+
   p {
     @apply text-base;
   }

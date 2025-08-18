@@ -5,13 +5,10 @@ import { CompanyOnboardingForm } from '@/components/forms/company-onboarding-for
 export default function CompanyRegisterPage() {
   return (
     <div className="container mx-auto p-6 max-w-2xl">
-      <div className="mb-8">
-        <h1 >
-          Company Setup
+      <div className="mb-5">
+        <h1 className="text-[40px] text-center font-serif font-base">
+          Setup your organization.
         </h1>
-        <p className=" mt-2">
-          Set up your organization to start the AI readiness assessment.
-        </p>
       </div>
       <CompanyOnboardingForm />
     </div>

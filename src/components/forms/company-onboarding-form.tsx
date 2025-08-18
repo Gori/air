@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Separator } from '../ui/separator'
 
 const companyOnboardingSchema = z.object({
   name: z.string().min(1, 'Company name is required'),
@@ -76,16 +77,15 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Company Registration</CardTitle>
-        <p >
-          Set up your organization to start assessing AI readiness
-        </p>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <>
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle>Company Registration</CardTitle>
+          <Separator />
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form id="company-onboarding-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -113,7 +113,7 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
                       {...field} 
                     />
                   </FormControl>
-                  <p >
+                  <p className="text-sm text-muted-foreground">
                     This will determine your company domain for employee invitations
                   </p>
                   <FormMessage />
@@ -205,12 +205,15 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating Company...' : 'Create Company'}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      <div className="w-full max-w-2xl mx-auto mt-6 flex justify-center">
+        <Button type="submit" variant="dark" form="company-onboarding-form" disabled={isLoading}>
+          {isLoading ? 'Creating Company...' : 'Create Company'}
+        </Button>
+      </div>
+    </>
   )
 } 
