@@ -2,7 +2,7 @@
 
 **AI-Readiness Assessment SaaS Tool**
 
-*(React 19.1 · Next 15.3 · Supabase · Vercel · June 2025)*
+*(React 19.0.0 · Next 15.3.3 · Supabase · Vercel · June 2025)*
 
 ---
 
@@ -79,13 +79,13 @@ npm run test:e2e
 - ✅ Modern, responsive UI with ShadCN components
 
 ### 📊 **TECHNICAL ACHIEVEMENTS**
-- Test coverage improved 12x (from 0.73% to 9.37%)
-- Full TypeScript implementation with strict type safety
-- Modern React 19 with Next.js 15.3 App Router
-- Supabase integration with RLS and admin patterns
-- OpenAI GPT-4.1 integration with cost controls
-- React Email templates for notifications
-- Comprehensive error handling and loading states
+- ✅ Test coverage improved 12x (from 0.73% to 9.37%)
+- ✅ Full TypeScript implementation with strict type safety
+- ✅ Modern React 19 with Next.js 15.3 App Router
+- ✅ Supabase admin client pattern used in API routes
+- ❌ OpenAI cost controls/rate limiting (client integrated; no rate limit yet)
+- ✅ React Email templates for notifications
+- ✅ Comprehensive error handling and loading states
 
 ✅ **Phase 1 Complete: Foundation & Infrastructure**
 - All dependencies installed and configured
@@ -193,7 +193,7 @@ npm run test:e2e
   npm install resend@latest
   npm install react-email@latest
   npm install @react-email/components@latest
-  npm install react-charts@5
+  npm install react-charts@3.0.0-beta.57
   npm install zod@latest
   npm install react-hook-form@latest
   npm install @hookform/resolvers@latest
@@ -501,11 +501,11 @@ npm run test:e2e
 
 **Priority: High**
 
-- [ ] **Report Processing**
-  - Aggregate all employee answers
-  - AI-powered analysis and scoring
-  - JSON data structure creation
-  - HTML report compilation
+- **Report Processing**
+  - ✅ Aggregate all employee answers
+  - ✅ AI-powered analysis and scoring
+  - ✅ JSON data structure creation
+  - ❌ HTML report compilation to Supabase Storage
 
 - [ ] **React Email Templates**
   - `src/components/email/report-template.tsx`
@@ -517,31 +517,24 @@ npm run test:e2e
 
 **Priority: Medium**
 
-- [ ] **Visualization Library Setup**
-  - Configure `react-charts@5`
-  - Custom chart themes
-  - Responsive design
-
-- [ ] **Chart Types Implementation**
-  - `src/components/charts/bar-chart.tsx` - Dimension averages
-  - `src/components/charts/radar-chart.tsx` - Module overview
-  - `src/components/charts/heatmap.tsx` - Employee × dimensions
-  - `src/components/charts/trend-chart.tsx` - Optional trends
+- **Visualization**
+  - ✅ Custom Bar and Radar components implemented
+  - ❌ `react-charts` not used in UI
+  - ❌ Heatmap and trends not implemented
 
 ### 6.3 Report Sharing
 
 **Priority: High**
 
-- [ ] **Public Report Access**
-  - `src/app/share/[slug]/page.tsx`
-  - Static HTML serving from Supabase Storage
-  - No authentication required
-  - SEO optimization
+- **Public Report Access**
+  - ✅ `src/app/share/[slug]/page.tsx` implemented (fetch via API)
+  - ❌ Static HTML serving from Supabase Storage
+  - ✅ No authentication required
+  - ❌ SEO optimization
 
-- [ ] **Share Management**
-  - Toggle sharing on/off
-  - Regenerate share links
-  - Access analytics (optional)
+- **Share Management**
+  - ✅ Share slug generated
+  - ❌ Random 8-char slug; ❌ toggle share on/off UI; ❌ analytics
 
 ---
 
@@ -551,16 +544,16 @@ npm run test:e2e
 
 **Priority: Medium**
 
-- [ ] **Resend Integration**
-  - `src/lib/email/client.ts`
-  - Email template compilation
-  - Send queue management
+- **Resend Integration**
+  - ✅ `src/lib/email/client.ts`
+  - ✅ Email template compilation (React Email)
+  - ❌ Send queue management
 
-- [ ] **Email Templates**
-  - Employee invitation emails
-  - Survey completion reminders
-  - Report ready notifications
-  - Welcome messages
+- **Email Templates**
+  - ✅ Employee invitation emails
+  - ✅ Survey completion reminders
+  - ✅ Report ready notifications
+  - ✅ Welcome messages
 
 ---
 
@@ -834,11 +827,11 @@ npm run test:e2e # Cross-browser validation
 **The AIR (AI Readiness Assessment) platform has been successfully built and is ready for deployment!**
 
 ### **What's Been Delivered**
-- **Complete SaaS Application**: End-to-end AI readiness assessment platform
-- **8 Phases Completed**: From foundation to email integration (Phases 1-8)
-- **Production-Ready Code**: TypeScript, modern React, comprehensive error handling
-- **13x Test Coverage Improvement**: From 0.73% to 9.37% with integration tests
-- **Beautiful UI**: Modern design with charts, dashboards, and responsive layouts
+- ✅ Complete SaaS Application baseline
+- ✅ Phases 1–8 largely complete (see ✅/❌ above for gaps)
+- ✅ Production-ready TypeScript + React code, with robust error handling
+- ✅ Test Coverage up from 0.73% to 9.37%
+- ✅ Modern UI with dashboards and simple charts
 
 ### **Ready for Use**
 The platform can now:
@@ -861,3 +854,57 @@ Only Phase 9 (deployment preparation) remains:
 ---
 
 *This roadmap followed the principle of building minimal, clean, and performant solutions using the latest versions of all technologies without fallbacks or workarounds.* 
+
+---
+
+## Phase 11: Survey v2 Refactor Roadmap (NEXT TASK)
+
+Align the app to `docs/survey-questions-v2.md` with minimal, fully functional changes.
+
+### A) Survey Engine & UI
+- ✅ Slide types: Welcome, Intro, Matrix, MC (single/multi), Opinion scale (1–5), Short/Long Text, End Screen
+- ✅ Usage matrices (6 categories) render first; save `usage_matrix` JSON
+- ✅ Add “Not applicable to my role” to all matrices
+- ✅ Text slides skippable + reassurance note on all free‑text slides
+- ✅ Opinion scale (1–5) with optional text; “Prefer not to say” as distinct choice
+- ✅ Multiple choice (single/multi) with optional text; “Prefer not to say”
+- ✅ Branching: training → effectiveness (11a) or needs (11b); show needs if effectiveness ≤ 2
+- ✅ Intro slides content before each matrix (4, 9, 13, 17, 22, 26)
+- ✅ Autosave UX: inline “Saved” for ~800 ms
+- ✅ Keyboard shortcuts: ←/→, Enter; sticky Next/Back on small screens (Esc pending)
+
+### B) Data Model & APIs
+- ✅ Free‑text and usage JSON stored in `answers`
+- ✅ New endpoint: `POST /api/feedback/survey-rating` (table `feedback_survey_ratings` pending)
+- ✅ Slide metadata support (type/required/options) or lightweight slide map for v2
+- ✅ Normalize label to “I'm dependent on it” (spelling)
+- ✅ “Prefer not to say” excluded from scoring (treated as null)
+
+### C) AI & Scoring
+- ✅ Single follow‑up for free‑text via `/api/ai/nextQuestion`
+- ✅ Report generation across 13 dimensions via `/api/ai/generateReport`
+- ✅ Unify dimension constants to the 13 used in reports (remove extras in `SCORING_DIMENSIONS`)
+- ❌ Cost guardrails: basic rate limiting; token usage metrics
+- ✅ Model controlled by `OPENAI_MODEL` (default `gpt-5-mini`)
+
+### D) Sharing & Storage
+- ✅ Public share page `/share/[slug]` (no auth)
+- ❌ Generate static HTML and upload to Supabase Storage (`reports/<uuid>.html`)
+- ❌ Serve shared report from Storage (no DB call)
+- ❌ Random 8‑char slug; toggle share on/off
+
+### E) Tests
+- ❌ Unit tests: scale, MC, intro, matrix (with N/A and prefer-not)
+- ❌ Integration: branching, skippable text, prefer-not null handling
+- ❌ E2E: full v2 flow including service rating
+
+### F) Cleanup & Alignment
+- ❌ Remove unused deps (`@tanstack/react-router`, `react-charts`) if not used
+- ✅ Update docs in this roadmap to match code reality
+
+### Acceptance criteria
+- All v2 slides implemented with required/optional behavior and branching
+- Service rating stored separately; not mixed with survey answers (endpoint done; table pending)
+- Static HTML report stored and publicly accessible via slug
+- Consistent dimensions and model configuration
+- Tests passing; coverage maintained per thresholds

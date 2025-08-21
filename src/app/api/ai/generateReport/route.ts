@@ -129,8 +129,28 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Generate the report using AI (exclude usage_* dimensions from scoring input)
-    const scoringInputs = employeeResponses.filter(r => !(r.dimension || '').startsWith('usage_'))
+    // Helper: exclude answers marked prefer-not (for structured JSON answers)
+    const isPreferNot = (answer: string): boolean => {
+      try {
+        const parsed = JSON.parse(answer)
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.type === 'scale') {
+            return parsed.preferNot === true || parsed.value == null
+          }
+          if (parsed.type === 'mc_single' || parsed.type === 'mc_multi') {
+            return parsed.preferNot === true
+          }
+        }
+      } catch {}
+      return false
+    }
+
+    // Generate the report using AI (exclude usage_* and prefer-not answers from scoring input)
+    const scoringInputs = employeeResponses.filter(r => {
+      const dim = (r.dimension || '')
+      if (dim.startsWith('usage_')) return false
+      return !isPreferNot(r.answer)
+    })
     const prompt = buildReportPrompt(company.name, scoringInputs)
     const aiResponse = await generateAIResponse(prompt, REPORT_GENERATION_SYSTEM_PROMPT)
 
@@ -217,15 +237,21 @@ export async function POST(request: NextRequest) {
       .flat()
 
     const usageSummary: Record<string, Record<string, number>> = {}
+    const normalizeLevel = (level: string): string => {
+      if (level === "I'm dependant on it") return "I'm dependent on it"
+      return level
+    }
     for (const item of usageRaw) {
+      const level = normalizeLevel(item.level)
       if (!usageSummary[item.name]) usageSummary[item.name] = {
+        'Not applicable to my role': 0,
         'Never tried': 0,
         "I've tried it": 0,
         'I use it regularly': 0,
-        "I'm dependant on it": 0
+        "I'm dependent on it": 0
       }
-      if (usageSummary[item.name][item.level] !== undefined) {
-        usageSummary[item.name][item.level] += 1
+      if (usageSummary[item.name][level] !== undefined) {
+        usageSummary[item.name][level] += 1
       }
     }
 

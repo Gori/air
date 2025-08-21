@@ -302,6 +302,54 @@ export type Database = {
           },
         ]
       }
+      feedback_survey_ratings: {
+        Row: {
+          id: string
+          company_id: string
+          user_id: string
+          survey_version: string
+          rating: number
+          comment: string | null
+          user_agent: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          user_id: string
+          survey_version: string
+          rating: number
+          comment?: string | null
+          user_agent?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          user_id?: string
+          survey_version?: string
+          rating?: number
+          comment?: string | null
+          user_agent?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_survey_ratings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_survey_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           company_id: string | null

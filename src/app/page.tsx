@@ -67,7 +67,7 @@ export default async function HomePage() {
                   <span className="text-2xl pl-0 pr-3">{f.emoji}</span>
                   <span className="mb-3 font-mono uppercase tracking-widest text-sm pt-8">{f.kicker}</span>
                 </div>
-                <h3 className="text-[44px] font-serif font-normal leading-[1.05]">{f.title}</h3>
+                <h3 className="text-[44px] font-serif tracking-tight font-normal leading-[1.05]">{f.title}</h3>
                 <p className="mt-2 text-base text-muted-foreground">{f.description}</p>
                 <div className="mt-4 flex items-center gap-3 flex-1">
                   <Link href="/sign-up"><Button>{f.cta}</Button></Link>

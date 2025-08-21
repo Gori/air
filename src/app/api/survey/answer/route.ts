@@ -7,7 +7,8 @@ import { z } from 'zod'
 
 const answerSchema = z.object({
   questionInstanceId: z.string().uuid(),
-  answerText: z.string().min(1, 'Answer cannot be empty').max(8000, 'Answer too long')
+  // Allow empty strings and structured JSON for skippable slides and prefer-not
+  answerText: z.string().min(0).max(16000)
 })
 
 export async function POST(request: NextRequest) {

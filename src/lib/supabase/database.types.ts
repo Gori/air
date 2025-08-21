@@ -239,6 +239,38 @@ export interface Database {
           created_at?: string
         }
       }
+      feedback_survey_ratings: {
+        Row: {
+          id: string
+          company_id: string
+          user_id: string
+          survey_version: string
+          rating: number
+          comment: Json
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          user_id: string
+          survey_version: string
+          rating: number
+          comment?: Json
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          user_id?: string
+          survey_version?: string
+          rating?: number
+          comment?: Json
+          user_agent?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

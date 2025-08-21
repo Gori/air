@@ -159,10 +159,10 @@ export interface HeatmapData {
   score: number
 }
 
-// The 13 key dimensions for scoring
+// The 13 key dimensions for scoring (aligned with report schema)
 export const SCORING_DIMENSIONS = [
   'ai_literacy',
-  'existing_ai_skills', 
+  'existing_ai_skills',
   'current_ai_usage',
   'ai_sentiment',
   'ai_expected_benefits',
@@ -173,14 +173,7 @@ export const SCORING_DIMENSIONS = [
   'org_support',
   'culture_experimentation',
   'policy_awareness',
-  'support_requests',
-  'training_effectiveness',
-  'learning_preferences',
-  'strategic_clarity',
-  'perceived_alignment',
-  'pace_satisfaction',
-  'leadership_confidence',
-  'future_roles_skills'
+  'support_requests'
 ] as const
 
 export type ScoringDimension = typeof SCORING_DIMENSIONS[number]

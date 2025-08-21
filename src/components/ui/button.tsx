@@ -14,6 +14,12 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        // Unified survey chip styling (unselected)
+        chip:
+          "text-sm border-1 !font-sans !normal-case !tracking-normal border-gray-400 text-foreground hover:bg-gray-100",
+        // Unified survey chip styling (selected)
+        chipActive:
+          "text-sm border !font-sans !normal-case !tracking-normal border-gray-400 bg-[#eaeaea] text-foreground hover:bg-gray-200",
         secondary:
           "bg-rose-200 text-secondary-foreground hover:bg-black hover:text-white",
         dark:
@@ -24,7 +30,9 @@ const buttonVariants = cva(
       size: {
         default: "h-11 px-6",
         sm: "h-9 px-3",
+        chip: "h-9 px-5",
         lg: "h-11 px-6",
+        xl: "h-12 px-8",
         icon: "h-9 w-9 rounded-full",
       },
     },

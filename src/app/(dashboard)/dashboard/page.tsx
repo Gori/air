@@ -41,20 +41,16 @@ export default function DashboardPage() {
       }
 
       const data = await response.json()
-      
-      if (data.completed) {
-        setSurveyProgress({
-          total: data.totalQuestions,
-          completed: data.totalQuestions,
-          progress: 1
-        })
-      } else {
-        setSurveyProgress({
-          total: data.progress.total,
-          completed: data.progress.current - 1, // Current is next question to answer
-          progress: data.progress.total > 0 ? (data.progress.current - 1) / data.progress.total : 0
-        })
-      }
+      const total = data?.progress?.total ?? data?.totalQuestions ?? 0
+      const current = data?.progress?.current ?? 0
+      const completedCount = Math.max(current - 1, 0)
+      const isDone = Boolean(data?.completed && total > 0)
+
+      setSurveyProgress({
+        total,
+        completed: isDone ? total : completedCount,
+        progress: total > 0 ? (isDone ? 1 : completedCount / total) : 0
+      })
     } catch (error) {
       console.error('Progress load error:', error)
       setError('Failed to load survey progress.')
