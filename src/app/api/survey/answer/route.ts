@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getCompanyId } from '@/lib/supabase/server'
-import { saveAnswer, updateAnswer } from '@/lib/supabase/mutations'
+import { saveAnswer, updateAnswerById } from '@/lib/supabase/mutations'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { getAnswersForQuestionInstances } from '@/lib/supabase/queries'
 import { z } from 'zod'
 
@@ -42,8 +43,16 @@ export async function POST(request: NextRequest) {
     
     let answer
     if (existingAnswers && existingAnswers.length > 0) {
-      // Update existing answer
-      answer = await updateAnswer(questionInstanceId, answerText)
+      // If duplicates exist, keep the latest (max created_at) and remove the rest to enforce 1 row per instance
+      const sorted = [...existingAnswers].sort((a, b) => new Date(a.created_at as string).getTime() - new Date(b.created_at as string).getTime())
+      const latest = sorted[sorted.length - 1]
+      // Delete older duplicates if any
+      const staleIds = sorted.slice(0, -1).map(a => a.id)
+      if (staleIds.length > 0) {
+        await supabaseAdmin.from('answers').delete().in('id', staleIds)
+      }
+      // Update the latest row only
+      answer = await updateAnswerById(latest.id, answerText)
     } else {
       // Create new answer
       answer = await saveAnswer({

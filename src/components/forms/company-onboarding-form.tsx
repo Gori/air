@@ -210,7 +210,7 @@ export function CompanyOnboardingForm({ onSuccess }: CompanyOnboardingFormProps)
         </CardContent>
       </Card>
       <div className="w-full max-w-2xl mx-auto mt-6 flex justify-center">
-        <Button type="submit" variant="dark" form="company-onboarding-form" disabled={isLoading}>
+        <Button type="submit" size="xl" variant="dark" form="company-onboarding-form" disabled={isLoading}>
           {isLoading ? 'Creating Company...' : 'Create Company'}
         </Button>
       </div>

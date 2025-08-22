@@ -50,6 +50,21 @@ export async function updateAnswer(questionInstanceId: string, answerText: strin
 }
 
 /**
+ * Update an existing answer by primary key id
+ */
+export async function updateAnswerById(answerId: string, answerText: string) {
+  const { data: answer, error } = await supabaseAdmin
+    .from('answers')
+    .update({ answer_text: answerText })
+    .eq('id', answerId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return answer
+}
+
+/**
  * Create or update user record
  */
 export async function upsertUser(userData: InsertUser) {
