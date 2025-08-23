@@ -71,7 +71,6 @@ export default function SurveyPage() {
   const [matrixSelections, setMatrixSelections] = useState<Record<string, typeof MATRIX_LEVELS[number]>>({})
   const [optionalComment, setOptionalComment] = useState('')
   const FOLLOWUP_ALLOWED = useMemo(() => new Set<string>([
-    'existing_ai_skills',
     'support_requests',
     'future_roles_skills'
   ]), [])
@@ -284,7 +283,7 @@ export default function SurveyPage() {
       {
         type: 'text',
         dimension: 'job_title',
-        prompt: 'What’s your job title?',
+        prompt: 'Enter your job title (e.g., Product Manager).',
         required: true,
         heading: 'Job title',
         subheading: 'What’s your job title?'
@@ -292,7 +291,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'ai_sentiment',
-        prompt: 'Overall, how do you feel about AI becoming more common at work?',
+        prompt: 'Choose a rating from 1 (low) to 5 (high).',
         allowPreferNot: true,
         optionalText: true,
         required: true,
@@ -306,7 +305,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_research_knowledge.examples,
         illustration: '/images/research.webp',
         heading: 'Research & Knowledge',
-        subheading: usageConfig.usage_research_knowledge.intro
+        subheading: 'Find answers and insights faster.'
       },
       {
         type: 'matrix',
@@ -319,7 +318,7 @@ export default function SurveyPage() {
       {
         type: 'mc_multi',
         dimension: 'ai_expected_benefits',
-        prompt: 'What potential benefits do you foresee AI bringing?',
+        prompt: 'Select all benefits that apply to you.',
         options: ['Faster work', 'Fewer repetitive tasks', 'Better quality', 'New ideas', 'Better decisions', 'Cost savings', 'Other'],
         optionalText: true,
         required: true,
@@ -329,7 +328,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'human_led_work',
-        prompt: 'How much of your work requires distinctly human judgment and should remain human‑led?',
+        prompt: 'Choose a rating from 1 (low) to 5 (high).',
         allowPreferNot: true,
         optionalText: true,
         required: true,
@@ -343,7 +342,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_business_productivity.examples,
         illustration: '/images/business.webp',
         heading: 'Business & Productivity',
-        subheading: usageConfig.usage_business_productivity.intro
+        subheading: 'Automate routine work and move faster.'
       },
       {
         type: 'matrix',
@@ -356,7 +355,7 @@ export default function SurveyPage() {
       {
         type: 'mc_single',
         dimension: 'training_received',
-        prompt: 'Have you received any AI training?',
+        prompt: 'Select the one option that applies to you.',
         options: ['Yes', 'No', 'Not sure'],
         required: true,
         heading: 'Training received?',
@@ -365,7 +364,7 @@ export default function SurveyPage() {
       {
         type: 'mc_multi',
         dimension: 'integration_barriers',
-        prompt: 'What gets in the way',
+        prompt: 'Select all obstacles that apply to you.',
         options: ['Access/permissions', 'Time to learn', 'Tool quality', 'Missing data', 'Process/policy limits', 'Stakeholder buy‑in', 'Cost', 'Other'],
         optionalText: true,
         required: true,
@@ -379,7 +378,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_creative_content.examples,
         illustration: '/images/creative.webp',
         heading: 'Creative & Content',
-        subheading: usageConfig.usage_creative_content.intro
+        subheading: 'Turn ideas into drafts and visuals quickly.'
       },
       {
         type: 'matrix',
@@ -389,18 +388,11 @@ export default function SurveyPage() {
         heading: usageConfig.usage_creative_content.title,
         subheading: 'Choose how much you are using each item.'
       },
-      {
-        type: 'text',
-        dimension: 'existing_ai_skills',
-        prompt: 'What AI‑related skills have you learned—formal or self‑taught?',
-        required: false,
-        heading: 'Skills you already have',
-        subheading: 'What AI‑related skills have you learned—formal or self‑taught?'
-      },
+      
       {
         type: 'mc_multi',
         dimension: 'learning_preferences',
-        prompt: 'How you learn best',
+        prompt: 'Select all learning formats you prefer.',
         options: ['Short videos', 'Written guides', 'Live workshops', '1:1 coaching', 'Practice by doing', 'Other'],
         optionalText: true,
         required: true,
@@ -414,7 +406,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_decision_support.examples,
         illustration: '/images/decision.webp',
         heading: 'Decision Support',
-        subheading: usageConfig.usage_decision_support.intro
+        subheading: 'See patterns and decide with more confidence.'
       },
       {
         type: 'matrix',
@@ -427,7 +419,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'org_support',
-        prompt: 'How supported do you feel to try useful new tools?',
+        prompt: 'Choose a rating from 1 (low) to 5 (high).',
         allowPreferNot: true,
         optionalText: true,
         required: true,
@@ -437,7 +429,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'culture_experimentation',
-        prompt: 'How easy is it to experiment safely with new tools?',
+        prompt: 'Choose a rating from 1 (hard) to 5 (easy).',
         allowPreferNot: true,
         optionalText: true,
         required: true,
@@ -447,7 +439,7 @@ export default function SurveyPage() {
       {
         type: 'mc_single',
         dimension: 'policy_awareness',
-        prompt: 'Are you aware of any company policies or guidelines on using AI?',
+        prompt: 'Select the one option that applies to you.',
         options: ['Yes', 'No', 'Not sure', 'Prefer not to say'],
         optionalText: true,
         required: true,
@@ -461,7 +453,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_personal_assistance.examples,
         illustration: '/images/assistance.webp',
         heading: 'Personal Assistance',
-        subheading: usageConfig.usage_personal_assistance.intro
+        subheading: 'Plan, write, and stay organized with AI help.'
       },
       {
         type: 'matrix',
@@ -474,7 +466,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'pace_satisfaction',
-        prompt: 'How do you feel about the pace of AI adoption here?',
+        prompt: 'Choose a rating from 1 (too slow) to 5 (too fast).',
         optionalText: true,
         required: true,
         heading: 'Pace that feels right',
@@ -483,7 +475,7 @@ export default function SurveyPage() {
       {
         type: 'scale',
         dimension: 'leadership_confidence',
-        prompt: 'How confident are you in leadership’s ability to implement AI well?',
+        prompt: 'Choose a rating from 1 (not confident) to 5 (very confident).',
         allowPreferNot: true,
         optionalText: true,
         required: true,
@@ -497,7 +489,7 @@ export default function SurveyPage() {
         examples: usageConfig.usage_security_moderation.examples,
         illustration: '/images/security.webp',
         heading: 'Security & Moderation',
-        subheading: usageConfig.usage_security_moderation.intro
+        subheading: 'Protect people and systems with intelligent safeguards.'
       },
       {
         type: 'matrix',
@@ -510,15 +502,16 @@ export default function SurveyPage() {
       {
         type: 'text',
         dimension: 'future_roles_skills',
-        prompt: 'If AI progress goes right over the next 6–12 months, what would success look like for your work and team?',
+        prompt: 'Describe what success would look like for your work and team.',
         required: false,
         heading: 'Final vision',
         subheading: 'If AI progress goes right over the next 6–12 months, what would success look like for your work and team?'
       },
       {
         type: 'end',
-        title: 'Thanks—your answers are saved.',
-        heading: 'Thanks—your answers are saved.',
+        title: 'Thank you!',
+        prompt: 'Rate your survey experience from 1 (poor) to 5 (excellent).',
+        heading: 'Your answers are saved.',
         subheading: 'How would you rate this survey experience?'
       }
     ]
@@ -575,7 +568,7 @@ export default function SurveyPage() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 questionInstanceId: inst.id,
-                originalQuestion: slide.prompt || '',
+                originalQuestion: slide.subheading || '',
                 employeeAnswer: payload,
                 currentOrdinal: inst.ordinal
               })
@@ -583,7 +576,15 @@ export default function SurveyPage() {
             if (followRes.ok) {
               const data = await followRes.json()
               if (data.hasFollowUp && data.followUpQuestion?.id) {
-                const f: Slide = { type: 'ai_followup', prompt: data.followUpQuestion.text, required: true, followUpInstanceId: data.followUpQuestion.id }
+                const text = data.followUpQuestion.text as string
+                const f: Slide = {
+                  type: 'ai_followup',
+                  prompt: 'Briefly answer the follow‑up question below.',
+                  required: true,
+                  followUpInstanceId: data.followUpQuestion.id,
+                  heading: 'Follow‑up',
+                  subheading: text
+                }
                 const newSlides = [...slides]
                 newSlides.splice(activeIdx + 1, 0, f)
                 setSlides(newSlides)
@@ -595,7 +596,7 @@ export default function SurveyPage() {
         const payload = JSON.stringify({ type: 'scale', value: scalePreferNot ? null : scaleValue, preferNot: scalePreferNot, text: optionalComment || undefined })
         await answerQuestion(slide.dimension, payload)
         if (slide.dimension === 'training_effectiveness' && !scalePreferNot && typeof scaleValue === 'number' && scaleValue <= 2) {
-          const needsSlide: Slide = { type: 'text', dimension: 'support_requests', prompt: 'What training or formats would help you get started?', required: false }
+          const needsSlide: Slide = { type: 'text', dimension: 'support_requests', prompt: 'Describe the training or format that would help you start.', required: false, heading: 'What would help you start?', subheading: 'What training or formats would help you get started?' }
           const newSlides = [...slides]
           newSlides.splice(activeIdx + 1, 0, needsSlide)
           setSlides(newSlides)
@@ -610,10 +611,26 @@ export default function SurveyPage() {
           const newSlides = [...slides]
           const existsEffect = newSlides.find(s => s.dimension === 'training_effectiveness')
           if (!existsEffect && yes) {
-            newSlides.splice(idx, 0, { type: 'scale', dimension: 'training_effectiveness', prompt: 'If you’ve had AI training, how helpful was it overall?', required: true, allowPreferNot: false, optionalText: true })
+            newSlides.splice(idx, 0, {
+              type: 'scale',
+              dimension: 'training_effectiveness',
+              prompt: 'Choose a rating from 1 (low) to 5 (high).',
+              required: true,
+              allowPreferNot: false,
+              optionalText: true,
+              heading: 'Training effectiveness',
+              subheading: 'If you’ve had AI training, how helpful was it overall?'
+            })
           }
           if (!yes) {
-            newSlides.splice(idx, 0, { type: 'text', dimension: 'support_requests', prompt: 'If you haven’t had training yet, what training or formats would help you get started?', required: false })
+            newSlides.splice(idx, 0, {
+              type: 'text',
+              dimension: 'support_requests',
+              prompt: 'Describe the training or format that would help you start.',
+              required: false,
+              heading: 'What would help you start?',
+              subheading: 'If you haven’t had training yet, what training or formats would help you get started?'
+            })
           }
           setSlides(newSlides)
         }
@@ -784,16 +801,19 @@ export default function SurveyPage() {
         )}
         <div className="py-12">
           <h1 className="text-[40px]/11 text-center font-serif mb-2">
-            {slide?.heading || slide?.title || (slide?.type === 'matrix' && slide.dimension && usageConfig[slide.dimension]?.title) || 'Assessment'}
+            {slide?.heading || 'Assessment'}
           </h1>
           <p className="text-center text-lg">
-            {slide?.subheading || (slide?.type !== 'welcome' ? (slide?.prompt || slide?.copy || '') : (slide?.copy || ''))}
+            {slide?.subheading || ''}
           </p>
         </div>
 
         <Card>
           <CardContent className="pb-3 pt-2">
             <div className="space-y-6">
+              {(slide?.type === 'scale' || slide?.type === 'mc_multi' || slide?.type === 'text' || slide?.type === 'mc_single' || slide?.type === 'ai_followup') && (
+                slide?.prompt ? <p className="text-base mb-3">{slide.prompt}</p> : null
+              )}
               {slide?.type === 'welcome' && (
                 <div>
                   <p>{slide.copy}</p>
@@ -906,7 +926,7 @@ export default function SurveyPage() {
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
-                      placeholder="Add detail (optional). Please don’t paste sensitive data."
+                      placeholder={'Add detail (optional). Please don’t paste sensitive data.'}
                       className="min-h-[100px] resize-none placeholder:text-gray-400"
                       maxLength={500}
                       disabled={isSubmitting}
@@ -942,7 +962,7 @@ export default function SurveyPage() {
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
-                      placeholder="Add detail (optional). Please don’t paste sensitive data."
+                      placeholder={'Add detail (optional). Please don’t paste sensitive data.'}
                       className="mt-5 min-h-[100px] resize-none placeholder:text-gray-400"
                       maxLength={500}
                       disabled={isSubmitting}
@@ -978,7 +998,7 @@ export default function SurveyPage() {
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
-                      placeholder="Add detail (optional). Please don’t paste sensitive data."
+                      placeholder={'Add detail (optional). Please don’t paste sensitive data.'}
                       className="min-h-[100px] resize-none placeholder:text-gray-400"
                       maxLength={500}
                       disabled={isSubmitting}
@@ -1032,7 +1052,7 @@ export default function SurveyPage() {
 
               {slide?.type === 'end' && (
                 <div className="space-y-3">
-                  <p>How would you rate this survey experience?</p>
+                  <p>{slide.prompt || 'How would you rate this survey experience?'}</p>
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map(n => (
                       <Button key={n} size="chip" type="button" variant={rating === n ? 'chipActive' : 'chip'} onClick={() => setRating(n)}>{n}</Button>

@@ -857,41 +857,100 @@ Only Phase 9 (deployment preparation) remains:
 
 ---
 
-## Phase 11: Survey v2 Refactor Roadmap (NEXT TASK)
+## Phase 11: Product Refactor – Welcome, Admin, Personal/Guest (NEXT TASK)
+
+Align the application to the refactor spec in `docs/refactor.md` with minimal, fully functional changes.
+
+### Objective
+- Reduce cognitive load in onboarding, make manager controls obvious, and allow immediate value via personal/guest survey modes.
+
+### Deliverables
+- Post‑signup `/welcome` flow with branching modals (company vs personal).
+- Manager Admin area (Overview, Answers, Users, Report) replacing Settings.
+- Personal and Guest survey modes (no persistence) reusing the existing survey UI.
+- Minimal employee dashboard; managers never see the dashboard.
+- Invite flow sends users straight to survey.
+
+### Tasks
+- Routing & guards
+  - [ ] Set `SignUp.redirectUrl` → `/welcome`
+  - [ ] Add `/(auth)/welcome` (server): domain check + modal choices
+  - [ ] Manager redirect to `/admin/overview` on dashboard routes
+  - [ ] Middleware: add `'/survey/guest(.*)'` to public routes
+  - [ ] Update `AuthGuard` to allow Personal mode when no `company_id`
+- Company/employee flows
+  - [ ] `POST /api/company/self-enroll` (domain check, create `users` row, update Clerk metadata)
+  - [ ] Change invite success redirect to `/(dashboard)/survey`
+- Admin area (manager‑only)
+  - [ ] `/(dashboard)/admin/layout` (sidebar + top bar)
+  - [ ] `/(dashboard)/admin/overview` (stats, invite, recent, CTA)
+  - [ ] `/(dashboard)/admin/answers` (per‑dimension table)
+  - [ ] `/(dashboard)/admin/users` (list + delete)
+  - [ ] Move report page to `/(dashboard)/admin/report`
+  - [ ] Admin APIs: `GET /api/admin/stats/overview`, `GET /api/admin/stats/answers`, `GET /api/admin/users`, `DELETE /api/admin/users/[id]`
+- Survey modes
+  - [ ] Introduce `SurveyDriver` abstraction
+  - [ ] Implement `PersonalSurveyDriver` (localStorage; no AI follow‑ups)
+  - [ ] `/(public)/survey/guest` route using Personal driver
+  - [ ] Personal end screen: summary + CTAs
+- Dashboard
+  - [ ] Replace employee dashboard with minimal progress + CTAs
+  - [ ] Managers never see dashboard (redirect)
+- Cleanup & copy
+  - [ ] Remove `/(dashboard)/settings` page
+  - [ ] Update microcopy per `docs/refactor.md`
+  - [ ] Analytics events (minimal) wired
+
+### Acceptance criteria
+- `/welcome` correctly branches for: no company; company exists with manager(s).
+- Self‑enroll creates an employee row and redirects to survey; invite flow redirects directly to survey.
+- Admin pages show accurate counts; user deletion cascades answers/instances/user row.
+- Personal/guest modes do not persist data or call company APIs; banners and end CTAs appear.
+- Minimal dashboard shows correct progress or CTAs; managers never land on it.
+- All new routes use shadcn UI only; authz enforced server‑side for admin APIs.
+
+### Testing
+- Update integration/E2E tests for `/welcome` branching, self‑enroll, admin authz, guest access, and invite redirect.
+
+### Notes
+- Use `'gpt-4.1-mini-2025-04-14'` for AI model standardization in `src/lib/ai/client.ts`.
+- Reference: `docs/refactor.md` (UX, copy, and flows).
+
+---
+
+## Phase 12: Survey v2 Refactor Roadmap
 
 Align the app to `docs/survey-questions-v2.md` with minimal, fully functional changes.
 
 ### A) Survey Engine & UI
 - ✅ Slide types: Welcome, Intro, Matrix, MC (single/multi), Opinion scale (1–5), Short/Long Text, End Screen
 - ✅ Usage matrices (6 categories) render first; save `usage_matrix` JSON
-- ✅ Add “Not applicable to my role” to all matrices
 - ✅ Text slides skippable + reassurance note on all free‑text slides
-- ✅ Opinion scale (1–5) with optional text; “Prefer not to say” as distinct choice
-- ✅ Multiple choice (single/multi) with optional text; “Prefer not to say”
-- ✅ Branching: training → effectiveness (11a) or needs (11b); show needs if effectiveness ≤ 2
-- ✅ Intro slides content before each matrix (4, 9, 13, 17, 22, 26)
-- ✅ Autosave UX: inline “Saved” for ~800 ms
-- ✅ Keyboard shortcuts: ←/→, Enter; sticky Next/Back on small screens (Esc pending)
+- ✅ Opinion scale (1–5) with optional text; “Prefer not to say” as distinct choice (where offered)
+- ✅ Multiple choice (single/multi) with optional text; “Prefer not to say” (where offered)
+- ✅ Branching: training → effectiveness (10a) or needs (10b); show needs if effectiveness ≤ 2
+- ✅ Intro slides content before each matrix (4, 8, 12, 15, 20, 24)
+- ✅ “Saving…” state on Continue
+- ✅ Keyboard shortcuts: ←/→, Enter; Continue is sticky; Back in header (Esc pending)
 
 ### B) Data Model & APIs
 - ✅ Free‑text and usage JSON stored in `answers`
-- ✅ New endpoint: `POST /api/feedback/survey-rating` (table `feedback_survey_ratings` pending)
-- ✅ Slide metadata support (type/required/options) or lightweight slide map for v2
-- ✅ Normalize label to “I'm dependent on it” (spelling)
+- ✅ New endpoint: `POST /api/feedback/survey-rating` and table `feedback_survey_ratings`
+- ✅ Slide metadata support (type/required/options) via lightweight client slide map
+- ✅ Normalize label to “I'm dependent on it” in report aggregation
 - ✅ “Prefer not to say” excluded from scoring (treated as null)
 
 ### C) AI & Scoring
-- ✅ Single follow‑up for free‑text via `/api/ai/nextQuestion`
+- ✅ Single follow‑up for free‑text via `/api/ai/nextQuestion` (max 1)
 - ✅ Report generation across 13 dimensions via `/api/ai/generateReport`
-- ✅ Unify dimension constants to the 13 used in reports (remove extras in `SCORING_DIMENSIONS`)
-- ❌ Cost guardrails: basic rate limiting; token usage metrics
+- ✅ Dimension constants aligned to report schema (see `src/types`)
 - ✅ Model controlled by `OPENAI_MODEL` (default `gpt-5-mini`)
 
 ### D) Sharing & Storage
-- ✅ Public share page `/share/[slug]` (no auth)
+- ✅ Public share page `/share/[slug]` (no auth) via API route `/api/reports/share/[slug]`
 - ❌ Generate static HTML and upload to Supabase Storage (`reports/<uuid>.html`)
-- ❌ Serve shared report from Storage (no DB call)
-- ❌ Random 8‑char slug; toggle share on/off
+- ❌ Serve shared report from Storage (currently fetched from DB via API)
+- ❌ Toggle share on/off UI; ❌ analytics; slug currently derived from company name + timestamp
 
 ### E) Tests
 - ❌ Unit tests: scale, MC, intro, matrix (with N/A and prefer-not)

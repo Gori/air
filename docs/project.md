@@ -30,7 +30,7 @@
 
 ## 1 · Purpose & Product Scope
 
-A single-tenant SaaS tool where **one manager per company** collects AI-readiness input from co-workers, uses GPT-4.1 to adapt / follow-up questions, automatically scores answers, and produces a shareable, read-only HTML report.
+A single-tenant SaaS tool where **one manager per company** collects AI-readiness input from co-workers, uses OpenAI (model from `OPENAI_MODEL`) to generate at‑most‑one follow‑up question on select free‑text slides, automatically scores answers, and produces a shareable report page.
 
 * **Employees cannot edit answers once submitted.**
 * Manager may regenerate the report at any time (previous report rows & files are overwritten; no history).
@@ -51,7 +51,7 @@ A single-tenant SaaS tool where **one manager per company** collects AI-readines
 | **Backend**    | Next JS Route Handlers on Vercel (edge-ready) | All business logic lives here.                     |
 | **Auth**       | Clerk (Google OAuth + email/password)         | Custom claim `company_id` injected into JWT.       |
 | **Database**   | Supabase (Postgres 15 + Storage)              | Full Row-Level Security.                           |
-| **AI Runtime** | Vercel AI SDK  →  OpenAI GPT-4.1              | SSE streaming; prompts logged.                     |
+| **AI Runtime** | OpenAI SDK (`openai`), model via `OPENAI_MODEL`| Prompts logged; no SSE streaming.                   |
 | **Email**      | Resend                                        | Invite & "report ready" mail.                      |
 | **Testing**    | Jest + React Testing Library + Playwright     | Unit, integration, and E2E testing.               |
 | **Analytics**  | *None for MVP (can add Plausible later).*     |                                                    |
@@ -71,8 +71,8 @@ graph TD
   A -- Clerk JWT --> C
   B -- SQL + prompt_log --> D
   C -- SQL + prompt_log --> D
-  C -- PUT report.html --> E
-  A -- GET signed URL --> E
+  C -. (planned) PUT report.html .-> E
+  A -. (planned) GET signed URL .-> E
 ```
 
 ---
@@ -92,7 +92,7 @@ prompt_logs
 * Every table (except reference tables) carries `company_id` for RLS.
 * No soft-delete; rows are removed when needed.
 * `question_instances.parent_instance` links follow-ups to the original question.
-* Report HTML is stored in Supabase Storage bucket `reports`.
+* Report HTML storage is planned; current sharing fetches from DB via API.
 
 ---
 
@@ -100,7 +100,7 @@ prompt_logs
 
 ### 5.1 · New Usage Matrix (6 questions – asked first)
 
-These six category questions appear at the start of the survey. Each renders a matrix of sub-categories where employees must select one of four options per item: "Never tried", "I've tried it", "I use it regularly", "I'm dependant on it". Answers are saved as JSON in `answers.answer_text` with shape:
+These six category questions appear at the start of the survey. Each renders a matrix of sub-categories where employees must select one of four options per item: "Never tried", "I've tried it", "I use it regularly", "I'm dependent on it" (spelling normalized in reports). Answers are saved as JSON in `answers.answer_text` with shape:
 
 ```json
 {
@@ -165,7 +165,7 @@ insert into questions (module_id, dimension, text) values
 
 Note: The app automatically shows these six first by ordering any `questions.dimension` that starts with `usage_` to the beginning of each employee’s question sequence.
 
-### 5.2 · Core Question Bank (20 questions)
+### 5.2 · Core Question Bank (selected v2 set)
 
 | ID    | Module                    | Dimension tag             | Question text                                                                               |
 | ----- | ------------------------- | ------------------------- | ------------------------------------------------------------------------------------------- |
@@ -191,7 +191,7 @@ Note: The app automatically shows these six first by ordering any `questions.dim
 | M6-Q5 |                           | `future_roles_skills`     | Imagine we grow 10× through AI—what roles & skills would we need?                           |
 
 **Follow-up logic**
-`/api/ai/nextQuestion` feeds the **last answer text** plus minimal employee context to GPT-4.1. The model may return up to **three** follow-up probes (stored as extra `question_instances`, linked through `parent_instance`).
+`/api/ai/nextQuestion` feeds the last answer text plus minimal employee context to the model. The system generates at most one follow‑up probe on designated free‑text dimensions (`support_requests`, `future_roles_skills`). If no follow‑up is needed, none is created. Follow‑ups are stored as extra `question_instances` linked via `parent_instance`.
 
 ---
 
@@ -215,16 +215,16 @@ Note: The app automatically shows these six first by ordering any `questions.dim
 4. **Report generation**
 
    * Manager clicks **Generate report**.
-   * Server collects all answers → GPT-4.1 → produces:
+   * Server collects all answers → OpenAI (model via `OPENAI_MODEL`) → produces:
 
      * **Likert scores** for 13 dimensions (0–5 scale).
      * **Narrative bullet-points** (strengths, gaps, recs).
-   * JSON saved to `reports`; HTML compiled with React-Email + inlined Tailwind; file placed in Supabase Storage (`reports/<uuid>.html`).
+   * JSON saved to `reports`; share slug set; HTML compilation/storage is planned.
 
 5. **Sharing**
 
-   * Manager toggles "Share" → app sets `shared_slug` (random 8 chars).
-   * Public endpoint `/share/[slug]` serves the static HTML (no DB call).
+   * Manager shares via slug stored in `reports.shared_slug`.
+   * Public page `/share/[slug]` loads via API route `/api/reports/share/[slug]`.
 
 6. **Re-generate**
 
@@ -234,12 +234,12 @@ Note: The app automatically shows these six first by ordering any `questions.dim
 
 ## 7 · Reporting & Visuals
 
-* **Bar chart**: dimension averages.
-* **Radar**: 6 module averages.
-* **Heat-map matrix**: employees × dimensions.
-* **CSV export**: raw answers.
+* **Bar chart**: dimension averages (custom component).
+* **Radar**: 6 module averages (custom component).
+* **Heat-map matrix**: planned.
+* **CSV export**: planned.
 
-Charts rendered client-side with `react-charts@5`.
+Charts rendered client-side with custom components in `src/components/charts/*`.
 
 ---
 
@@ -248,7 +248,7 @@ Charts rendered client-side with `react-charts@5`.
 | Endpoint                 | --Input--                  | Average tokens | Notes                                     |
 | ------------------------ | -------------------------- | -------------- | ----------------------------------------- |
 | `/api/ai/nextQuestion`   | `employee_id, last_answer` | 50             | Generates next core / follow-up question. |
-| `/api/ai/generateReport` | `company_id`               | 4 k            | Streams JSON then HTML; ≈ €0.04 per run.  |
+| `/api/ai/generateReport` | `company_id`               | 4 k            | Returns JSON; HTML generation planned.    |
 
 *All* prompts + responses are persisted to `prompt_logs` (for debugging/audit). Purge schedule optional.
 

@@ -3,7 +3,7 @@
 This is the end‑to‑end specification for the AIR employee survey. It is designed as a clean, linear sequence of single‑purpose slides with autosave and low cognitive load. Every instruction required to implement the flow is included here.
 
 Key rules
-- One screen = one slide. Next/Back available everywhere (except the final End screen). Header shows a tiny “X of 28”.
+- One screen = one slide. Next/Back available everywhere (except the final End screen). Header shows a tiny “X of N”.
 - Autosave after every submission. Text slides show a reassurance note about not pasting sensitive data.
 - Text questions are skippable. Choice/scale/matrix slides are required.
 - Usage categories always appear as: Intro slide → Matrix slide (same four‑point scale).
@@ -18,14 +18,14 @@ Scale used in all matrices
 
 ---
 
-### Slide‑by‑slide flow (28 slides)
+### Slide‑by‑slide flow (27 slides)
 
 1) Welcome — Overview
 - Type: Welcome
 - Copy: “Thanks for taking the AI Readiness assessment. It takes 7–10 minutes. Your input helps us learn what’s working, where to support, and how to move at the right pace.”
 
 2) Contact — Job title
-- Type: Short Text (required)
+- Type: Short Text (skippable)
 - Prompt: “What’s your job title?”
 
 3) Attitude toward AI
@@ -108,22 +108,17 @@ Scale used in all matrices
   - Writing/storytelling — Outline, draft, and edit copy in your tone.
   - Game assets & NPC/dialogue — Produce sprites, textures, and believable character dialogue.
 
-14) Skills you already have
-- Type: Long Text (skippable)
-- Prompt: “What AI‑related skills have you learned—formal or self‑taught?”
-- Reassurance: “Please don’t paste sensitive personal, customer, or confidential data.”
-
-15) How you learn best
+14) How you learn best
 - Type: Multiple choice (multi) + optional text
 - Options: Short videos; Written guides; Live workshops; 1:1 coaching; Practice by doing; Other
 - Optional text: “Anything else that works for you? (optional)”
 
-16) Intro — Decision Support (what this section covers)
+15) Intro — Decision Support (what this section covers)
 - Type: Statement (Intro)
 - Copy: “Decision support covers pattern‑finding and judgment under uncertainty. AI can highlight anomalies, project likely outcomes, and surface sentiment so you can make faster, better decisions—while keeping humans in the loop.”
 - Examples: Tableau + AI, Power BI + Copilot, Amazon Fraud Detector, OpenAI text analytics
 
-17) Matrix — Decision Support (required)
+16) Matrix — Decision Support (required)
 - Type: Matrix
 - Items with explanations:
   - Predictive analytics — Forecast demand, churn, or workload from historical patterns.
@@ -131,65 +126,65 @@ Scale used in all matrices
   - Fraud/anomaly detection — Flag unusual events for investigation.
   - Sentiment analysis — Track voice‑of‑customer across reviews, tickets, and surveys.
 
-18) Support from the organization
+17) Support from the organization
 - Type: Opinion scale (1–5) + optional text
 - Prompt: “How supported do you feel to try useful new tools?”
 - Optional text: “What would improve this? (optional)”
  - Prefer not to say: Available as an alternative to the scale (selectable chip).
 
-19) Culture of experimentation
+18) Culture of experimentation
 - Type: Opinion scale (1–5) + optional text
 - Prompt: “How easy is it to experiment safely with new tools?”
 - Optional text: “Where does it feel hard? (optional)”
  - Prefer not to say: Available as an alternative to the scale (selectable chip).
 
-20) Policy awareness
+19) Policy awareness
 - Type: Multiple choice (single) + optional text
 - Options: Yes; No; Not sure; Prefer not to say
 - Optional text: “Anything unclear in the policy? (optional)”
 
-21) Intro — Personal Assistance (what this section covers)
+20) Intro — Personal Assistance (what this section covers)
 - Type: Statement (Intro)
 - Copy: “Personal assistants help you plan, write, and stay organized. They can draft messages, prepare agendas, propose schedules, and remind you of deadlines so you can focus on the work that matters.”
 - Examples: Apple Intelligence, Google Assistant with Gemini, Microsoft Copilot, Reclaim
 
-22) Matrix — Personal Assistance (required)
+21) Matrix — Personal Assistance (required)
 - Type: Matrix
 - Items with explanations:
   - Personal assistants — Plan tasks, schedule, and reminders across apps.
   - Content recommendations — Suggest articles, videos, or playlists that fit your interests.
   - Wellness & mental health chat — Supportive check‑ins and coping tips; not a substitute for care.
 
-23) Pace that feels right
+22) Pace that feels right
 - Type: Opinion scale (1–5) + optional text
 - Prompt: “How do you feel about the pace of AI adoption here?”
 - Scale guidance: 1 = far too slow, 3 = about right, 5 = far too fast
 
-24) Confidence in leadership
+23) Confidence in leadership
 - Type: Opinion scale (1–5) + optional text
 - Prompt: “How confident are you in leadership’s ability to implement AI well?”
 - Optional text: “What would increase your confidence? (optional)”
  - Prefer not to say: Available as an alternative to the scale (selectable chip).
 
-25) Intro — Security & Moderation (what this section covers)
+24) Intro — Security & Moderation (what this section covers)
 - Type: Statement (Intro)
 - Copy: “Security and moderation tools help protect people and systems. AI can detect threats in logs, filter harmful content at scale, and assist with identity checks or fraud risk—always with proper oversight.”
 - Examples: Azure Content Moderator, OpenAI Moderation, Perspective API, Sift
 
-26) Matrix — Security & Moderation (required)
+25) Matrix — Security & Moderation (required)
 - Type: Matrix
 - Items with explanations:
   - Threat detection & prevention — Spot suspicious patterns in network or app logs.
   - Content moderation — Flag hateful, violent, or unsafe content for review.
   - Identity verification & fraud prevention — Check documents and behavior to reduce risk.
 
-27) Final vision (optional)
+26) Final vision (optional)
 - Type: Long Text (skippable)
 - Prompt: “If AI progress goes right over the next 6–12 months, what would success look like for your work and team? Share concrete outcomes you’d love to see.”
 - Reassurance: “Please don’t paste sensitive personal, customer, or confidential data.”
 - Small nudge: “We’re listening. Be candid—specifics help us help you.”
 
-28) Thank you + Service rating
+27) Thank you + Service rating
 - Type: End Screen + Opinion scale (1–5) captured separately
 - Copy: “Thanks—your answers are saved.”
 - Prompt: “How would you rate this survey experience?”
@@ -200,16 +195,17 @@ Scale used in all matrices
 
 ### Notes for Implementation (UX, shortcuts, mobile)
 - Slide types: Welcome, Statement/Intro, Matrix, Multiple choice (single/multi), Opinion scale (1–5), Short/Long Text, End Screen.
-- Keyboard shortcuts: Left/Right arrows = Back/Next; Enter = submit current slide when valid; Esc = close any helper/tooltips.
+- Keyboard shortcuts: Left/Right arrows = Back/Next; Enter = submit current slide when valid. (Esc not implemented.)
 - Focus order: Primary actions first (Next), then secondary (Back), then Skip (if present).
 - Validation: Disable Next until a required choice is selected; for text slides, Next always enabled (skippable).
 - Mobile tap targets: Minimum 44×44 px; vertical spacing 12–16 px; sticky Next/Back bar on small screens.
-- Matrix ergonomics: Entire row is tappable; selecting a scale highlights the row; maintain visible column headers when scrolling.
-- Autosave: Persist after every action; show inline “Saved” text beneath the primary button for ~800 ms.
+- Matrix ergonomics: Entire row is tappable; selecting a scale highlights the row.
+- Save behavior: Answers are saved on Continue. The button shows “Saving…” during submission; no separate inline “Saved” confirmation.
 - Conditional logic: Implement slide 10a/10b branching; training effectiveness is hidden unless “Yes” on slide 10. If effectiveness ≤ 2, show the “Training needs” text as an additional prompt.
+- AI follow‑ups: Generate at most one follow‑up question, only after “support_requests” and “future_roles_skills” (free‑text). If none needed, skip.
 - Privacy: Show the reassurance note on all free‑text slides. Add a retention note in Welcome footer: “Your responses are used for an internal readiness report; not shared outside your company.”
  - Prefer not to say: Where offered, render as a distinct, clearly labeled choice. Treat as null for scoring/aggregation.
- - Analytics: Service rating (slide 28) is written to a separate feedback table/endpoint.
+ - Analytics: Service rating (end screen) is written to a separate feedback table/endpoint.
 
 ---
 
@@ -223,25 +219,27 @@ POST /api/feedback/survey-rating
 Content-Type: application/json
 
 {
-  "companyId": "uuid",
-  "userId": "uuid",
   "surveyVersion": "v2",
   "rating": 1,               // integer 1–5
   "comment": "Great flow",   // optional, max 140 chars
-  "userAgent": "...",        // optional metadata
-  "submittedAt": "2025-06-15T12:34:56Z"
+  "userAgent": "..."        // optional metadata
 }
 ```
 
 TypeScript types
 ```ts
-export interface SurveyRatingFeedback {
-  companyId: string
-  userId: string
+// Client sends this payload
+export interface SurveyRatingRequestBody {
   surveyVersion: 'v2'
   rating: 1 | 2 | 3 | 4 | 5
   comment?: string // <= 140 chars
   userAgent?: string
+}
+
+// Server stores this (server-populated fields included)
+export interface SurveyRatingFeedback extends SurveyRatingRequestBody {
+  companyId: string
+  userId: string
   submittedAt: string // ISO8601
 }
 ```
