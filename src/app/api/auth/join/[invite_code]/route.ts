@@ -3,7 +3,6 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/supabase/database.types'
-import { validateEmailDomain } from '@/lib/clerk/utils'
 
 interface JoinRouteProps {
   params: Promise<{ invite_code: string }>
@@ -56,17 +55,8 @@ export async function GET(request: NextRequest, { params }: JoinRouteProps) {
     const client = await clerkClient()
     const user = await client.users.getUser(userId)
     const userEmail = user.emailAddresses[0]?.emailAddress
-
     if (!userEmail) {
       return NextResponse.redirect(new URL('/sign-up?error=no_email', request.url))
-    }
-
-    // Validate email domain
-    if (!validateEmailDomain(userEmail, company.domain)) {
-      const errorUrl = new URL('/sign-up', request.url)
-      errorUrl.searchParams.set('error', 'invalid_domain')
-      errorUrl.searchParams.set('expected_domain', company.domain)
-      return NextResponse.redirect(errorUrl)
     }
 
     // Check if user already exists in our database
@@ -77,8 +67,8 @@ export async function GET(request: NextRequest, { params }: JoinRouteProps) {
       .single()
 
     if (existingUser) {
-      // User already exists, redirect to dashboard
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      // User already exists, redirect to hub
+      return NextResponse.redirect(new URL('/welcome', request.url))
     }
 
     // Create user record as employee
@@ -107,8 +97,8 @@ export async function GET(request: NextRequest, { params }: JoinRouteProps) {
       }
     })
 
-    // Redirect to dashboard/survey
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Redirect to hub
+    return NextResponse.redirect(new URL('/welcome', request.url))
 
   } catch (error) {
     console.error('Join process error:', error)

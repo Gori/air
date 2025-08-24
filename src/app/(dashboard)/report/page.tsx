@@ -35,9 +35,21 @@ export default function ReportPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load existing reports (in a real app, this would fetch from an API)
+  // Load existing canonical report
   useEffect(() => {
-    setIsLoading(false)
+    const load = async () => {
+      try {
+        setIsLoading(true)
+        const res = await fetch('/api/reports/current')
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.report) setReport(data.report)
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    void load()
   }, [])
 
   const generateReport = async () => {
@@ -89,16 +101,7 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 >
-          AI Readiness Reports
-        </h1>
-        <p className=" mt-2">
-          Generate comprehensive AI readiness assessments for your organization.
-        </p>
-      </div>
-
+    <div className="container">
       {error && (
         <Alert className="mb-6" variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -108,22 +111,23 @@ export default function ReportPage() {
       {/* Report Generation Section */}
       {!report && (
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="border-b border-neutral-200">
             <CardTitle className="flex items-center">Generate New Report</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <p >
-                Create a comprehensive AI readiness assessment report based on employee survey responses. 
+                Create a comprehensive AI readiness assessment report based on employee survey responses.
                 The report includes scoring across 13 dimensions and actionable recommendations.
               </p>
-              
+
               <div className="flex space-x-4">
-                <Button 
-                  onClick={generateReport} 
+                <Button
+                  variant="dark"
+                  onClick={generateReport}
                   disabled={isGenerating}
                   className="flex items-center"
->
+                >
                   {isGenerating ? (
                     <>Generating Report...</>
                   ) : (
@@ -150,7 +154,7 @@ export default function ReportPage() {
         <div className="space-y-8">
           {/* Report Header */}
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-neutral-200">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center ">Report Generated Successfully</CardTitle>
@@ -169,9 +173,9 @@ export default function ReportPage() {
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle >Employees Surveyed</CardTitle>
-                </CardHeader>
+              <CardHeader className="border-b border-neutral-200 flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle >Employees Surveyed</CardTitle>
+              </CardHeader>
               <CardContent>
                 <div >{report.summary.totalEmployees}</div>
                 <p >{report.summary.totalResponses} total responses</p>
@@ -179,9 +183,9 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle >Overall Score</CardTitle>
-                </CardHeader>
+              <CardHeader className="border-b border-neutral-200 flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle >Overall Score</CardTitle>
+              </CardHeader>
               <CardContent>
                 <div >{report.summary.averageScore}/5.0</div>
                 <Progress value={report.summary.averageScore * 20} className="mt-2" />
@@ -189,14 +193,14 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className="border-b border-neutral-200 flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle >Readiness Level</CardTitle>
                 <Badge variant={
                   report.summary.averageScore >= 4 ? "default" :
-                  report.summary.averageScore >= 3 ? "secondary" : "destructive"
+                    report.summary.averageScore >= 3 ? "secondary" : "destructive"
                 }>
                   {report.summary.averageScore >= 4 ? "High" :
-                   report.summary.averageScore >= 3 ? "Medium" : "Low"}
+                    report.summary.averageScore >= 3 ? "Medium" : "Low"}
                 </Badge>
               </CardHeader>
               <CardContent>
@@ -207,9 +211,9 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle >Report Status</CardTitle>
-                </CardHeader>
+              <CardHeader className="border-b border-neutral-200 flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle >Report Status</CardTitle>
+              </CardHeader>
               <CardContent>
                 <div>Complete</div>
                 <p >Ready for sharing</p>
@@ -220,7 +224,7 @@ export default function ReportPage() {
           {/* Usage Summary */}
           {report.usageSummary && (
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b border-neutral-200">
                 <CardTitle>AI Tool Usage Snapshot</CardTitle>
               </CardHeader>
               <CardContent>
@@ -250,7 +254,7 @@ export default function ReportPage() {
 
           {/* Dimension Scores */}
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-neutral-200">
               <CardTitle>Assessment Dimensions</CardTitle>
             </CardHeader>
             <CardContent>
@@ -274,8 +278,8 @@ export default function ReportPage() {
           {/* Narrative Insights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
-              <CardHeader>
-                <CardTitle >Strengths</CardTitle>
+              <CardHeader className="border-b border-neutral-200">
+                <CardTitle>Strengths</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -289,7 +293,7 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b border-neutral-200">
                 <CardTitle >Areas for Improvement</CardTitle>
               </CardHeader>
               <CardContent>
@@ -304,7 +308,7 @@ export default function ReportPage() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b border-neutral-200">
                 <CardTitle >Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
@@ -321,19 +325,17 @@ export default function ReportPage() {
 
           {/* Actions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="border-b border-neutral-200">
               <CardTitle>Next Steps</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <p >
-                  Your AI readiness report is complete and ready to share with stakeholders. 
+                  Your AI readiness report is complete and ready to share with stakeholders.
                   Use the insights to guide your organization&apos;s AI adoption strategy.
                 </p>
                 <div className="flex space-x-4">
-                  <Button onClick={() => setReport(null)}>
-                    Generate New Report
-                  </Button>
+                  <Button onClick={generateReport} disabled={isGenerating}>Generate New Report</Button>
                   <Button variant="outline" onClick={shareReport}>Share with Team</Button>
                 </div>
               </div>

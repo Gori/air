@@ -16,12 +16,12 @@ export function UserButton() {
       <div className="text-right ">
         <div>{user.fullName}</div>
         <div className="flex items-center space-x-2">
-          <Badge variant={userRole === 'manager' ? 'default' : 'secondary'}>
+          {/* <Badge variant={userRole === 'manager' ? 'default' : 'secondary'}>
             {userRole || 'user'}
           </Badge>
           {companyName && (
             <span>{companyName}</span>
-          )}
+          )} */}
         </div>
       </div>
       <ClerkUserButton 

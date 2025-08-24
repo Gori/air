@@ -257,7 +257,7 @@
   - Guest survey access without auth and non‑persistence.
 
 ### AI model standardization
-- Set `AI_MODEL = 'gpt-4.1-mini-2025-04-14'` in `src/lib/ai/client.ts` and ensure all AI routes reference it.
+- Set `AI_MODEL = 'gpt-5-mini'` in `src/lib/ai/client.ts` and ensure all AI routes reference it.
 
 ### Implementation order (minimal risk)
 1) Add `/welcome` route and update SignUp redirect.

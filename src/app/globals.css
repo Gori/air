@@ -12,8 +12,6 @@
   --font-serif: var(--font-lyon-display), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   /* Mono for buttons and small headings */
   --font-mono: var(--font-haffer-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  
- 
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -142,5 +140,14 @@
   }
   small {
     @apply text-sm;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

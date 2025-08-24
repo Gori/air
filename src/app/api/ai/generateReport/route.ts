@@ -170,7 +170,17 @@ export async function POST(request: NextRequest) {
     // Generate a unique slug for sharing
     const shareSlug = `${company.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}`
 
-    // Save the report to database
+    // Enforce canonical report: delete existing then insert fresh
+    const { data: existing } = await supabaseAdmin
+      .from('reports')
+      .select('id')
+      .eq('company_id', companyId)
+      .maybeSingle()
+    if (existing?.id) {
+      await supabaseAdmin.from('report_scores').delete().eq('report_id', existing.id)
+      await supabaseAdmin.from('reports').delete().eq('id', existing.id)
+    }
+
     const { data: report, error: reportError } = await supabaseAdmin
       .from('reports')
       .insert({

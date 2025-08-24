@@ -271,6 +271,72 @@ export interface Database {
           created_at?: string
         }
       }
+      personal_surveys: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string
+          completed_at?: string | null
+        }
+      }
+      personal_answers: {
+        Row: {
+          id: string
+          survey_id: string
+          dimension: string
+          answer_text: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          survey_id: string
+          dimension: string
+          answer_text: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          survey_id?: string
+          dimension?: string
+          answer_text?: string
+          created_at?: string
+        }
+      }
+      personal_insights: {
+        Row: {
+          user_id: string
+          survey_id: string
+          generated_at: string
+          scores_json: Json
+          narrative_json: Json
+        }
+        Insert: {
+          user_id: string
+          survey_id: string
+          generated_at?: string
+          scores_json: Json
+          narrative_json: Json
+        }
+        Update: {
+          user_id?: string
+          survey_id?: string
+          generated_at?: string
+          scores_json?: Json
+          narrative_json?: Json
+        }
+      }
     }
     Views: {
       [_ in never]: never

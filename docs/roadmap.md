@@ -913,7 +913,7 @@ Align the application to the refactor spec in `docs/refactor.md` with minimal, f
 - Update integration/E2E tests for `/welcome` branching, self‑enroll, admin authz, guest access, and invite redirect.
 
 ### Notes
-- Use `'gpt-4.1-mini-2025-04-14'` for AI model standardization in `src/lib/ai/client.ts`.
+- Use `'gpt-5-mini'` for AI model standardization in `src/lib/ai/client.ts`.
 - Reference: `docs/refactor.md` (UX, copy, and flows).
 
 ---

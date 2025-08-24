@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth, useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { UserRole } from '@/types'
 
@@ -19,6 +19,7 @@ export function AuthGuard({
   const { isLoaded, userId } = useAuth()
   const { user } = useUser()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!isLoaded) return
@@ -31,17 +32,13 @@ export function AuthGuard({
 
     // Check role requirement
     if (requiredRole && user?.publicMetadata?.role !== requiredRole) {
-      router.push('/dashboard') // Redirect to appropriate page
+      router.push('/dashboard')
       return
     }
 
-    // Check company assignment for employees
-    if (user?.publicMetadata?.role === 'employee' && !user?.publicMetadata?.company_id) {
-      router.push('/dashboard') // Will show onboarding
-      return
-    }
+    // Manager redirects handled server-side in layout to avoid flash
 
-  }, [isLoaded, userId, user, requiredRole, redirectTo, router])
+  }, [isLoaded, userId, user, requiredRole, redirectTo, router, pathname])
 
   // Show loading while auth is being determined
   if (!isLoaded) {

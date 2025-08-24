@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { auth } from '@clerk/nextjs/server'
 import type { Database } from '@/lib/supabase/database.types'
 import { EmployeeJoinForm } from '@/components/forms/employee-join-form'
@@ -11,29 +10,7 @@ interface JoinPageProps {
 }
 
 async function getCompanyByInviteCode(inviteCode: string) {
-  const cookieStore = await cookies()
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-          }
-        },
-      },
-    }
-  )
-
-  const { data: company, error } = await supabase
+  const { data: company, error } = await supabaseAdmin
     .from('companies')
     .select('id, name, domain')
     .eq('invite_code', inviteCode.toUpperCase())
@@ -62,12 +39,21 @@ export default async function JoinPage({ params }: JoinPageProps) {
           <p className=" mb-6">
             This invitation link is not valid or has expired.
           </p>
-          <Link 
-            href="/sign-up"
-            className="inline-flex items-center px-4 py-2 border border-transparent   rounded-md text-white  hover:"
-          >
-            Sign Up Instead
-          </Link>
+          {userId ? (
+            <Link 
+              href="/welcome"
+              className="inline-flex items-center px-4 py-2 border border-black rounded-md text-black bg-white hover:opacity-90"
+            >
+              Go to your home
+            </Link>
+          ) : (
+            <Link 
+              href="/sign-up"
+              className="inline-flex items-center px-4 py-2 border border-black rounded-md text-black bg-white hover:opacity-90"
+            >
+              Sign up
+            </Link>
+          )}
         </div>
       </div>
     )

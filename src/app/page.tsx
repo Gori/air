@@ -1,4 +1,9 @@
 import { auth } from '@clerk/nextjs/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+
+// Ensure this page is always dynamic so auth-based redirects run immediately
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -9,9 +14,14 @@ import { Badge } from '@/components/ui/badge'
 
 export default async function HomePage() {
   const { userId } = await auth()
-
   if (userId) {
-    redirect('/dashboard')
+    const { data: me } = await supabaseAdmin
+      .from('users')
+      .select('role, company_id')
+      .eq('id', userId)
+      .single()
+    if (me?.role === 'manager' && me.company_id) redirect('/admin/overview')
+    redirect('/welcome')
   }
 
   return (
@@ -30,7 +40,7 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
             <Link href="/sign-up"><Button >Start free</Button></Link>
-            <Link href="/sign-in"><Button variant="secondary">Sign in</Button></Link>
+            <Link href="/sign-in"><Button variant="ghost">Sign in</Button></Link>
           </div>
         </div>
 
@@ -47,7 +57,7 @@ export default async function HomePage() {
         <p className="mt-2 text-base text-muted-foreground max-w-2xl mx-auto">Simple survey → trustworthy signal. Modern UX, secure data, and a shareable report that leadership will actually read.</p>
         <div className="mt-5 flex flex-wrap font-mono tracking-widest uppercase items-center justify-center gap-6 text-sm text-muted-foreground">
           <span>RLS‑secured</span>
-          <span>Domain‑restricted sign‑in</span>
+          <span>Invite‑only company join</span>
           <span>GPT‑4.1 follow‑ups</span>
         </div>
       </section>
@@ -88,7 +98,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="rounded-4xl bg-muted/40 p-10 text-center bg-rose-200">
           <h2 className="text-3xl sm:text-4xl leading-tight">One simple assessment to align your teams on AI</h2>
-          <p className="mt-3 text-muted-foreground">Domain‑restricted sign‑in. RLS‑secured data. Minimal by design.</p>
+          <p className="mt-3 text-muted-foreground">Invite‑only company join. RLS‑secured data. Minimal by design.</p>
           <div className="mt-6"><Link href="/sign-up"><Button>Create your company</Button></Link></div>
         </div>
       </section>

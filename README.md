@@ -7,7 +7,7 @@ A single-tenant SaaS platform where managers assess their organization's AI read
 ## Features
 
 - **Employee Surveys**: 20 core questions across 6 modules (AI literacy, attitudes, workflows, etc.)
-- **AI-Powered Follow-ups**: GPT-4.1 generates contextual follow-up questions
+- **AI-Powered Follow-ups**: GPT-5 generates contextual follow-up questions
 - **Intelligent Scoring**: Automated scoring across 13 dimensions (0-5 scale)
 - **Visual Reports**: Bar charts, radar charts, and heatmaps with export options
 - **Secure Sharing**: Public report links with company domain validation
@@ -19,7 +19,7 @@ A single-tenant SaaS platform where managers assess their organization's AI read
 - **Backend**: Next.js Route Handlers + Vercel AI SDK
 - **Database**: Supabase (Postgres + Row-Level Security)
 - **Auth**: Clerk (Google OAuth + Email/Password)
-- **AI**: OpenAI GPT-4.1 for question generation and report analysis
+- **AI**: OpenAI GPT-5 for question generation and report analysis
 - **Email**: Resend for invitations and notifications
 - **Testing**: Jest + React Testing Library + Playwright
 

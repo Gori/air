@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -53,6 +53,7 @@ const MATRIX_LEVELS = [
 
 export default function SurveyPage() {
   const router = useRouter()
+  const search = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [slides, setSlides] = useState<Slide[]>([])
@@ -533,6 +534,23 @@ export default function SurveyPage() {
   }, [])
 
   const answerQuestion = useCallback(async (dimension: string, payload: string) => {
+    const mode = search?.get('mode')
+    const isPersonal = mode === 'personal'
+    if (isPersonal) {
+      const startRes = await fetch('/api/personal/survey/start', { method: 'POST' })
+      const start = await startRes.json()
+      const surveyId = start?.surveyId
+      await fetch('/api/personal/survey/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surveyId, dimension, answerText: payload })
+      })
+      setInstanceMap(prev => {
+        const prevItem = prev[dimension] || { id: `local_${dimension}`, ordinal: Object.keys(prev).length + 1, question_id: null }
+        return { ...prev, [dimension]: { ...prevItem, answer_text: payload } }
+      })
+      return
+    }
     const inst = instanceMap[dimension]
     if (!inst) return
     const res = await fetch('/api/survey/answer', {
@@ -541,16 +559,12 @@ export default function SurveyPage() {
       body: JSON.stringify({ questionInstanceId: inst.id, answerText: payload })
     })
     if (!res.ok) throw new Error('Failed to save answer')
-    // Immediately reflect the saved answer locally so Back restores values
     setInstanceMap(prev => {
       const prevItem = prev[dimension]
       if (!prevItem) return prev
-      return {
-        ...prev,
-        [dimension]: { ...prevItem, answer_text: payload }
-      }
+      return { ...prev, [dimension]: { ...prevItem, answer_text: payload } }
     })
-  }, [instanceMap])
+  }, [instanceMap, search])
 
   const handleNext = useCallback(async () => {
     const slide = slides[activeIdx]
@@ -563,31 +577,35 @@ export default function SurveyPage() {
         if (payload && FOLLOWUP_ALLOWED.has(slide.dimension)) {
           const inst = instanceMap[slide.dimension]
           if (inst) {
-            const followRes = await fetch('/api/ai/nextQuestion', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                questionInstanceId: inst.id,
-                originalQuestion: slide.subheading || '',
-                employeeAnswer: payload,
-                currentOrdinal: inst.ordinal
+            const mode = search?.get('mode')
+            const isPersonal = mode === 'personal'
+            if (!isPersonal) {
+              const followRes = await fetch('/api/ai/nextQuestion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  questionInstanceId: inst.id,
+                  originalQuestion: slide.subheading || '',
+                  employeeAnswer: payload,
+                  currentOrdinal: inst.ordinal
+                })
               })
-            })
-            if (followRes.ok) {
-              const data = await followRes.json()
-              if (data.hasFollowUp && data.followUpQuestion?.id) {
-                const text = data.followUpQuestion.text as string
-                const f: Slide = {
-                  type: 'ai_followup',
-                  prompt: 'Briefly answer the follow‑up question below.',
-                  required: true,
-                  followUpInstanceId: data.followUpQuestion.id,
-                  heading: 'Follow‑up',
-                  subheading: text
+              if (followRes.ok) {
+                const data = await followRes.json()
+                if (data.hasFollowUp && data.followUpQuestion?.id) {
+                  const text = data.followUpQuestion.text as string
+                  const f: Slide = {
+                    type: 'ai_followup',
+                    prompt: 'Briefly answer the follow‑up question below.',
+                    required: true,
+                    followUpInstanceId: data.followUpQuestion.id,
+                    heading: 'Follow‑up',
+                    subheading: text
+                  }
+                  const newSlides = [...slides]
+                  newSlides.splice(activeIdx + 1, 0, f)
+                  setSlides(newSlides)
                 }
-                const newSlides = [...slides]
-                newSlides.splice(activeIdx + 1, 0, f)
-                setSlides(newSlides)
               }
             }
           }
@@ -650,7 +668,20 @@ export default function SurveyPage() {
           body: JSON.stringify({ questionInstanceId: slide.followUpInstanceId, answerText: payload })
         })
       } else if (slide.type === 'end') {
-        // handled by submitRating
+        // On end in personal mode, mark complete and ensure insights
+        const mode = search?.get('mode')
+        if (mode === 'personal') {
+          const startRes = await fetch('/api/personal/survey/start', { method: 'POST' })
+          const start = await startRes.json()
+          const surveyId = start?.surveyId
+          if (surveyId) {
+            await fetch('/api/personal/survey/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ surveyId })
+            })
+          }
+        }
       }
       setActiveIdx(i => Math.min(i + 1, slides.length - 1))
       resetControlsForSlide(slides[activeIdx + 1])
@@ -670,21 +701,34 @@ export default function SurveyPage() {
 
   
 
-  // Load start
+  // Load start via driver (company vs personal)
   useEffect(() => {
     const load = async () => {
       try {
         setIsLoading(true)
-        const res = await fetch('/api/survey/start', { method: 'POST' })
-        if (!res.ok) throw new Error('Failed to load survey')
-        const data: StartPayload = await res.json()
-        setInstanceMap(data.instanceMap || {})
+        const mode = search?.get('mode')
+        const isPersonal = mode === 'personal'
+        let instMap: Record<string, InstanceMapItem> = {}
+        if (isPersonal) {
+          const res = await fetch('/api/personal/survey/start', { method: 'POST' })
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}))
+            throw new Error(err?.error || 'Failed to load personal survey')
+          }
+          const start = await res.json()
+          instMap = start.instanceMap || {}
+          setInstanceMap(instMap)
+        } else {
+          const res = await fetch('/api/survey/start', { method: 'POST' })
+          if (!res.ok) throw new Error('Failed to load survey')
+          const payload: StartPayload = await res.json()
+          instMap = payload.instanceMap || {}
+          setInstanceMap(instMap)
+        }
         const s = buildSlides()
         setSlides(s)
-        // Resume from first unanswered slide
-        const idx = findFirstUnansweredSlideIndex(s, data.instanceMap || {})
+        const idx = findFirstUnansweredSlideIndex(s, instMap)
         setActiveIdx(idx)
-        // Initialize controls for first slide
         resetControlsForSlide(s[idx])
       } catch (e) {
         console.error(e)
@@ -694,7 +738,6 @@ export default function SurveyPage() {
       }
     }
     void load()
-    // Intentionally run once on mount to avoid reload loops when callbacks change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

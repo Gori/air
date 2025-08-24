@@ -30,18 +30,11 @@ export function EmployeeJoinForm({
         </div>
       </CardHeader>
       <CardContent>
-        <Alert className="mb-6">
-          <AlertDescription>
-            <strong>Important:</strong> Please use your work email address with the domain @{companyDomain} 
-            to ensure proper access to your company&apos;s assessment.
-          </AlertDescription>
-        </Alert>
+        {/* Domain hint removed per invite-only policy */}
 
         <SignUp 
-          routing="path"
-          path="/sign-up"
-          signInUrl="/sign-in"
-          redirectUrl={`/api/auth/join/${inviteCode}`}
+          routing="hash"
+          afterSignUpUrl={`/api/auth/join/${inviteCode}`}
           appearance={{
             elements: {
               rootBox: "w-full",
@@ -58,12 +51,7 @@ export function EmployeeJoinForm({
         <div className="mt-6 text-center">
           <p >
             Already have an account?{' '}
-            <a 
-              href={`/sign-in?redirect_url=/api/auth/join/${inviteCode}`}
-              
->
-              Sign in instead
-            </a>
+            <a href={`/sign-in?redirect_url=/api/auth/join/${inviteCode}`}>Sign in</a>
           </p>
         </div>
       </CardContent>

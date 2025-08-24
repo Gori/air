@@ -74,7 +74,7 @@ cp env.template .env.local
 - **Styling**: TailwindCSS 4.x + ShadCN/ui components
 - **Authentication**: Clerk (Google OAuth + Email/Password)
 - **Database**: Supabase (Postgres + Row-Level Security)
-- **AI**: OpenAI GPT-4.1 via Vercel AI SDK
+- **AI**: OpenAI GPT-5 via Vercel AI SDK
 - **Email**: Resend + React Email templates
 - **Testing**: Jest + React Testing Library + Playwright
 
