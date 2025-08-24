@@ -4,7 +4,7 @@ export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 })
 
-export const AI_MODEL = 'gpt-5-mini'
+export const AI_MODEL = 'gpt-4.1-mini-2025-04-14'
 
 export interface AIResponse {
   content: string

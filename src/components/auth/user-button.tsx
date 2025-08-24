@@ -1,15 +1,13 @@
 'use client'
 
 import { UserButton as ClerkUserButton, useUser } from '@clerk/nextjs'
-import { Badge } from '@/components/ui/badge'
 
 export function UserButton() {
   const { user } = useUser()
   
   if (!user) return null
 
-  const userRole = user.publicMetadata?.role as string
-  const companyName = user.publicMetadata?.company_name as string
+  // metadata optionally used later
 
   return (
     <div className="flex items-center space-x-3">

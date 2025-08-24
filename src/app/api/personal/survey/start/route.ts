@@ -8,15 +8,16 @@ export async function POST() {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     // Ensure a personal survey exists (requires personal_* tables to be migrated)
-    const { data: selData, error: selError } = await supabaseAdmin
+    const { data: selRows, error: selError } = await supabaseAdmin
       .from('personal_surveys' as never)
       .select('id, created_at, completed_at')
       .eq('user_id', userId)
-      .maybeSingle()
+      .order('created_at', { ascending: true })
+      .limit(1)
     if (selError) {
       return NextResponse.json({ error: 'Missing personal tables or DB error', details: selError.message }, { status: 500 })
     }
-    let existingSurvey: { id: string } | null = (selData as any) || null
+    const existingSurvey = (Array.isArray(selRows) && selRows.length > 0 ? selRows[0] : null) as { id: string } | null
 
     // Ensure a users row exists so FK(user_id -> users.id) succeeds in personal_* tables
     const { data: existingUser } = await supabaseAdmin
@@ -37,7 +38,7 @@ export async function POST() {
       }
     }
 
-    let surveyId = existingSurvey?.id as string | undefined
+    let surveyId = (existingSurvey?.id as string | undefined)
     if (!surveyId) {
       const { data: created, error: createErr } = await supabaseAdmin
         .from('personal_surveys' as never)
@@ -53,13 +54,14 @@ export async function POST() {
       .from('personal_answers' as never)
       .select('dimension, answer_text, created_at')
       .eq('survey_id', surveyId)
+      .order('created_at', { ascending: true })
     if (ansErr) {
       return NextResponse.json({ error: 'DB error reading personal answers', details: ansErr.message }, { status: 500 })
     }
 
     const instanceMap: Record<string, { id: string; ordinal: number; question_id: number | null; answer_text?: string }> = {}
     let ordinal = 1
-    for (const row of (answers || []) as Array<{ dimension: string; answer_text: string }>) {
+    for (const row of ((answers as Array<{ dimension: string; answer_text: string }> | null) || [])) {
       instanceMap[row.dimension] = { id: `personal_${row.dimension}`, ordinal: ordinal++, question_id: null, answer_text: row.answer_text }
     }
 

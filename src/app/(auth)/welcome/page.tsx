@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 // Invite manager flow removed
 import { AssessmentCard } from '@/components/ui/assessment-card'
@@ -15,12 +15,9 @@ export default async function WelcomePage() {
 
   const client = await clerkClient()
   const user = await client.users.getUser(userId)
-  const role = (user.publicMetadata?.role as string | undefined) || undefined
   const companyId = (user.publicMetadata?.company_id as string | undefined) || undefined
 
   // Determine visibility flags for options
-  const showCompanyTest = Boolean(companyId && role !== 'manager')
-  const showPersonalTest = !companyId
 
   // Check if personal insights exist
   const { data: insights } = await supabaseAdmin
@@ -32,16 +29,34 @@ export default async function WelcomePage() {
   const showPersonalInsights = Boolean(insights)
   const showRegisterCompany = !companyId
 
-  // If company association exists, fetch name for button label
-  let companyName: string | null = null
-  if (companyId) {
-    const { data: company } = await supabaseAdmin
-      .from('companies')
-      .select('name')
-      .eq('id', companyId)
-      .single()
-    companyName = company?.name || null
+  // If company association exists, fetch name for button label (removed unused value)
+
+  // Personal progress (server-side) for AssessmentCard ring
+  let personalAnswered = 0
+  const PERSONAL_TOTAL = 20
+  if (!companyId) {
+    // Try to find a personal survey and count answers
+    const { data: surveyRow } = await supabaseAdmin
+      .from('personal_surveys' as never)
+      .select('id, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true } as never)
+      .limit(1)
+      .maybeSingle()
+    let surveyId: string | undefined
+    if (surveyRow && typeof (surveyRow as { id?: unknown }).id === 'string') {
+      surveyId = (surveyRow as { id: string }).id
+    }
+    if (surveyId) {
+      const { data: ans } = await supabaseAdmin
+        .from('personal_answers' as never)
+        .select('id')
+        .eq('survey_id', surveyId)
+      personalAnswered = (ans || []).length
+    }
   }
+
+  const isPersonalCompleted = (!companyId && (showPersonalInsights || personalAnswered >= PERSONAL_TOTAL))
 
   return (
     <div className="container mx-auto p-6 max-w-2xl">
@@ -52,21 +67,17 @@ export default async function WelcomePage() {
         <div className="grid grid-cols-1 gap-6">
           {/* Personal / Assessment using shared component, and shown for all users */}
           {companyId ? (
-            <AssessmentCard href="/survey" title="Assessment" subtitle="Submit for your company" />
+            showPersonalInsights ? (
+              <AssessmentCard href="/personal/insights" title="Assessment" subtitle="View your personal insights" />
+            ) : (
+              <AssessmentCard href="/survey" title="Assessment" subtitle="Submit for your company" />
+            )
           ) : (
-            <>
-              <AssessmentCard href="/survey?mode=personal" title="Assessment" subtitle="Take your personal test" />
-              {showPersonalInsights && (
-                <Card className="bg-[#abd37a] border-[#68c282] text-black p-4">
-                  <CardContent>
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="font-sans text-lg font-medium">Your insights</div>
-                      <Link href="/personal/insights"><Button variant="outline">View insights</Button></Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </>
+            isPersonalCompleted ? (
+              <AssessmentCard href="/personal/insights" title="Assessment" subtitle="View your personal insights" value={PERSONAL_TOTAL} total={PERSONAL_TOTAL} />
+            ) : (
+              <AssessmentCard href="/survey?mode=personal" title="Assessment" subtitle="Continue your personal test" value={personalAnswered} total={PERSONAL_TOTAL} />
+            )
           )}
 
           {/* Register company card */}

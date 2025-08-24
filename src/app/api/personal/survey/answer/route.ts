@@ -17,11 +17,12 @@ export async function POST(req: NextRequest) {
       .eq('survey_id', surveyId)
       .eq('dimension', dimension)
       .maybeSingle()
-    if (existing?.id) {
+    const existingRow = (existing ?? null) as { id: string } | null
+    if (existingRow?.id) {
       const { error: upErr } = await supabaseAdmin
         .from('personal_answers' as never)
         .update({ answer_text: answerText } as never)
-        .eq('id', existing.id)
+        .eq('id', existingRow.id)
       if (upErr) throw upErr
     } else {
       const { error: insErr } = await supabaseAdmin

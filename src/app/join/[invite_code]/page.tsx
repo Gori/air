@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { auth } from '@clerk/nextjs/server'
-import type { Database } from '@/lib/supabase/database.types'
 import { EmployeeJoinForm } from '@/components/forms/employee-join-form'
 import Link from 'next/link'
 

@@ -668,19 +668,27 @@ export default function SurveyPage() {
           body: JSON.stringify({ questionInstanceId: slide.followUpInstanceId, answerText: payload })
         })
       } else if (slide.type === 'end') {
-        // On end in personal mode, mark complete and ensure insights
+        // Finalize and redirect to insights for both modes
         const mode = search?.get('mode')
         if (mode === 'personal') {
-          const startRes = await fetch('/api/personal/survey/start', { method: 'POST' })
-          const start = await startRes.json()
-          const surveyId = start?.surveyId
-          if (surveyId) {
-            await fetch('/api/personal/survey/complete', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ surveyId })
-            })
-          }
+          try {
+            const startRes = await fetch('/api/personal/survey/start', { method: 'POST' })
+            const start = await startRes.json()
+            const surveyId = start?.surveyId
+            if (surveyId) {
+              await fetch('/api/personal/survey/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ surveyId })
+              })
+            }
+          } catch { /* best-effort */ }
+          router.push('/personal/insights')
+          return
+        } else {
+          try { await fetch('/api/insights/ensure', { method: 'POST' }) } catch { /* best-effort */ }
+          router.push('/personal/insights')
+          return
         }
       }
       setActiveIdx(i => Math.min(i + 1, slides.length - 1))
@@ -791,14 +799,44 @@ export default function SurveyPage() {
   const [ratingComment, setRatingComment] = useState('')
   const submitRating = async () => {
     try {
-      if (!rating) { setActiveIdx(activeIdx + 1); return }
-      await fetch('/api/feedback/survey-rating', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, comment: ratingComment.slice(0, 140), surveyVersion: 'v2', userAgent: navigator.userAgent })
-      })
-      setActiveIdx(activeIdx + 1)
-    } catch { }
+      setIsSubmitting(true)
+      // Persist optional rating feedback
+      if (rating) {
+        try {
+          await fetch('/api/feedback/survey-rating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating, comment: ratingComment.slice(0, 140), surveyVersion: 'v2', userAgent: navigator.userAgent })
+          })
+        } catch { /* non-blocking */ }
+      }
+
+      // On finish, ensure personal insights exist and redirect to insights page
+      const mode = search?.get('mode')
+      if (mode === 'personal') {
+        // Mark personal survey complete and trigger insights generation server-side
+        try {
+          const startRes = await fetch('/api/personal/survey/start', { method: 'POST' })
+          const start = await startRes.json().catch(() => ({}))
+          const surveyId = start?.surveyId
+          if (surveyId) {
+            await fetch('/api/personal/survey/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ surveyId })
+            })
+          }
+        } catch { /* best-effort; insights route will no-op if already created */ }
+        router.push('/personal/insights')
+        return
+      }
+
+      // Company mode: ensure insights once and redirect
+      try { await fetch('/api/insights/ensure', { method: 'POST' }) } catch { /* best-effort */ }
+      router.push('/personal/insights')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isLoading) {
@@ -821,7 +859,23 @@ export default function SurveyPage() {
             <span>Back</span>
           </Button>
           <div className="text-sm text-gray-500">{current} of {totalSlides}</div>
-          <Button variant="outline" onClick={() => router.push('/dashboard')} className="gap-1 h-9 px-6">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                const me = await fetch('/api/me', { cache: 'no-store' })
+                if (me.ok) {
+                  const data = await me.json()
+                  if (data?.role === 'manager' && data?.company_id) {
+                    router.push('/admin/overview')
+                    return
+                  }
+                }
+              } catch {}
+              router.push('/welcome')
+            }}
+            className="gap-1 h-9 px-6"
+          >
             <span>Close</span>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

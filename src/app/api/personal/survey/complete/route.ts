@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { ensurePersonalInsightsForUser } from '@/lib/insights/ensure'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,9 +15,8 @@ export async function POST(req: NextRequest) {
       .update({ completed_at: new Date().toISOString() } as never)
       .eq('id', surveyId)
 
-    // Ensure insights exist
-    const res = await fetch(new URL('/api/insights/ensure', req.url), { method: 'POST' })
-    void res
+    // Ensure insights exist (inline, avoids extra network hop)
+    try { await ensurePersonalInsightsForUser(userId) } catch { /* best-effort */ }
     return NextResponse.json({ success: true })
   } catch (e) {
     console.error('personal complete error', e)

@@ -58,7 +58,7 @@ export default async function HomePage() {
         <div className="mt-5 flex flex-wrap font-mono tracking-widest uppercase items-center justify-center gap-6 text-sm text-muted-foreground">
           <span>RLS‑secured</span>
           <span>Invite‑only company join</span>
-          <span>GPT‑4.1 follow‑ups</span>
+          <span>GPT‑5 follow‑ups</span>
         </div>
       </section>
 

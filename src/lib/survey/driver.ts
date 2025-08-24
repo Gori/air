@@ -16,6 +16,9 @@ export interface SurveyDriver {
   }): Promise<{ instanceId: string, prompt: string } | null>
 }
 
+type SurveyInstance = { id: string; ordinal: number; question_id: number | null; answer_text?: string }
+type PersonalSurveyState = { instanceMap: Record<string, SurveyInstance>; total: number }
+
 export class CompanySurveyDriver implements SurveyDriver {
   async loadStart(): Promise<StartPayloadLike> {
     const res = await fetch('/api/survey/start', { method: 'POST' })
@@ -51,23 +54,25 @@ export class CompanySurveyDriver implements SurveyDriver {
 export class PersonalSurveyDriver implements SurveyDriver {
   private storageKey = 'air_personal_survey_v1'
 
-  private read(): Record<string, any> {
-    if (typeof window === 'undefined') return {}
+  private read(): PersonalSurveyState {
+    const defaultState: PersonalSurveyState = { instanceMap: {}, total: 20 }
+    if (typeof window === 'undefined') return defaultState
     try {
       const raw = window.localStorage.getItem(this.storageKey)
-      return raw ? JSON.parse(raw) : {}
-    } catch { return {} }
+      const parsed = raw ? JSON.parse(raw) : null
+      return parsed ? { ...defaultState, ...parsed } : defaultState
+    } catch { return defaultState }
   }
-  private write(obj: Record<string, any>) {
+  private write(state: PersonalSurveyState) {
     if (typeof window === 'undefined') return
-    window.localStorage.setItem(this.storageKey, JSON.stringify(obj))
+    window.localStorage.setItem(this.storageKey, JSON.stringify(state))
   }
 
   async loadStart(): Promise<StartPayloadLike> {
     const state = this.read()
     const instanceMap = state.instanceMap || {}
     const total = state.total || 20
-    const answered = Object.values(instanceMap).filter((v: any) => v?.answer_text && String(v.answer_text).length > 0).length
+    const answered = Object.values(instanceMap).filter((v) => v?.answer_text && String(v.answer_text).length > 0).length
     return {
       completed: answered >= total && total > 0,
       progress: { current: answered + 1, total },

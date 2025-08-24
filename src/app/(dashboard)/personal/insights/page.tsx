@@ -1,31 +1,41 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export default async function PersonalInsightsPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/personal/insights`, { cache: 'no-store' })
-  const data = await res.json()
-  const insights = data?.insights
+  const { data } = await supabaseAdmin
+    .from('personal_insights' as never)
+    .select('user_id, survey_id, generated_at, scores_json, narrative_json')
+    .eq('user_id', userId)
+    .maybeSingle()
+  type PersonalInsightsRow = { user_id: string; survey_id: string | null; generated_at: string | null; scores_json: unknown; narrative_json: unknown }
+  const insights = (data ?? null) as unknown as PersonalInsightsRow | null
+
+  if (!insights) {
+    return (
+      <div className="container mx-auto py-12">
+        <h1 className="text-3xl mb-4">Your Personal Insights</h1>
+        <p>No insights yet. Complete a test to see your insights.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-12">
       <h1 className="text-3xl mb-4">Your Personal Insights</h1>
-      {!insights ? (
-        <p>No insights yet. Complete a test to see your insights.</p>
-      ) : (
-        <div className="space-y-6">
-          <section>
-            <h2 className="text-xl mb-2">Scores</h2>
-            <pre className="text-sm bg-neutral-100 p-4 rounded">{JSON.stringify(insights.scores_json, null, 2)}</pre>
-          </section>
-          <section>
-            <h2 className="text-xl mb-2">Narrative</h2>
-            <pre className="text-sm bg-neutral-100 p-4 rounded">{JSON.stringify(insights.narrative_json, null, 2)}</pre>
-          </section>
-        </div>
-      )}
+      <div className="space-y-6">
+        <section>
+          <h2 className="text-xl mb-2">Scores</h2>
+          <pre className="text-sm bg-neutral-100 p-4 rounded">{JSON.stringify(insights.scores_json, null, 2)}</pre>
+        </section>
+        <section>
+          <h2 className="text-xl mb-2">Narrative</h2>
+          <pre className="text-sm bg-neutral-100 p-4 rounded">{JSON.stringify(insights.narrative_json, null, 2)}</pre>
+        </section>
+      </div>
     </div>
   )
 }

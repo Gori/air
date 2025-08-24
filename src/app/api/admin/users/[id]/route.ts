@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+interface RouteParams { params: Promise<{ id: string }> }
+
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { userId } = await auth()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -16,7 +18,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Manager access required' }, { status: 403 })
     }
 
-    const targetId = params.id
+    const { id: targetId } = await params
     // Ensure target belongs to same company
     const { data: target } = await supabaseAdmin
       .from('users')

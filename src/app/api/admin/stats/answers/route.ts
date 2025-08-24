@@ -28,8 +28,12 @@ export async function GET() {
       `)
       .eq('company_id', companyId)
 
+    type Row = {
+      questions?: { dimension?: string | null } | null
+      answers?: Array<{ answer_text?: string | null }> | null
+    }
     const byDim: Record<string, { answered: number; total: number; dist?: Record<string, number> }> = {}
-    for (const row of (data || []) as any[]) {
+    for (const row of ((data as Row[] | null) || [])) {
       const dim = row.questions?.dimension || 'unknown'
       byDim[dim] = byDim[dim] || { answered: 0, total: 0, dist: {} }
       byDim[dim]!.total += 1
@@ -47,7 +51,7 @@ export async function GET() {
             byDim[dim]!.dist![k] = (byDim[dim]!.dist![k] || 0) + 1
           }
           if (parsed?.type === 'mc_multi' && Array.isArray(parsed.choices)) {
-            for (const c of parsed.choices) {
+            for (const c of parsed.choices as Array<string | number>) {
               const k = String(c)
               byDim[dim]!.dist![k] = (byDim[dim]!.dist![k] || 0) + 1
             }

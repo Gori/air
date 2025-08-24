@@ -38,7 +38,7 @@ export default function DashboardClient() {
       const completedCount = Math.max(current - 1, 0)
       const isDone = Boolean(data?.completed && total > 0)
       setSurveyProgress({ total, completed: isDone ? total : completedCount, progress: total > 0 ? (isDone ? 1 : completedCount / total) : 0 })
-    } catch (e) {
+    } catch {
       setError('Failed to load survey progress.')
     } finally {
       setIsLoading(false)
@@ -61,7 +61,7 @@ export default function DashboardClient() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="font-medium text-4xl font-medium font-sans">Assessment</h1>
-          <p className=" mt-2">Track your progress and contribute to your organization's AI readiness insights.</p>
+          <p className=" mt-2">Track your progress and contribute to your organization&apos;s AI readiness insights.</p>
         </div>
         <UserButton />
       </div>

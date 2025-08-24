@@ -29,11 +29,15 @@ export async function GET() {
       supabaseAdmin.from('question_instances').select('id', { head: true, count: 'exact' }).eq('employee_id', userId)
     ])
 
-    const respondentsSet = new Set((answersRes.data || []).map((r: { employee_id: string }) => r.employee_id))
+    const respondentsSet = new Set((answersRes.data || []).map((r: { employee_id: string | null }) => r.employee_id || ''))
     const respondents = respondentsSet.size
 
     const recent = (answersRes.data || [])
-      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .sort((a: { created_at: string | null }, b: { created_at: string | null }) => {
+        const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
+        const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
+        return bTime - aTime
+      })
       .slice(0, 5)
 
     return NextResponse.json({
