@@ -9,6 +9,21 @@ import { AssessmentCard } from '@/components/ui/assessment-card'
 
 // ProgressRing removed (unused)
 
+interface Onboarding {
+  industry?: string | null
+  headcount_range?: string | null
+  buyer_roles?: string[]
+  user_roles?: string[]
+  change_enablers?: string[]
+  change_blockers?: string[]
+  ai_readiness?: {
+    ai_understanding?: number
+    ai_usage_learning?: number
+    ai_sharing_rhythm?: number
+    ai_tools_data_access?: number
+  }
+}
+
 export default async function AdminOverviewPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
@@ -27,7 +42,7 @@ export default async function AdminOverviewPage() {
     supabaseAdmin.from('users').select('id', { head: true, count: 'exact' }).eq('company_id', companyId).eq('role', 'employee'),
     supabaseAdmin.from('users').select('id', { head: true, count: 'exact' }).eq('company_id', companyId).eq('role', 'manager'),
     supabaseAdmin.from('answers').select('employee_id, created_at').eq('company_id', companyId),
-    supabaseAdmin.from('companies').select('invite_code, name, created_at').eq('id', companyId).single(),
+    supabaseAdmin.from('companies').select('invite_code, name, created_at, industry, headcount, description').eq('id', companyId).single(),
     supabaseAdmin.from('answers').select('id', { head: true, count: 'exact' }).eq('employee_id', userId),
     supabaseAdmin.from('question_instances').select('id', { head: true, count: 'exact' }).eq('employee_id', userId),
     supabaseAdmin.from('question_instances').select('id', { head: true, count: 'exact' }).eq('company_id', companyId),
@@ -48,6 +63,10 @@ export default async function AdminOverviewPage() {
   const isCompleted = hasInsights || (total > 0 && answered >= total)
   const inviteCode = companyRes.data?.invite_code
   const companyName = companyRes.data?.name
+  const industry = companyRes.data?.industry as string | null
+  const headcount = (companyRes.data?.headcount as number | null) || null
+  let onboarding: Partial<Onboarding> = {}
+  try { if (companyRes.data?.description) onboarding = JSON.parse(companyRes.data.description as unknown as string) as Partial<Onboarding> } catch {}
   const createdAt = companyRes.data?.created_at ? new Date(companyRes.data.created_at) : null
   const runningDays = createdAt ? Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24))) : null
   const lastAnswerAt = (answersRes.data || []).reduce((acc: number | null, r: { created_at: string | null }) => {
@@ -76,6 +95,40 @@ export default async function AdminOverviewPage() {
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Company</div>
                 <div className="text-xl font-medium">{companyName || '—'}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Industry</div>
+                <div className="text-xl font-medium">{industry || onboarding.industry || '—'}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm text-muted-foreground">Headcount</div>
+                <div className="text-xl font-medium">{headcount || onboarding.headcount_range || '—'}</div>
+              </div>
+              {/* Value statement removed */}
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Buyer roles</div>
+                <div className="text-lg">{Array.isArray(onboarding?.buyer_roles) ? onboarding.buyer_roles.join(', ') : '—'}</div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">User roles</div>
+                <div className="text-lg">{Array.isArray(onboarding?.user_roles) ? onboarding.user_roles.join(', ') : '—'}</div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Right time enablers</div>
+                <div className="text-lg">{Array.isArray(onboarding?.change_enablers) ? onboarding.change_enablers.join(', ') : '—'}</div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Wrong time blockers</div>
+                <div className="text-lg">{Array.isArray(onboarding?.change_blockers) ? onboarding.change_blockers.join(', ') : '—'}</div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">AI readiness (sliders)</div>
+                <div className="text-sm">
+                  <div>Understanding: {onboarding?.ai_readiness?.ai_understanding ?? '—'}</div>
+                  <div>Usage & learning: {onboarding?.ai_readiness?.ai_usage_learning ?? '—'}</div>
+                  <div>Sharing rhythm: {onboarding?.ai_readiness?.ai_sharing_rhythm ?? '—'}</div>
+                  <div>Tools & data access: {onboarding?.ai_readiness?.ai_tools_data_access ?? '—'}</div>
+                </div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Running</div>

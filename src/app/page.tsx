@@ -35,12 +35,12 @@ export default async function HomePage() {
             Assess, plan, and share<br />your AI readiness
           </h1>
           <p className="max-w-2xl text-balance text-base sm:text-lg text-muted-foreground pt-0">
-            A focused survey that measures literacy, adoption, and organizational enablers.
+            A focused survey that measures literacy, adoption, and finds organizational enablers.
             Generate a beautiful, shareable report for your company.
           </p>
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
             <Link href="/sign-up"><Button >Start free</Button></Link>
-            <Link href="/sign-in"><Button variant="ghost">Sign in</Button></Link>
+            <Link href="/sign-in"><Button variant="secondary">Sign in</Button></Link>
           </div>
         </div>
 
@@ -53,12 +53,12 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14 text-center">
         <Badge variant="secondary" className="font-mono uppercase">AI readiness, distilled</Badge>
 
-        <h2 className="text-[64px] font-serif tracking-tight">Alignment for a new generation</h2>
-        <p className="mt-2 text-base text-muted-foreground max-w-2xl mx-auto">Simple survey → trustworthy signal. Modern UX, secure data, and a shareable report that leadership will actually read.</p>
+        <h2 className="text-[64px] font-serif tracking-tight">A small survey with real value</h2>
+        <p className="mt-2 text-base text-muted-foreground max-w-2xl mx-auto">Short survey → clear signal. Private by default. Share when you’re ready.</p>
         <div className="mt-5 flex flex-wrap font-mono tracking-widest uppercase items-center justify-center gap-6 text-sm text-muted-foreground">
-          <span>RLS‑secured</span>
-          <span>Invite‑only company join</span>
-          <span>GPT‑5 follow‑ups</span>
+          <span>RLS‑secured data</span>
+          <span>Invite‑only join</span>
+          <span>AI follow‑ups</span>
         </div>
       </section>
 
@@ -97,7 +97,7 @@ export default async function HomePage() {
       {/* Callout */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="rounded-4xl bg-muted/40 p-10 text-center bg-rose-200">
-          <h2 className="text-3xl sm:text-4xl leading-tight">One simple assessment to align your teams on AI</h2>
+          <h2 className="text-3xl sm:text-4xl leading-tight">One simple survey to get everyone on the same page</h2>
           <p className="mt-3 text-muted-foreground">Invite‑only company join. RLS‑secured data. Minimal by design.</p>
           <div className="mt-6"><Link href="/sign-up"><Button>Create your company</Button></Link></div>
         </div>
@@ -111,7 +111,7 @@ export default async function HomePage() {
               <span className="h-2 w-2 rounded-full bg-white" aria-hidden />
               <span className="text-base font-mono font-medium">AIR</span>
             </div>
-            <p className="text-xs opacity-70 max-w-xs">AI-Readiness Assessment. Minimal, secure, and shareable.</p>
+            <p className="text-xs opacity-70 max-w-xs">AI-Readiness Survey. Minimal, secure, and shareable.</p>
           </div>
           <FooterCol title="Product" links={[["Features", "#features"], ["How it works", "#how-it-works"], ["Pricing", "/sign-up"]]} />
           <FooterCol title="Company" links={[["Roadmap", "/"], ["Docs", "/"], ["Status", "/"]]} />
@@ -128,8 +128,8 @@ const featureSlices = [
     emoji: '🎯',
     kicker: 'Plan',
     title: 'Keep your AI program visible',
-    description: 'Track literacy, adoption, and organizational enablers with a single assessment everyone understands.',
-    cta: 'Start assessment',
+    description: 'Track literacy, adoption, and organizational enablers with a single survey everyone understands.',
+    cta: 'Start survey',
     image: '/images/features1.jpg',
     bullets: ['20 core questions', 'No edits after submit', 'Shareable public report', 'CSV export'],
   },
@@ -137,8 +137,8 @@ const featureSlices = [
     emoji: '🚀',
     kicker: 'Act',
     title: 'Focus on the biggest opportunities',
-    description: 'See strengths and gaps across teams. Use follow‑ups to dig where signal is weak.',
-    cta: 'See a sample report',
+    description: 'See strengths and gaps across teams. Short follow‑ups when answers are fuzzy.',
+    cta: 'View sample report',
     image: '/images/features2.jpg',
     bullets: ['Module & dimension scores', 'Narrative insights', 'Heat‑map matrix', 'Manager controls'],
   },

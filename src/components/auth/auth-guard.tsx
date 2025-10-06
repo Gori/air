@@ -32,7 +32,7 @@ export function AuthGuard({
 
     // Check role requirement
     if (requiredRole && user?.publicMetadata?.role !== requiredRole) {
-      router.push('/dashboard')
+      router.push('/admin/overview')
       return
     }
 
@@ -44,7 +44,7 @@ export function AuthGuard({
   if (!isLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p >Loading...</p>
+        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent" aria-label="Loading" />
       </div>
     )
   }

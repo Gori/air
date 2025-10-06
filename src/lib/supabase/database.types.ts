@@ -14,6 +14,7 @@ export interface Database {
           id: string
           name: string
           domain: string
+          description: string | null
           headcount: number | null
           industry: string | null
           region: string | null
@@ -24,6 +25,7 @@ export interface Database {
           id?: string
           name: string
           domain: string
+          description?: string | null
           headcount?: number | null
           industry?: string | null
           region?: string | null
@@ -34,6 +36,7 @@ export interface Database {
           id?: string
           name?: string
           domain?: string
+          description?: string | null
           headcount?: number | null
           industry?: string | null
           region?: string | null
@@ -68,6 +71,26 @@ export interface Database {
           full_name?: string | null
           last_login_at?: string | null
           created_at?: string
+        }
+      }
+      company_onboarding: {
+        Row: {
+          company_id: string
+          data: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          data: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          data?: Json
+          created_at?: string
+          updated_at?: string
         }
       }
       modules: {

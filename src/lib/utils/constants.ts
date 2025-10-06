@@ -37,7 +37,7 @@ export const APP_URLS = {
   HOME: '/',
   SIGN_IN: '/sign-in',
   SIGN_UP: '/sign-up',
-  DASHBOARD: '/dashboard',
+  DASHBOARD: '/admin/overview',
   SURVEY: '/survey',
   REPORT: '/report',
   SETTINGS: '/settings',

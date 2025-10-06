@@ -1,4 +1,5 @@
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { UserButton } from '@/components/auth/user-button'
 import {
@@ -18,9 +19,13 @@ import { AdminHeaderTitle } from './_components/admin-header-title'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
-  const client = await clerkClient()
-  const user = await client.users.getUser(userId)
-  if (user.publicMetadata?.role !== 'manager') redirect('/welcome')
+  // Stronger guard: check DB source of truth first
+  const { data: me } = await supabaseAdmin
+    .from('users')
+    .select('role, company_id')
+    .eq('id', userId)
+    .single()
+  if (!me || me.role !== 'manager' || !me.company_id) redirect('/welcome')
   return (
     <SidebarProvider>
       <Sidebar className="border-neutral-300">

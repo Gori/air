@@ -9,10 +9,10 @@ import type { Database } from '@/types/database'
 
 const registerCompanySchema = z.object({
   name: z.string().min(1, 'Company name is required'),
-  domain: z.string().email('Invalid domain format').transform(email => email.split('@')[1]),
   headcount: z.number().min(1, 'Headcount must be at least 1'),
   industry: z.string().min(1, 'Industry is required'),
   region: z.string().optional(),
+  description: z.string().max(5000).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, domain, headcount, industry, region } = validation.data
+    const { name, headcount, industry, region, description } = validation.data
 
     // Create Supabase client
     const cookieStore = await cookies()
@@ -59,19 +59,7 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    // Check if domain already exists
-    const { data: existingCompany } = await supabase
-      .from('companies')
-      .select('id')
-      .eq('domain', domain)
-      .single()
-
-    if (existingCompany) {
-      return NextResponse.json(
-        { error: 'A company with this domain already exists' },
-        { status: 409 }
-      )
-    }
+    // No domain validation/uniqueness; invite code governs access
 
     // Generate a simple text-based company ID
     const companyId = `comp_${randomBytes(8).toString('hex')}`
@@ -82,10 +70,11 @@ export async function POST(request: NextRequest) {
       .insert({
         id: companyId,
         name,
-        domain: domain.toLowerCase(),
+        domain: '',
         headcount,
         industry,
         region,
+        description: description || null,
       })
       .select()
       .single()
@@ -115,16 +104,19 @@ export async function POST(request: NextRequest) {
     const client = await clerkClient()
     const user = await client.users.getUser(userId)
 
-    // Create user record with Clerk ID
+    // Upsert user record with Clerk ID (user may already exist from personal flow)
     const { error: userError } = await supabase
       .from('users')
-      .insert({
-        id: userId,
-        company_id: company.id,
-        role: 'manager',
-        email: user.emailAddresses[0]?.emailAddress || '',
-        full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
-      })
+      .upsert(
+        {
+          id: userId,
+          company_id: company.id,
+          role: 'manager',
+          email: user.emailAddresses[0]?.emailAddress || '',
+          full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
+        },
+        { onConflict: 'id' }
+      )
 
     if (userError) {
       console.error('User creation error:', userError)
@@ -171,6 +163,7 @@ export async function POST(request: NextRequest) {
           name: company.name,
           domain: company.domain,
           invite_code: inviteCode,
+          description: company.description,
         }
       }
     })

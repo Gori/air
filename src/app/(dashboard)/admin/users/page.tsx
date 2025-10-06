@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { UsersTable, type AdminUserRow } from './users-table'
+import { getEmployeeSurveyProgress } from '@/lib/supabase/queries'
 
 export default async function AdminUsersPage() {
   const { userId } = await auth()
@@ -19,6 +20,44 @@ export default async function AdminUsersPage() {
     .select('id, email, full_name, role, created_at')
     .eq('company_id', me.company_id)
 
+  const ids = (users || []).map((u) => u.id)
+  // Batch fetch insights presence
+  const { data: insightsRows } = await supabaseAdmin
+    .from('personal_insights' as never)
+    .select('user_id')
+    .in('user_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'] as never)
+
+  const hasInsightsSet = new Set<string>((insightsRows || []).map((r: { user_id: string }) => r.user_id))
+
+  // Progress per user (company survey)
+  const progressList = await Promise.all(
+    (users || []).map(async (u) => {
+      const p = await getEmployeeSurveyProgress(u.id)
+      return { id: u.id, total: p.total, completed: p.completed }
+    })
+  )
+  const progressById = new Map(progressList.map((p) => [p.id, p]))
+
+  const rows: AdminUserRow[] = (users || []).map((u) => {
+    const p = progressById.get(u.id) || { total: 0, completed: 0 }
+    const status = p.total === 0 && p.completed === 0
+      ? 'not_started'
+      : p.completed >= p.total && p.total > 0
+      ? 'completed'
+      : 'in_progress'
+    return {
+      id: u.id,
+      name: u.full_name || '',
+      email: u.email || '',
+      role: u.role || 'employee',
+      status,
+      completedCount: p.completed,
+      totalCount: p.total,
+      hasInsights: hasInsightsSet.has(u.id),
+      joinedAt: u.created_at,
+    }
+  })
+
   return (
     <div className="space-y-6">
       <Card>
@@ -26,32 +65,7 @@ export default async function AdminUsersPage() {
           <CardTitle className="">Currently registered users</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="py-2">
-            <div className="overflow-x-auto">
-              <table className="w-full text-base">
-                <thead>
-                  <tr className="text-muted-foreground border-b">
-                    <th className="text-left py-2 pr-4">Name</th>
-                    <th className="text-left py-2 pr-4">Email</th>
-                    <th className="text-left py-2 pr-4">Role</th>
-                    <th className="text-left py-2 pr-4">Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(users || []).map((u) => (
-                    <tr key={u.id} className="border-b last:border-b-0">
-                      <td className="py-3 pr-4">
-                        <Link href={`/admin/users/${u.id}`}>{u.full_name || '—'}</Link>
-                      </td>
-                      <td className="py-3 pr-4">{u.email}</td>
-                      <td className="py-3 pr-4 capitalize">{u.role}</td>
-                      <td className="py-3 pr-4">{u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <UsersTable data={rows} />
         </CardContent>
       </Card>
     </div>

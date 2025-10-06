@@ -54,6 +54,7 @@ export type Database = {
       companies: {
         Row: {
           created_at: string | null
+          description: string | null
           domain: string
           headcount: number | null
           id: string
@@ -64,6 +65,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           domain: string
           headcount?: number | null
           id?: string
@@ -74,6 +76,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           domain?: string
           headcount?: number | null
           id?: string
@@ -383,6 +386,35 @@ export type Database = {
             foreignKeyName: "users_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_onboarding: {
+        Row: {
+          company_id: string
+          data: Json
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          data: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          data?: Json
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_onboarding_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },

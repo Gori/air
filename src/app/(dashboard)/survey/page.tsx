@@ -2,54 +2,25 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
+import { IntroSlide } from '@/components/survey/IntroSlide'
+import { QuestionText } from '@/components/survey/QuestionText'
+import { QuestionScale } from '@/components/survey/QuestionScale'
+import { QuestionSingleChoice } from '@/components/survey/QuestionSingleChoice'
+import { QuestionMultiChoice } from '@/components/survey/QuestionMultiChoice'
+import { QuestionMatrix } from '@/components/survey/QuestionMatrix'
+import { type Slide, type InstanceMapItem, type MatrixLevel } from '@/components/survey/types'
 // UserButton intentionally removed from survey chrome
 
-// Slide engine types
-type SlideType = 'welcome' | 'intro' | 'matrix' | 'text' | 'scale' | 'mc_single' | 'mc_multi' | 'end' | 'ai_followup'
-
-interface InstanceMapItem {
-  id: string
-  ordinal: number
-  question_id: number | null
-  answer_text?: string
-}
-
+// Slide engine types moved to reusable module
 interface StartPayload {
   completed: boolean
   progress: { current: number, total: number }
   instanceMap: Record<string, InstanceMapItem>
 }
-
-interface Slide {
-  type: SlideType
-  title?: string
-  copy?: string
-  prompt?: string
-  dimension?: string
-  required?: boolean
-  items?: string[]
-  options?: string[]
-  allowPreferNot?: boolean
-  optionalText?: boolean
-  examples?: string[]
-  followUpInstanceId?: string
-  heading?: string
-  subheading?: string
-  illustration?: string
-}
-
-const MATRIX_LEVELS = [
-  'Never tried',
-  "I've tried it",
-  'I use it regularly',
-  "I'm dependent on it"
-] as const
 
 export default function SurveyPage() {
   const router = useRouter()
@@ -69,7 +40,7 @@ export default function SurveyPage() {
   const [mcSinglePreferNot, setMcSinglePreferNot] = useState(false)
   const [mcMulti, setMcMulti] = useState<Record<string, boolean>>({})
   const [mcMultiPreferNot, setMcMultiPreferNot] = useState(false)
-  const [matrixSelections, setMatrixSelections] = useState<Record<string, typeof MATRIX_LEVELS[number]>>({})
+  const [matrixSelections, setMatrixSelections] = useState<Record<string, MatrixLevel>>({})
   const [optionalComment, setOptionalComment] = useState('')
   const FOLLOWUP_ALLOWED = useMemo(() => new Set<string>([
     'support_requests',
@@ -257,7 +228,7 @@ export default function SurveyPage() {
             setMcMultiPreferNot(Boolean(parsed.preferNot))
             setOptionalComment(parsed.text || '')
           } else if (parsed.type === 'usage_matrix') {
-            const rec: Record<string, typeof MATRIX_LEVELS[number]> = {}
+            const rec: Record<string, MatrixLevel> = {}
             for (const s of parsed.selections || []) rec[s.name] = s.level
             setMatrixSelections(rec)
           } else {
@@ -699,7 +670,7 @@ export default function SurveyPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [slides, activeIdx, textValue, scaleValue, scalePreferNot, mcSingle, mcSinglePreferNot, mcMulti, mcMultiPreferNot, matrixSelections, optionalComment, instanceMap, answerQuestion, resetControlsForSlide, FOLLOWUP_ALLOWED])
+  }, [slides, activeIdx, textValue, scaleValue, scalePreferNot, mcSingle, mcSinglePreferNot, mcMulti, mcMultiPreferNot, matrixSelections, optionalComment, instanceMap, answerQuestion, resetControlsForSlide, FOLLOWUP_ALLOWED, router, search])
 
   const handleBack = useCallback(() => {
     setActiveIdx(i => Math.max(0, i - 1))
@@ -919,107 +890,37 @@ export default function SurveyPage() {
               )}
 
               {slide?.type === 'intro' && (
-                <div className="flex flex-col items-center text-center">
-                  {/* Round illustration */}
-                  <div className="mt-2 mb-6">
-                    <div className="w-36 h-36 rounded-full overflow-hidden border border-gray-200 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-                      <Image src={slide.illustration || '/globe.svg'} alt="Illustration" width={144} height={144} className="w-full h-full object-cover grayscale" />
-                    </div>
-                  </div>
-
-                  {/* Prompt/copy inside card */}
-                  {(slide.copy || slide.subheading) && (
-                    <p className="max-w-2xl text-base text-gray-800">{slide.copy || slide.subheading}</p>
-                  )}
-
-                  {/* Tips/tools box */}
-                  {slide.examples && slide.examples.length > 0 && (
-                    <div className="w-full mt-8">
-                      <div className="rounded-3xl bg-secondary p-5 text-left">
-                        <div className="flex items-center gap-2 mb-3">
-                          {/* Light bulb icon (updated as provided) */}
-                          <svg viewBox="0 0 24 24" fill="none" aria-hidden className="w-6 h-6 text-pink-900">
-                            <path fillRule="evenodd" clipRule="evenodd" d="M12 2.75C8.27208 2.75 5.25 5.77208 5.25 9.5C5.25 11.4985 6.11758 13.2934 7.49907 14.5304L7.50342 14.5343C8.06008 15.0328 8.48295 15.4114 8.78527 15.6886C9.06989 15.9495 9.29537 16.1628 9.41353 16.3086L9.42636 16.3244C9.64763 16.5974 9.84045 16.8353 9.9676 17.1199C10.0948 17.4044 10.1434 17.7067 10.1992 18.0537L10.2024 18.0738C10.231 18.2517 10.2425 18.4701 10.247 18.75H13.753C13.7575 18.4701 13.769 18.2517 13.7976 18.0738L13.8008 18.0537C13.8566 17.7067 13.9052 17.4044 14.0324 17.1199C14.1596 16.8353 14.3524 16.5974 14.5736 16.3244L14.5865 16.3086C14.7046 16.1628 14.9301 15.9495 15.2147 15.6886C15.5171 15.4114 15.94 15.0327 16.4966 14.5343L16.5009 14.5304C17.8824 13.2934 18.75 11.4985 18.75 9.5C18.75 5.77208 15.7279 2.75 12 2.75ZM13.7436 20.25H10.2564C10.2597 20.3542 10.2646 20.4453 10.2721 20.5273C10.2925 20.7524 10.3269 20.8341 10.3505 20.875C10.4163 20.989 10.511 21.0837 10.625 21.1495C10.6659 21.1731 10.7476 21.2075 10.9727 21.2279C11.2082 21.2493 11.5189 21.25 12 21.25C12.4811 21.25 12.7918 21.2493 13.0273 21.2279C13.2524 21.2075 13.3341 21.1731 13.375 21.1495C13.489 21.0837 13.5837 20.989 13.6495 20.875C13.6731 20.8341 13.7075 20.7524 13.7279 20.5273C13.7354 20.4453 13.7403 20.3542 13.7436 20.25ZM3.75 9.5C3.75 4.94365 7.44365 1.25 12 1.25C16.5563 1.25 20.25 4.94365 20.25 9.5C20.25 11.9428 19.1874 14.1384 17.5016 15.6479C16.9397 16.151 16.5234 16.5238 16.2284 16.7942C16.0809 16.9295 15.9681 17.0351 15.8849 17.1162C15.8434 17.1566 15.8117 17.1886 15.788 17.2134C15.7763 17.2256 15.7675 17.2352 15.7611 17.2423C15.7546 17.2496 15.7519 17.2529 15.7519 17.2529C15.4917 17.574 15.4354 17.6568 15.4019 17.7319C15.3683 17.8069 15.3442 17.9041 15.2786 18.3121C15.2527 18.4732 15.25 18.7491 15.25 19.5V19.5322C15.25 19.972 15.25 20.3514 15.2218 20.6627C15.192 20.9918 15.1259 21.3178 14.9486 21.625C14.7511 21.967 14.467 22.2511 14.125 22.4486C13.8178 22.6259 13.4918 22.692 13.1627 22.7218C12.8514 22.75 12.472 22.75 12.0322 22.75H11.9678C11.528 22.75 11.1486 22.75 10.8374 22.7218C10.5082 22.692 10.1822 22.6259 9.875 22.4486C9.53296 22.2511 9.24892 21.967 9.05144 21.625C8.87407 21.3178 8.80802 20.9918 8.77818 20.6627C8.74997 20.3514 8.74998 19.972 8.75 19.5322L8.75 19.5C8.75 18.7491 8.74735 18.4732 8.72144 18.3121C8.6558 17.9041 8.63166 17.8069 8.59812 17.7319C8.56459 17.6568 8.50828 17.574 8.24812 17.2529C8.24812 17.2529 8.24514 17.2493 8.23888 17.2423C8.23249 17.2352 8.22369 17.2256 8.21199 17.2134C8.18835 17.1886 8.15661 17.1566 8.11513 17.1162C8.03189 17.0351 7.91912 16.9295 7.77161 16.7942C7.4766 16.5238 7.06034 16.151 6.49845 15.6479C4.81263 14.1384 3.75 11.9428 3.75 9.5Z" fill="currentColor"/>
-                            <path fillRule="evenodd" clipRule="evenodd" d="M13.2215 7.8897C13.5586 8.13046 13.6366 8.59887 13.3959 8.93593L12.1001 10.75H13.6427C13.9237 10.75 14.181 10.907 14.3096 11.1568C14.4382 11.4066 14.4163 11.7073 14.253 11.9359L12.1102 14.9359C11.8694 15.273 11.401 15.3511 11.0639 15.1103C10.7269 14.8695 10.6488 14.4011 10.8896 14.0641L12.1853 12.25H10.6427C10.3618 12.25 10.1044 12.093 9.97585 11.8432C9.84729 11.5934 9.86913 11.2927 10.0324 11.0641L12.1753 8.06407C12.416 7.72701 12.8844 7.64894 13.2215 7.8897Z" fill="currentColor"/>
-                          </svg>
-                          <div className="font-semibold text-pink-900 text-lg">Some tools to try!</div>
-                        </div>
-                        <ul className="list-disc pl-5 space-y-2 text-base text-pink-900">
-                          {slide.examples.map(ex => (
-                            <li key={ex}>
-                              <span className="font-semibold">{ex}</span>
-                              {EXAMPLE_DESCRIPTIONS[ex] && (
-                                <span>: {EXAMPLE_DESCRIPTIONS[ex]}</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <IntroSlide
+                  copy={slide.copy}
+                  subheading={slide.subheading}
+                  examples={slide.examples}
+                  illustration={slide.illustration}
+                  exampleDescriptions={EXAMPLE_DESCRIPTIONS}
+                />
               )}
 
               {slide?.type === 'text' && (
-                <div>
-                  {slide.dimension === 'job_title' ? (
-                    <>
-                      <Input
-                        value={textValue}
-                        onChange={(e) => setTextValue(e.target.value)}
-                        placeholder={slide.prompt || ''}
-                        className="w-full"
-                        maxLength={140}
-                        disabled={isSubmitting}
-                      />
-                      <div className="flex justify-between items-center mt-2 text-xs">
-                        <span>{textValue.length}/140</span>
-                        <span>Free‑text is optional</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Textarea
-                        value={textValue}
-                        onChange={(e) => setTextValue(e.target.value)}
-                        placeholder="Share your thoughts. Please don’t paste sensitive data."
-                        className="min-h-[120px] resize-none placeholder:text-gray-400"
-                        maxLength={2000}
-                        disabled={isSubmitting}
-                      />
-                      <div className="flex justify-between items-center mt-2 text-xs">
-                        <span>{textValue.length}/2000</span>
-                        <span>Free‑text is optional</span>
-                      </div>
-                    </>
-                  )}
-                </div>
+                <QuestionText
+                  value={textValue}
+                  onChange={setTextValue}
+                  disabled={isSubmitting}
+                  multiline={slide.dimension !== 'job_title'}
+                  placeholder={slide.dimension === 'job_title' ? (slide.prompt || '') : undefined}
+                  maxLength={slide.dimension === 'job_title' ? 140 : 2000}
+                  showCounter
+                  showOptionalFootnote
+                />
               )}
 
               {slide?.type === 'scale' && (
-                <div className="space-y-3">
-                  <div className="flex gap-2 flex-wrap mb-7">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <Button
-                        key={n}
-                        type="button"
-                        size="chip"
-                        variant={!scalePreferNot && scaleValue === n ? 'chipActive' : 'chip'}
-                        onClick={() => { setScalePreferNot(false); setScaleValue(n) }}
-                        disabled={isSubmitting}
-                      >{n}</Button>
-                    ))}
-                    {slide.allowPreferNot && (
-                      <Button
-                        type="button"
-                        size="chip"
-                        variant={scalePreferNot ? 'chipActive' : 'chip'}
-                        onClick={() => { setScalePreferNot(v => !v); if (!scalePreferNot) setScaleValue(null) }}
-                        disabled={isSubmitting}
-                      >Prefer not to say</Button>
-                    )}
-                  </div>
-                  {slide.optionalText && (
+                <QuestionScale
+                  value={scaleValue}
+                  preferNot={scalePreferNot}
+                  onChangeValue={(n) => { setScalePreferNot(false); setScaleValue(n) }}
+                  onTogglePreferNot={() => { setScalePreferNot(v => !v); if (!scalePreferNot) setScaleValue(null) }}
+                  disabled={isSubmitting}
+                  allowPreferNot={!!slide.allowPreferNot}
+                  optionalTextSlot={slide.optionalText ? (
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
@@ -1028,34 +929,21 @@ export default function SurveyPage() {
                       maxLength={500}
                       disabled={isSubmitting}
                     />
-                  )}
-                </div>
+                  ) : null}
+                />
               )}
 
               {slide?.type === 'mc_single' && (
-                <div className="space-y-3">
-                  <div className="flex gap-2 flex-wrap pb-2">
-                    {(slide.options || []).map(opt => (
-                      <Button
-                        key={opt}
-                        type="button"
-                        size="chip"
-                        variant={!mcSinglePreferNot && mcSingle === opt ? 'chipActive' : 'chip'}
-                        onClick={() => { setMcSinglePreferNot(false); setMcSingle(opt) }}
-                        disabled={isSubmitting}
-                      >{opt}</Button>
-                    ))}
-                    {slide.allowPreferNot && !((slide.options || []).includes('Prefer not to say')) && (
-                      <Button
-                        type="button"
-                        size="chip"
-                        variant={mcSinglePreferNot ? 'chipActive' : 'chip'}
-                        onClick={() => { setMcSinglePreferNot(v => !v); if (!mcSinglePreferNot) setMcSingle(null) }}
-                        disabled={isSubmitting}
-                      >Prefer not to say</Button>
-                    )}
-                  </div>
-                  {slide.optionalText && (
+                <QuestionSingleChoice
+                  options={slide.options || []}
+                  value={mcSingle}
+                  preferNot={mcSinglePreferNot}
+                  onSelect={(opt) => { setMcSinglePreferNot(false); setMcSingle(opt) }}
+                  onTogglePreferNot={() => { setMcSinglePreferNot(v => !v); if (!mcSinglePreferNot) setMcSingle(null) }}
+                  disabled={isSubmitting}
+                  allowPreferNot={!!slide.allowPreferNot}
+                  showBuiltInPreferNot={(slide.options || []).includes('Prefer not to say')}
+                  optionalTextSlot={slide.optionalText ? (
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
@@ -1064,34 +952,20 @@ export default function SurveyPage() {
                       maxLength={500}
                       disabled={isSubmitting}
                     />
-                  )}
-                </div>
+                  ) : null}
+                />
               )}
 
               {slide?.type === 'mc_multi' && (
-                <div className="space-y-3">
-                  <div className="flex gap-2 flex-wrap mb-7">
-                    {(slide.options || []).map(opt => (
-                      <Button
-                        key={opt}
-                        type="button"
-                        size="chip"
-                        variant={mcMulti[opt] ? 'chipActive' : 'chip'}
-                        onClick={() => setMcMulti(prev => ({ ...prev, [opt]: !prev[opt] }))}
-                        disabled={isSubmitting}
-                      >{opt}</Button>
-                    ))}
-                    {slide.allowPreferNot && (
-                      <Button
-                        type="button"
-                        size="chip"
-                        variant={mcMultiPreferNot ? 'chipActive' : 'chip'}
-                        onClick={() => setMcMultiPreferNot(v => !v)}
-                        disabled={isSubmitting}
-                      >Prefer not to say</Button>
-                    )}
-                  </div>
-                  {slide.optionalText && (
+                <QuestionMultiChoice
+                  options={slide.options || []}
+                  values={mcMulti}
+                  preferNot={mcMultiPreferNot}
+                  onToggle={(opt) => setMcMulti(prev => ({ ...prev, [opt]: !prev[opt] }))}
+                  onTogglePreferNot={() => setMcMultiPreferNot(v => !v)}
+                  disabled={isSubmitting}
+                  allowPreferNot={!!slide.allowPreferNot}
+                  optionalTextSlot={slide.optionalText ? (
                     <Textarea
                       value={optionalComment}
                       onChange={(e) => setOptionalComment(e.target.value)}
@@ -1100,38 +974,18 @@ export default function SurveyPage() {
                       maxLength={500}
                       disabled={isSubmitting}
                     />
-                  )}
-                </div>
+                  ) : null}
+                />
               )}
 
               {slide?.type === 'matrix' && (
-                <div className="space-y-5">
-                  {(slide.items || []).map(item => (
-                    <div key={item} className="space-y-0 pb-3">
-                      <div className="pt-0 pb-3">
-                        <div className="font-semibold text-lg">{item}</div>
-                        {MATRIX_ITEM_DESCRIPTIONS[item] && (
-                          <div className="text-sm text-gray-600 mt-1">{MATRIX_ITEM_DESCRIPTIONS[item]}</div>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {MATRIX_LEVELS.map(level => (
-                          <Button
-                            key={level}
-                            type="button"
-                            size="chip"
-                            variant={matrixSelections[item] === level ? 'chipActive' : 'chip'}
-                            onClick={() => setMatrixSelections(prev => ({ ...prev, [item]: level }))}
-                            disabled={isSubmitting}
-                          >{level}</Button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {!(slide.items || []).every(it => matrixSelections[it]) && (
-                    <div className="text-sm">Please answer every item to continue.</div>
-                  )}
-                </div>
+                <QuestionMatrix
+                  items={slide.items || []}
+                  selections={matrixSelections}
+                  onSelect={(item, level) => setMatrixSelections(prev => ({ ...prev, [item]: level }))}
+                  disabled={isSubmitting}
+                  itemDescriptions={MATRIX_ITEM_DESCRIPTIONS}
+                />
               )}
 
               {slide?.type === 'ai_followup' && (
@@ -1170,7 +1024,7 @@ export default function SurveyPage() {
             </div>
           </CardContent>
         </Card>
-        <div className="flex items-center justify-center sticky bottom-0 pt-7">
+        <div className="flex items-center justify-center sticky bottom-0 pt-7 pb-7">
           {slide?.type === 'end' ? (
             <Button variant="dark" size="xl" onClick={submitRating} disabled={isSubmitting} className="min-w-[120px]">Finish</Button>
           ) : (

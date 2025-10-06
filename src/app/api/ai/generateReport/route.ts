@@ -186,6 +186,7 @@ export async function POST(request: NextRequest) {
       .insert({
         company_id: companyId,
         created_by: clerkUserId,
+        generated_at: new Date().toISOString(),
         scores_json: parsedReport.scores,
         narrative_json: parsedReport.narrative,
         html_path: '', // Will be generated separately

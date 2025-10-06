@@ -154,7 +154,7 @@ export default function ReportPage() {
         <div className="space-y-8">
           {/* Report Header */}
           <Card>
-            <CardHeader className="border-b border-neutral-200">
+            <CardHeader className="">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center ">Report Generated Successfully</CardTitle>
@@ -163,8 +163,8 @@ export default function ReportPage() {
                   </p>
                 </div>
                 <div className="flex space-x-2">
-                  <Button variant="outline" onClick={shareReport}>Share</Button>
-                  <Button variant="outline">Download</Button>
+                  <Button variant="dark" onClick={shareReport}>Share</Button>
+                  <Button variant="secondary">Download</Button>
                 </div>
               </div>
             </CardHeader>
