@@ -56,12 +56,12 @@ All inputs use the same “chip/scale” visual style as the survey components.
 4. AI Readiness & Culture
    - Type: `multi_slider`
    - Sliders (in order):
-     - Employees understand why AI matters
-     - Employees use AI tools and learn
-     - We share what works with AI
-     - 🧪 Experimentation culture — How comfortable are your teams experimenting with AI tools?
-     - 👑 Leadership engagement — Leaders actively use and encourage AI tools.
-   - Persist: `ai_readiness: { ai_understanding?: number, ai_usage_learning?: number, ai_sharing_rhythm?: number, ai_experimentation_culture?: number, ai_leadership_engagement?: number }`
+     - Employees understand why AI matters to our strategy
+     - Employees use AI tools as part of their daily workflow.
+     - Employees are comfortable experimenting with new AI tools
+     - Leaders actively use and encourage AI tools
+     - We share what works with AI on a regular rhythm
+   - Persist: `ai_readiness: { ai_understanding?: number, ai_usage_learning?: number, ai_experimentation_culture?: number, ai_leadership_engagement?: number, ai_sharing_rhythm?: number }`
 
 5. What slows your teams down most in a normal week?
    - Type: `mc_multi` + Other short text
@@ -110,7 +110,7 @@ Example `data` shape (current code):
   "niches": ["Payments orchestration", "KYC/KYB"],
   "niches_other": "",
   "workflow_docs": {"documented": 4, "data_quality": 3, "tool_integration": 4},
-  "ai_readiness": {"ai_understanding": 3, "ai_usage_learning": 4, "ai_sharing_rhythm": 2, "ai_experimentation_culture": 4, "ai_leadership_engagement": 3},
+  "ai_readiness": {"ai_understanding": 3, "ai_usage_learning": 4, "ai_experimentation_culture": 4, "ai_leadership_engagement": 3, "ai_sharing_rhythm": 2},
   "biggest_slowdown_multi": ["Handoffs", "Manual data"],
   "biggest_slowdown_other": null,
   "reinvest": ["Ship faster", "Fix data hygiene"],

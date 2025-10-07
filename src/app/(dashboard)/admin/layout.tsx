@@ -26,6 +26,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('id', userId)
     .single()
   if (!me || me.role !== 'manager' || !me.company_id) redirect('/welcome')
+  // Enforce full company setup (canonical fields copied on onboarding complete)
+  const { data: company } = await supabaseAdmin
+    .from('companies')
+    .select('name, industry, headcount')
+    .eq('id', me.company_id as string)
+    .single()
+  const isComplete = Boolean(company?.name && company?.industry && typeof company?.headcount === 'number' && (company?.headcount as number) > 0)
+  if (!isComplete) redirect('/welcome')
   return (
     <SidebarProvider>
       <Sidebar className="border-neutral-300">

@@ -375,7 +375,7 @@ export default function OnboardingPage() {
       onBack={() => setActiveIdx(i => Math.max(0, i - 1))}
       onClose={() => {
         if (allSatisfied) router.push('/admin/overview')
-        else router.push('/onboarding/welcome')
+        else router.push('/welcome')
       }}
       onContinue={next}
       progressPercentage={total > 0 ? (current / total) * 100 : 0}

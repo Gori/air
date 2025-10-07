@@ -35,6 +35,14 @@ export default async function AdminOverviewPage() {
     .single()
 
   if (!me || me.role !== 'manager' || !me.company_id) redirect('/welcome')
+  // Enforce full company setup
+  const { data: comp } = await supabaseAdmin
+    .from('companies')
+    .select('name, industry, headcount')
+    .eq('id', me.company_id as string)
+    .single()
+  const isComplete = Boolean(comp?.name && comp?.industry && typeof comp?.headcount === 'number' && (comp?.headcount as number) > 0)
+  if (!isComplete) redirect('/welcome')
 
   const companyId = me.company_id as string
 
@@ -118,10 +126,10 @@ export default async function AdminOverviewPage() {
                 <div className="text-sm text-muted-foreground">AI Readiness & Culture (sliders)</div>
                 <div className="text-sm">
                   <div>Understanding: {onboarding?.ai_readiness?.ai_understanding ?? '—'}</div>
-                  <div>Usage & learning: {onboarding?.ai_readiness?.ai_usage_learning ?? '—'}</div>
-                  <div>Sharing rhythm: {onboarding?.ai_readiness?.ai_sharing_rhythm ?? '—'}</div>
-                  <div>Experimentation culture: {onboarding?.ai_readiness?.ai_experimentation_culture ?? '—'}</div>
+                  <div>Usage in daily workflow: {onboarding?.ai_readiness?.ai_usage_learning ?? '—'}</div>
+                  <div>Comfort experimenting: {onboarding?.ai_readiness?.ai_experimentation_culture ?? '—'}</div>
                   <div>Leadership engagement: {onboarding?.ai_readiness?.ai_leadership_engagement ?? '—'}</div>
+                  <div>Sharing rhythm: {onboarding?.ai_readiness?.ai_sharing_rhythm ?? '—'}</div>
                 </div>
               </div>
               <div className="space-y-1">

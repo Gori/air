@@ -20,7 +20,15 @@ export default async function HomePage() {
       .select('role, company_id')
       .eq('id', userId)
       .single()
-    if (me?.role === 'manager' && me.company_id) redirect('/admin/overview')
+    if (me?.role === 'manager' && me.company_id) {
+      const { data: comp } = await supabaseAdmin
+        .from('companies')
+        .select('name, industry, headcount')
+        .eq('id', me.company_id as string)
+        .single()
+      const isComplete = Boolean(comp?.name && comp?.industry && typeof comp?.headcount === 'number' && (comp?.headcount as number) > 0)
+      if (isComplete) redirect('/admin/overview')
+    }
     redirect('/welcome')
   }
 

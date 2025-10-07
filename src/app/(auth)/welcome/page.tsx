@@ -29,6 +29,18 @@ export default async function WelcomePage() {
   const showPersonalInsights = Boolean(insights)
   const showRegisterCompany = !companyId
 
+  // If company exists, ensure it's not fully set up; otherwise redirect to admin
+  let isCompanyComplete = false
+  if (companyId) {
+    const { data: comp } = await supabaseAdmin
+      .from('companies')
+      .select('name, industry, headcount')
+      .eq('id', companyId)
+      .single()
+    isCompanyComplete = Boolean(comp?.name && comp?.industry && typeof comp?.headcount === 'number' && (comp?.headcount as number) > 0)
+    if (isCompanyComplete) redirect('/admin/overview')
+  }
+
   // If company association exists, fetch name for button label (removed unused value)
 
   // Personal progress (server-side) for AssessmentCard ring
@@ -80,6 +92,19 @@ export default async function WelcomePage() {
             )
           )}
 
+          {/* Company onboarding CTA */}
+          {companyId && !isCompanyComplete && (
+            <Card className="bg-[#eae7fc] border-[#ddd6fb] text-foreground p-4 gap-1">
+              <CardHeader className="pb-0 mb-0 gap-0">
+                <div className="font-sans text-xl font-medium pb-0 w-full">Company onboarding</div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">Continue setting up your company profile to unlock the admin.</p>
+                <Link href="/onboarding"><Button variant="black">Continue company onboarding</Button></Link>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Register company card */}
           {showRegisterCompany && (
             <Card className="bg-[#eae7fc] border-[#ddd6fb] text-foreground p-4 gap-1">
@@ -88,7 +113,7 @@ export default async function WelcomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">Create a company space to invite coworkers and generate a shareable report.</p>
-                <Link href="/company/register"><Button variant="black">Start company onboarding</Button></Link>
+                <Link href="/onboarding"><Button variant="black">Start company onboarding</Button></Link>
               </CardContent>
             </Card>
           )}
