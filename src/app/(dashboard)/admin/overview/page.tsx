@@ -12,15 +12,15 @@ import { AssessmentCard } from '@/components/ui/assessment-card'
 interface Onboarding {
   industry?: string | null
   headcount_range?: string | null
-  buyer_roles?: string[]
-  user_roles?: string[]
+  // buyer/user roles removed from onboarding
   change_enablers?: string[]
   change_blockers?: string[]
   ai_readiness?: {
     ai_understanding?: number
     ai_usage_learning?: number
     ai_sharing_rhythm?: number
-    ai_tools_data_access?: number
+    ai_experimentation_culture?: number
+    ai_leadership_engagement?: number
   }
 }
 
@@ -105,29 +105,23 @@ export default async function AdminOverviewPage() {
                 <div className="text-xl font-medium">{headcount || onboarding.headcount_range || '—'}</div>
               </div>
               {/* Value statement removed */}
+              {/* buyer/user roles removed from overview */}
               <div className="space-y-1 md:col-span-2">
-                <div className="text-sm text-muted-foreground">Buyer roles</div>
-                <div className="text-lg">{Array.isArray(onboarding?.buyer_roles) ? onboarding.buyer_roles.join(', ') : '—'}</div>
-              </div>
-              <div className="space-y-1 md:col-span-2">
-                <div className="text-sm text-muted-foreground">User roles</div>
-                <div className="text-lg">{Array.isArray(onboarding?.user_roles) ? onboarding.user_roles.join(', ') : '—'}</div>
-              </div>
-              <div className="space-y-1 md:col-span-2">
-                <div className="text-sm text-muted-foreground">Right time enablers</div>
+                <div className="text-sm text-muted-foreground">Why now for AI-based workflows</div>
                 <div className="text-lg">{Array.isArray(onboarding?.change_enablers) ? onboarding.change_enablers.join(', ') : '—'}</div>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <div className="text-sm text-muted-foreground">Wrong time blockers</div>
+                <div className="text-sm text-muted-foreground">Why not now for AI-based workflows</div>
                 <div className="text-lg">{Array.isArray(onboarding?.change_blockers) ? onboarding.change_blockers.join(', ') : '—'}</div>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <div className="text-sm text-muted-foreground">AI readiness (sliders)</div>
+                <div className="text-sm text-muted-foreground">AI Readiness & Culture (sliders)</div>
                 <div className="text-sm">
                   <div>Understanding: {onboarding?.ai_readiness?.ai_understanding ?? '—'}</div>
                   <div>Usage & learning: {onboarding?.ai_readiness?.ai_usage_learning ?? '—'}</div>
                   <div>Sharing rhythm: {onboarding?.ai_readiness?.ai_sharing_rhythm ?? '—'}</div>
-                  <div>Tools & data access: {onboarding?.ai_readiness?.ai_tools_data_access ?? '—'}</div>
+                  <div>Experimentation culture: {onboarding?.ai_readiness?.ai_experimentation_culture ?? '—'}</div>
+                  <div>Leadership engagement: {onboarding?.ai_readiness?.ai_leadership_engagement ?? '—'}</div>
                 </div>
               </div>
               <div className="space-y-1">

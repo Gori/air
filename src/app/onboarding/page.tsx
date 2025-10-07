@@ -82,29 +82,25 @@ export default function OnboardingPage() {
 
   // Local UI states
   const [nicheSuggestions, setNicheSuggestions] = useState<string[]>([])
-  const [buyerSuggestions, setBuyerSuggestions] = useState<string[]>([])
-  const [userSuggestions, setUserSuggestions] = useState<string[]>([])
+  // buyer/user role suggestions removed
   // slowdown and reinvest suggestions removed in favor of curated lists
   const [enablerSuggestions, setEnablerSuggestions] = useState<string[]>([])
   const [blockerSuggestions, setBlockerSuggestions] = useState<string[]>([])
   // company name suggestions removed; using manual input instead
   // Readiness flags to avoid infinite loading when suggestions are empty
   const [nicheReady, setNicheReady] = useState(false)
-  const [buyerReady, setBuyerReady] = useState(false)
-  const [userReady, setUserReady] = useState(false)
+  // buyer/user readiness flags removed
   const [enablerReady, setEnablerReady] = useState(false)
   const [blockerReady, setBlockerReady] = useState(false)
   // removed ready flags for slowdowns and names
   // Loading flags to avoid duplicate concurrent fetches
   const [nicheLoading, setNicheLoading] = useState(false)
-  const [buyerLoading, setBuyerLoading] = useState(false)
-  const [userLoading, setUserLoading] = useState(false)
+  // buyer/user loading flags removed
   const [enablerLoading, setEnablerLoading] = useState(false)
   const [blockerLoading, setBlockerLoading] = useState(false)
   // removed loading flags for slowdowns and names
   const [nicheKey, setNicheKey] = useState<string>('')
-  const [buyerKey, setBuyerKey] = useState<string>('')
-  const [userKey, setUserKey] = useState<string>('')
+  // buyer/user keys removed
   // Value statement suggestions state (load once per industry)
   // value statement removed
   const [enablerKey, setEnablerKey] = useState<string>('')
@@ -121,15 +117,13 @@ export default function OnboardingPage() {
           { type: 'select_single', heading: 'Industry', subheading: 'Which industry are you in?', dimension: 'industry', prompt: 'Pick one industry from the list.' },
           { type: 'mc_multi', heading: 'Niche/segment', subheading: 'Which niche/segment best fits you?', dimension: 'niches', prompt: 'Select all that apply (chips). Use “Other” if none fit.' },
           // Value statement removed
-          { type: 'mc_multi', heading: 'Who uses it?', subheading: 'Who uses it day to day?', dimension: 'user_roles', prompt: 'Select all user roles that fit (chips). “Other” if needed.' },
-          { type: 'mc_multi', heading: 'Who buys?', subheading: 'Who usually buys your product?', dimension: 'buyer_roles', prompt: 'Select all buyer roles that fit (chips). “Other” if needed.' },
-          { type: 'multi_slider', heading: 'Workflow documentation', subheading: 'Adjust the sliders to best describe your documentation.', dimension: 'workflow_docs', prompt: '' },
-          { type: 'multi_slider', heading: 'AI readiness', subheading: 'Rate how true these are today.', dimension: 'ai_readiness', prompt: '' },
+          { type: 'multi_slider', heading: 'Foundations & Workflows', subheading: 'Let\u2019s peek under the hood \u2014 how ready is your company behind the scenes to make AI work day to day?', dimension: 'workflow_docs', prompt: '' },
+          { type: 'multi_slider', heading: 'AI Readiness & Culture', subheading: 'Rate how true these are today.', dimension: 'ai_readiness', prompt: '' },
           { type: 'mc_multi', heading: 'What slows teams down?', subheading: 'What slows your teams down most?', dimension: 'biggest_slowdown_multi', prompt: 'Select all that apply. “Other” if needed.' },
           { type: 'mc_multi', heading: 'Reinvest time', subheading: 'Where would you reinvest 10h/week?', dimension: 'reinvest', prompt: 'Select up to three priorities. “Other” if needed.' },
           { type: 'mc_single', heading: 'Primary outcome', subheading: 'Which outcome matters most right now?', dimension: 'primary_outcome', prompt: 'Pick the single best-fitting outcome.' },
-          { type: 'mc_multi', heading: 'Right time enablers', subheading: 'What would make now the RIGHT time?', dimension: 'change_enablers', prompt: 'Select all enablers that apply. “Other” to add your own.' },
-          { type: 'mc_multi', heading: 'Wrong time blockers', subheading: 'What would make now the WRONG time?', dimension: 'change_blockers', prompt: 'Select all blockers that apply. “Other” to add your own.' },
+          { type: 'mc_multi', heading: 'Right time to adopt AI-based workflows', subheading: 'What would make now the right time to implement new AI-based workflows?', dimension: 'change_enablers', prompt: 'Select all that apply. “Other” to add your own.' },
+          { type: 'mc_multi', heading: 'Wrong time to adopt AI-based workflows', subheading: 'What would make now the wrong time to implement new AI-based workflows?', dimension: 'change_blockers', prompt: 'Select all that apply. “Other” to add your own.' },
           { type: 'tags_multi', heading: 'Company names', subheading: 'What is the name of your company?', dimension: 'company_names', prompt: 'Enter your company’s legal or primary brand name.' },
           // headcount merged into company_names
         ]
@@ -197,53 +191,7 @@ export default function OnboardingPage() {
 
       // value statement removed
 
-      // Buyer roles depend on ctx
-      const bk = key(ctx)
-      if (currentDim === 'buyer_roles' && data.industry && !buyerLoading && (bk !== buyerKey || !buyerReady)) {
-        console.log('[onboarding] refetch buyer_roles', { prevKey: buyerKey, nextKey: bk })
-        setBuyerKey(bk)
-        setBuyerReady(false)
-        setBuyerSuggestions([])
-        setBuyerLoading(true)
-        try {
-          const s = ensureOtherLast(await suggest('buyer_roles', ctx), true)
-          const capped = cap(s, 10)
-          setBuyerSuggestions(capped)
-          setBuyerReady(true)
-          console.log('[onboarding] buyer_roles ready', { count: capped.length })
-          if (Array.isArray(data.buyer_roles)) {
-            const allowed = new Set(capped.concat('Other'))
-            const pruned = (data.buyer_roles as string[]).filter((x: string) => allowed.has(x))
-            if (pruned.length !== data.buyer_roles.length) void savePatch({ buyer_roles: pruned })
-          }
-        } finally {
-          setBuyerLoading(false)
-        }
-      }
-
-      // User roles depend on ctx
-      const uk = key(ctx)
-      if (currentDim === 'user_roles' && data.industry && !userLoading && (uk !== userKey || !userReady)) {
-        console.log('[onboarding] refetch user_roles', { prevKey: userKey, nextKey: uk })
-        setUserKey(uk)
-        setUserReady(false)
-        setUserSuggestions([])
-        setUserLoading(true)
-        try {
-          const s = ensureOtherLast(await suggest('user_roles', ctx), true)
-          const capped = cap(s, 12)
-          setUserSuggestions(capped)
-          setUserReady(true)
-          console.log('[onboarding] user_roles ready', { count: capped.length })
-          if (Array.isArray(data.user_roles)) {
-            const allowed = new Set(capped.concat('Other'))
-            const pruned = (data.user_roles as string[]).filter((x: string) => allowed.has(x))
-            if (pruned.length !== data.user_roles.length) void savePatch({ user_roles: pruned })
-          }
-        } finally {
-          setUserLoading(false)
-        }
-      }
+      // buyer/user role suggestion logic removed
 
       // Slowdowns suggestions removed; using curated list
 
@@ -298,7 +246,7 @@ export default function OnboardingPage() {
     }
     void run()
     return () => {}
-  }, [activeIdx, slides, data.industry, data.niches, data.domain, data.buyer_roles, data.user_roles, data.change_enablers, data.change_blockers, suggest, nicheKey, buyerKey, userKey, enablerKey, blockerKey, nicheReady, buyerReady, userReady, enablerReady, blockerReady, nicheLoading, buyerLoading, userLoading, enablerLoading, blockerLoading, savePatch])
+  }, [activeIdx, slides, data.industry, data.niches, data.domain, data.change_enablers, data.change_blockers, suggest, nicheKey, enablerKey, blockerKey, nicheReady, enablerReady, blockerReady, nicheLoading, enablerLoading, blockerLoading, savePatch])
 
   const slide = slides[activeIdx]
   const current = activeIdx + 1
@@ -310,39 +258,55 @@ export default function OnboardingPage() {
   const workflowDocs = (get(data, 'workflow_docs') as Record<string, unknown> | undefined) || undefined
   const aiReadiness = (get(data, 'ai_readiness') as Record<string, unknown> | undefined) || undefined
 
-  const canContinue = useMemo(() => {
-    if (!slide) return false
-    if (slide.dimension === 'headcount') return true // no standalone headcount slide anymore
-    if (slide.type === 'text') {
-      const v = get(data, slide.dimension)
+  const isSlideSatisfied = useCallback((s?: Slide) => {
+    if (!s) return false
+    if (s.dimension === 'headcount') return true
+    if (s.type === 'text') {
+      const v = get(data, s.dimension)
       return isString(v) && v.trim().length > 0
     }
-    if (slide.type === 'select_single') {
+    if (s.type === 'select_single') {
       const industry = get(data, 'industry')
       return isString(industry) && industry.length > 0
     }
-    // inline_template removed
-    if (slide.type === 'multi_slider') {
-      const wd = get(data, 'workflow_docs') as Record<string, unknown> | undefined
-      const documented = wd ? wd['documented'] : undefined
-      const importance = wd ? wd['importance'] : undefined
-      return isNumber(documented) && isNumber(importance)
+    if (s.type === 'multi_slider') {
+      if (s.dimension === 'workflow_docs') {
+        const wd = get(data, 'workflow_docs') as Record<string, unknown> | undefined
+        const documented = wd ? wd['documented'] : undefined
+        const dataQuality = wd ? wd['data_quality'] : undefined
+        const toolIntegration = wd ? wd['tool_integration'] : undefined
+        return isNumber(documented) && isNumber(dataQuality) && isNumber(toolIntegration)
+      }
+      if (s.dimension === 'ai_readiness') {
+        const ar = get(data, 'ai_readiness') as Record<string, unknown> | undefined
+        const vals = [
+          ar ? ar['ai_understanding'] : undefined,
+          ar ? ar['ai_usage_learning'] : undefined,
+          ar ? ar['ai_sharing_rhythm'] : undefined,
+          ar ? ar['ai_experimentation_culture'] : undefined,
+          ar ? ar['ai_leadership_engagement'] : undefined,
+        ]
+        return vals.every(isNumber)
+      }
+      return false
     }
-    if (slide.type === 'mc_single') {
-      const v = get(data, slide.dimension)
+    if (s.type === 'mc_single') {
+      const v = get(data, s.dimension)
       return isString(v) && v.length > 0
     }
-    if (slide.type === 'mc_multi') {
-      const v = get(data, slide.dimension)
+    if (s.type === 'mc_multi') {
+      const v = get(data, s.dimension)
       return Array.isArray(v) && (v as unknown[]).every(isString) && (v as unknown[]).length > 0
     }
-    // ranked_list no longer used
-    if (slide.type === 'tags_multi') {
+    if (s.type === 'tags_multi') {
       const cn = get(data, 'company_name')
       return isString(cn) && cn.trim().length > 0
     }
     return false
-  }, [slide, data])
+  }, [data])
+
+  const canContinue = useMemo(() => isSlideSatisfied(slide), [slide, isSlideSatisfied])
+  const allSatisfied = useMemo(() => slides.every(s => isSlideSatisfied(s)), [slides, isSlideSatisfied])
 
   const next = useCallback(async () => {
     if (!slide) return
@@ -366,13 +330,12 @@ export default function OnboardingPage() {
     if (!slide) return false
     if (isLoading) return true
     if (slide.dimension === 'niches') return nicheSuggestions.length === 0
-    if (slide.dimension === 'buyer_roles') return buyerSuggestions.length === 0
-    if (slide.dimension === 'user_roles') return userSuggestions.length === 0
+    // buyer/user roles removed
     if (slide.dimension === 'change_enablers') return enablerSuggestions.length === 0
     if (slide.dimension === 'change_blockers') return blockerSuggestions.length === 0
     // value statement removed
     return false
-  }, [slide, isLoading, nicheSuggestions.length, buyerSuggestions.length, userSuggestions.length, enablerSuggestions.length, blockerSuggestions.length])
+  }, [slide, isLoading, nicheSuggestions.length, enablerSuggestions.length, blockerSuggestions.length])
 
   // Log entering slides and suspend changes for diagnostics
   useEffect(() => {
@@ -380,9 +343,9 @@ export default function OnboardingPage() {
       idx: activeIdx,
       dimension: slide?.dimension,
       suspend,
-      ready: { nicheReady, buyerReady, userReady, enablerReady, blockerReady }
+      ready: { nicheReady, enablerReady, blockerReady }
     })
-  }, [activeIdx, slide?.dimension, suspend, nicheReady, buyerReady, userReady, enablerReady, blockerReady])
+  }, [activeIdx, slide?.dimension, suspend, nicheReady, enablerReady, blockerReady])
 
   // Also log when suspend flips while on a specific slide
   useEffect(() => {
@@ -390,15 +353,14 @@ export default function OnboardingPage() {
     const reason = (() => {
       if (isLoading) return 'initial-load'
       if (slide.dimension === 'niches' && !nicheReady) return 'niches-not-ready'
-      if (slide.dimension === 'buyer_roles' && !buyerReady) return 'buyer-not-ready'
-      if (slide.dimension === 'user_roles' && !userReady) return 'user-not-ready'
+      // buyer/user readiness removed
       if (slide.dimension === 'change_enablers' && !enablerReady) return 'enablers-not-ready'
       if (slide.dimension === 'change_blockers' && !blockerReady) return 'blockers-not-ready'
       // value statement removed
       return 'none'
     })()
     console.log('[onboarding] suspend', { idx: activeIdx, dimension: slide.dimension, suspend, reason })
-  }, [suspend, slide, activeIdx, isLoading, nicheReady, buyerReady, userReady, enablerReady, blockerReady])
+  }, [suspend, slide, activeIdx, isLoading, nicheReady, enablerReady, blockerReady])
 
   return (
     <SurveyLayout
@@ -411,7 +373,10 @@ export default function OnboardingPage() {
       isSubmitting={false}
       canContinue={canContinue}
       onBack={() => setActiveIdx(i => Math.max(0, i - 1))}
-      onClose={() => router.push('/admin/overview')}
+      onClose={() => {
+        if (allSatisfied) router.push('/admin/overview')
+        else router.push('/onboarding/welcome')
+      }}
       onContinue={next}
       progressPercentage={total > 0 ? (current / total) * 100 : 0}
     >
@@ -453,53 +418,7 @@ export default function OnboardingPage() {
 
       {/* value statement removed */}
 
-      {slide?.dimension === 'buyer_roles' && (
-        <>
-          <MultiChoiceList
-            items={ensureOtherLast(buyerSuggestions, true)}
-            selected={Array.isArray(data.buyer_roles) ? data.buyer_roles : []}
-            onToggle={(opt) => {
-              const list: string[] = Array.isArray(data.buyer_roles) ? data.buyer_roles : []
-              const has = list.includes(opt)
-              const next = has ? list.filter((x) => x !== opt) : [...list, opt]
-              void savePatch({ buyer_roles: next })
-            }}
-          />
-          {Array.isArray(data.buyer_roles) && data.buyer_roles.includes('Other') && (
-            <Textarea
-              value={typeof data.buyer_roles_other === 'string' ? data.buyer_roles_other : ''}
-              onChange={(e) => savePatch({ buyer_roles_other: e.target.value })}
-              placeholder={'Other (optional)'}
-              className="min-h-[80px] resize-none mt-4"
-              maxLength={140}
-            />
-          )}
-        </>
-      )}
-
-      {slide?.dimension === 'user_roles' && (
-        <>
-          <MultiChoiceList
-            items={ensureOtherLast(userSuggestions, true)}
-            selected={Array.isArray(data.user_roles) ? data.user_roles : []}
-            onToggle={(opt) => {
-              const list: string[] = Array.isArray(data.user_roles) ? data.user_roles : []
-              const has = list.includes(opt)
-              const next = has ? list.filter((x) => x !== opt) : [...list, opt]
-              void savePatch({ user_roles: next })
-            }}
-          />
-          {Array.isArray(data.user_roles) && data.user_roles.includes('Other') && (
-            <Textarea
-              value={typeof data.user_roles_other === 'string' ? data.user_roles_other : ''}
-              onChange={(e) => savePatch({ user_roles_other: e.target.value })}
-              placeholder={'Other (optional)'}
-              className="min-h-[80px] resize-none mt-4"
-              maxLength={140}
-            />
-          )}
-        </>
-      )}
+      {/* buyer/user role slides removed */}
 
       {slide?.dimension === 'workflow_docs' && (
         <MultiSlider
@@ -519,23 +438,38 @@ export default function OnboardingPage() {
               ],
             },
             {
-              id: 'importance',
-              prompt: 'How important is documentation to your process?',
-              minLabel: '✋ Not at all',
-              maxLabel: '👩‍🏫 Document first, work later',
+              id: 'data_quality',
+              prompt: '🧹 Data quality — How clean and reliable is your operational data?',
+              minLabel: '😬 Messy and inconsistent',
+              maxLabel: '💎 Clean, trusted source of truth',
               descriptions: [
-                'Documentation rarely considered',
-                'Occasionally useful when needed',
-                'Helpful for onboarding',
-                'Important for consistency',
-                'Critical for day‑to‑day work',
-                'Foundational to how we operate',
+                'Data scattered, duplicates everywhere',
+                'Some key systems somewhat accurate',
+                'Most data usable, but not always current',
+                'Generally clean and maintained',
+                'Reliable across systems',
+                'Single source of truth and confidence',
+              ],
+            },
+            {
+              id: 'tool_integration',
+              prompt: '🔗 Tool integration — How integrated are your tools and systems?',
+              minLabel: '🔒 Mostly siloed',
+              maxLabel: '🌐 Fully connected',
+              descriptions: [
+                'No integrations between tools',
+                'Some manual exports/imports',
+                'A few key integrations set up',
+                'Most tools connected via API or sync',
+                'Data flows automatically',
+                'Unified stack with seamless data flow',
               ],
             },
           ]}
           values={{
             documented: isNumber(workflowDocs?.['documented']) ? (workflowDocs?.['documented'] as number) : undefined,
-            importance: isNumber(workflowDocs?.['importance']) ? (workflowDocs?.['importance'] as number) : undefined,
+            data_quality: isNumber(workflowDocs?.['data_quality']) ? (workflowDocs?.['data_quality'] as number) : undefined,
+            tool_integration: isNumber(workflowDocs?.['tool_integration']) ? (workflowDocs?.['tool_integration'] as number) : undefined,
           }}
           onChange={(delta) => {
             const next = { ...(data.workflow_docs || {}), ...delta }
@@ -603,12 +537,42 @@ export default function OnboardingPage() {
                 'Frictionless access',
               ],
             },
+            {
+              id: 'ai_experimentation_culture',
+              prompt: '🧪 Experimentation culture — How comfortable are your teams experimenting with AI tools?',
+              minLabel: '😬 Avoids new tools',
+              maxLabel: '🚀 Experiments weekly',
+              descriptions: [
+                'Risk-averse, rarely try new tools',
+                'A few curious individuals experimenting',
+                'Some teams run small tests',
+                'Regular experimentation across org',
+                'Frequent sharing of what works',
+                'Continuous improvement mindset',
+              ],
+            },
+            {
+              id: 'ai_leadership_engagement',
+              prompt: '👑 Leadership engagement — Leaders actively use and encourage AI tools',
+              minLabel: '💤 Not really',
+              maxLabel: '🔥 Fully embraced',
+              descriptions: [
+                'Rarely discussed at leadership level',
+                'Leadership curious but not involved',
+                'Leaders talk about it occasionally',
+                'Some leaders use AI for their own work',
+                'Actively encourage team experimentation',
+                'Leaders consistently use and champion AI tools',
+              ],
+            },
           ]}
           values={{
             ai_understanding: isNumber(aiReadiness?.['ai_understanding']) ? (aiReadiness?.['ai_understanding'] as number) : undefined,
             ai_usage_learning: isNumber(aiReadiness?.['ai_usage_learning']) ? (aiReadiness?.['ai_usage_learning'] as number) : undefined,
             ai_sharing_rhythm: isNumber(aiReadiness?.['ai_sharing_rhythm']) ? (aiReadiness?.['ai_sharing_rhythm'] as number) : undefined,
             ai_tools_data_access: isNumber(aiReadiness?.['ai_tools_data_access']) ? (aiReadiness?.['ai_tools_data_access'] as number) : undefined,
+            ai_experimentation_culture: isNumber(aiReadiness?.['ai_experimentation_culture']) ? (aiReadiness?.['ai_experimentation_culture'] as number) : undefined,
+            ai_leadership_engagement: isNumber(aiReadiness?.['ai_leadership_engagement']) ? (aiReadiness?.['ai_leadership_engagement'] as number) : undefined,
           }}
           onChange={(delta) => {
             const next = { ...(data.ai_readiness || {}), ...delta }

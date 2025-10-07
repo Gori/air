@@ -13,7 +13,7 @@ This spec introduces a new, survey-style onboarding flow at `/onboarding/` that 
 ---
 
 ### Decisions
-- **Storage**: Single JSONB payload per company in `company_onboarding.data` (no normalization).
+- **Storage**: Current implementation stores a single JSON payload per company in `companies.description` (JSON string). Migration to `company_onboarding.data` is planned.
 - **Completion redirect**: After completion, redirect to `/onboarding/welcome` confirmation page.
 - **Edits**: Onboarding can be revisited later to edit answers; no versioning.
 - **AI suggestions**: Log prompts/responses to `prompt_logs` only; do not persist suggestion lists in onboarding data.
@@ -22,118 +22,106 @@ This spec introduces a new, survey-style onboarding flow at `/onboarding/` that 
 
 ---
 
-### New question types (in addition to existing)
-Existing: `welcome`, `intro`, `text`, `scale`, `mc_single`, `mc_multi`, `matrix`, `ai_followup`, `end`.
+### Implemented input types
+Existing: `text`, `scale`, `mc_single`, `mc_multi`.
 
-New types to add:
-- **select_single**: Dropdown single-select (e.g., industry)
-- **inline_template**: Inline sentence with 4 short-text inputs (value statement)
-- **multi_slider**: One slide that contains one or more discrete sliders. Each slider has a prompt, min label, max label, and an array of mid-value descriptions used to describe the current position.
-- **ranked_list**: Drag-and-drop rank ordering; we capture full order and top-3
-- **tags_multi**: Chips with freeform add (user can add custom items in addition to options)
+New/used here:
+- **select_single**: Single selection (industry; implemented with `ChoiceList`).
+- **multi_slider**: Multiple discrete sliders rendered on one slide.
+- Note: `inline_template`, `ranked_list`, and `tags_multi` are not used in v1 of onboarding.
 
-Each new type gets a focused component and a compact value schema. They should be designed with the same “chip/scale” style as survey inputs.
+All inputs use the same “chip/scale” visual style as the survey components.
 
 ---
 
-### Question set and component mapping
+### Question set and component mapping (current code)
 1. Which industry are you in?
-   - Type: `select_single`
+   - Type: `select_single` (implemented via `ChoiceList`)
    - Options (16 + Other): B2B SaaS & Developer Tools • Fintech • Healthtech & Digital Health • Biotech & Pharma • E‑commerce & D2C • Retail & Omnichannel • Manufacturing & Industrial • Supply Chain, Logistics & Mobility • Media, Marketing & Entertainment • Gaming • Edtech • Energy & Climate (Cleantech) • PropTech & Real Estate • Travel & Hospitality • Telecommunications & Connectivity • Professional Services & Agencies • Other
    - Persist: `industry: string`
 
 2. Which niche/segment best fits you?
    - Type: `mc_multi` (chips)
-   - AI suggests 3–16 options based on Q1, always includes “Other”
+   - AI suggests 3–12 options based on Q1, always includes “Other”
    - Persist: `niches: string[]`, `niches_other?: string`
 
-3. Complete your one-line value statement.
-   - Type: `inline_template`
-   - Template: “We help {buyer role/title}, {verb} {object} so they can {outcome}.”
-   - Persist raw fields + composed string:
-     - `value_stmt: { buyer_role: string, verb: string, object: string, outcome: string, text: string }`
-
-4. Who usually buys your product?
-   - Type: `mc_multi` (chips) with AI suggestions from Q1–Q3
-   - Persist: `buyer_roles: string[]`
-
-5. Who uses it day to day?
-   - Type: `mc_multi` (chips) with AI suggestions from Q1–Q3
-   - Persist: `user_roles: string[]`
-
-6. How documented are your workflows (be honest)?
+3. Foundations & Workflows
    - Type: `multi_slider`
-   - Sliders:
-     - "How documented are your workflows?" — min "✋ Not at all" to max "📗 Perfectly documented"
-     - "How important is documentation to your process?" — min "✋ Not at all" to max "👩‍🏫 Document first, work later"
-   - Persist: `workflow_docs: { documented: number, importance: number }` where 0 is min and max equals descriptors+1
+   - Sliders (in order):
+     - How documented are your workflows? (✋ Not at all → 📗 Perfectly documented)
+     - 🧹 Data quality — How clean and reliable is your operational data? (😬 Messy and inconsistent → 💎 Clean, trusted source of truth)
+     - 🔗 Tool integration — How integrated are your tools and systems? (🔒 Mostly siloed → 🌐 Fully connected)
+   - Persist: `workflow_docs: { documented: number, data_quality: number, tool_integration: number }`
 
-7. What slows your teams down most in a normal week?
-   - Type: `mc_single` + Other short text
-   - Core list + AI adds 4–10 industry-specific items
-   - Persist: `biggest_slowdown: string`, `biggest_slowdown_other?: string`
+4. AI Readiness & Culture
+   - Type: `multi_slider`
+   - Sliders (in order):
+     - Employees understand why AI matters
+     - Employees use AI tools and learn
+     - We share what works with AI
+     - 🧪 Experimentation culture — How comfortable are your teams experimenting with AI tools?
+     - 👑 Leadership engagement — Leaders actively use and encourage AI tools.
+   - Persist: `ai_readiness: { ai_understanding?: number, ai_usage_learning?: number, ai_sharing_rhythm?: number, ai_experimentation_culture?: number, ai_leadership_engagement?: number }`
 
-8. What did people stop doing after your last change to how you work?
-   - Type: `text` (≤100 chars)
-   - Persist: `stopped_doing: string`
+5. What slows your teams down most in a normal week?
+   - Type: `mc_multi` + Other short text
+   - Uses curated list (no AI) + “Other”
+   - Persist: `biggest_slowdown_multi: string[]`, `biggest_slowdown_other?: string`
 
-9. If you got 10 hours/week back per team, where would you reinvest first?
-   - Type: `ranked_list` (drag top — up to 3; fewer allowed). 6–12 tailored options with “Other”
-   - Persist: `reinvest: { ranking: string[], top3: string[], other?: string }`
+6. If you got 10 hours/week back per team, where would you reinvest first?
+   - Type: `mc_multi` (select up to three) + “Other”
+   - Persist: `reinvest: string[] (<= 3)`, `reinvest_other?: string`
 
-10. Which business outcome matters most right now?
-    - Type: `mc_single`
-    - AI offers 6–10 KPI phrasings aligned with industry/value statement (no numbers)
-    - Persist: `primary_outcome: string`
+7. Which business outcome matters most right now?
+   - Type: `mc_single`
+   - Persist: `primary_outcome: string`
 
-11. What would make now the RIGHT time to change how you work?
+8. Why now for AI-based workflows?
     - Type: `mc_multi` + Other short text, with AI suggestions
     - Persist: `change_enablers: string[]`, `change_enablers_other?: string`
 
-12. What would make now the WRONG time to change how you work?
+9. Why not now for AI-based workflows?
     - Type: `mc_multi` + Other short text, with AI suggestions
     - Persist: `change_blockers: string[]`, `change_blockers_other?: string`
 
-13. What is the name of your company?
-    - Type: `tags_multi` (chips with free add) with AI-suggested names
-    - Persist: `company_names: string[]`
-
-14. How many employees do you have?
-    - Type: `number`
-    - Persist: `headcount: number`
+10. Company basics
+    - Type: input + select
+    - Persist: `company_name: string`, `headcount_range: "1-10"|"11-50"|"51-200"|"201-1000"|"1000+"`
 
 Notes:
-- All AI‑suggested items are labeled “Suggested” in the UI and are fully editable.
+- AI‑suggested items are presented inline and always editable. No explicit “Suggested” badge in v1.
 - No hidden follow‑ups; expansions are additive and visible.
 
 ---
 
 ### Data model
-Add a new table to store onboarding answers per company. Keep structured, evolvable, and minimal.
+Current (v1): store onboarding JSON in `companies.description` (stringified JSON) keyed by company.
 
-Table: `company_onboarding`
+Planned: `company_onboarding`
 - `company_id` (text, PK, references `companies.id`)
-- `data` (jsonb) – the full payload described above
+- `data` (jsonb) – the full payload
 - `created_at` (timestamptz default now)
 - `updated_at` (timestamptz default now)
 
-Example `data` shape:
+Example `data` shape (current code):
 ```json
 {
   "industry": "Fintech",
   "niches": ["Payments orchestration", "KYC/KYB"],
-  "value_stmt": {"buyer_role":"CFOs","verb":"forecast","object":"cash with confidence","outcome":"avoid shortfalls","text":"We help CFOs, forecast cash with confidence so they can avoid shortfalls."},
-  "buyer_roles": ["CFO", "VP Operations"],
-  "user_roles": ["Accountants", "CS reps"],
-  "workflow_docs": {"documented":4,"importance":3},
-  "biggest_slowdown": "Handoffs",
-  "stopped_doing": "Stopped double-entering invoices in two systems.",
-  "reinvest": {"ranking":["Ship faster","Fix data hygiene","More customer time"],"top3":["Ship faster","Fix data hygiene","More customer time"],"other":null},
+  "niches_other": "",
+  "workflow_docs": {"documented": 4, "data_quality": 3, "tool_integration": 4},
+  "ai_readiness": {"ai_understanding": 3, "ai_usage_learning": 4, "ai_sharing_rhythm": 2, "ai_experimentation_culture": 4, "ai_leadership_engagement": 3},
+  "biggest_slowdown_multi": ["Handoffs", "Manual data"],
+  "biggest_slowdown_other": null,
+  "reinvest": ["Ship faster", "Fix data hygiene"],
+  "reinvest_other": null,
   "primary_outcome": "Retention/churn reduction",
-  "change_enablers": ["Leadership air-cover"],
+  "change_enablers": ["Leadership air cover"],
+  "change_enablers_other": null,
   "change_blockers": ["Peak season"],
-  "company_names": ["Acme AB", "Acme Labs", "Acme AI"],
-  "headcount": 180
+  "change_blockers_other": null,
+  "company_name": "Acme AB",
+  "headcount_range": "51-200"
 }
 ```
 
@@ -145,17 +133,28 @@ Additional logging:
 ### API
 Base: `/api/onboarding`
 
-- `POST /api/onboarding/start` → returns current onboarding `data` for the manager’s company or `{}` if none
-- `PATCH /api/onboarding/save` → upsert partial `data` JSON for the company (id from Clerk session)
-- `POST /api/onboarding/complete` → marks onboarding complete; copies selected canonical fields onto `companies` (e.g., `industry`, `headcount`) and redirects to `/onboarding/welcome`
-- `POST /api/onboarding/suggest` → returns AI suggestions given the current context (Q1–Qx)
+- `POST /api/onboarding/start`
+  - Returns: `{ data: Record<string, unknown> }` from `companies.description` (JSON-parsed; `{}` if none)
+- `PATCH /api/onboarding/save`
+  - Body: `{ data: object }` (partial patch)
+  - Merges into existing JSON and saves back to `companies.description`
+  - Returns: `{ success: true, data: object }`
+- `POST /api/onboarding/complete`
+  - Copies canonical fields onto `companies`:
+    - `industry` from `data.industry`
+    - `headcount` from `data.headcount` if present; otherwise maps `headcount_range` → approximate number
+    - `name` from `data.company_name`
+  - Returns: `{ success: true, redirect: "/onboarding/welcome" }`
+- `POST /api/onboarding/suggest`
+  - Body: `{ type: string, context: object }`
+  - Returns: `{ suggestions: string[] }` (deduped, concise, with `Other` appended when applicable)
 
 Auth:
-- Clerk required; role must be `manager`.
+- Clerk auth required. Endpoints ensure the user is linked to a company and set role to `manager` if missing.
 
 AI:
-- Model: `gpt-4.1-mini-2025-04-14` (single source of truth)
-- Log prompt/response to `prompt_logs` with `source = 'question_selection'`
+- Model: `gpt-4.1-mini-2025-04-14`
+- The prompt requests strict JSON: `{ "suggestions": ["..."] }`; response is logged to `prompt_logs` with `source = 'question_selection'`.
 
 ---
 
@@ -163,43 +162,42 @@ AI:
 Routes: `/onboarding/`, `/onboarding/welcome`
 - Use the existing `SurveyLayout` for header, progress, and footer controls.
 - Each question is a slide. Keyboard shortcuts match survey (Enter/→ for next, ← for back).
-- “Suggested” items are visually tagged next to the chip/text.
+- AI suggestions are shown inline with options; no explicit “Suggested” label in v1.
 - After completion, show the `/onboarding/welcome` confirmation page.
 - Onboarding can be revisited later without versioning; edits overwrite previous values.
 
-Reusable components to add under `src/components/survey/`:
+Reusable components under `src/components/survey/`:
 - `SelectSingle.tsx` – dropdown single-select (wraps shadcn `Select`)
-- `InlineTemplate.tsx` – renders the sentence with four `Input`s; emits both fields and composed text
 - `MultiSlider.tsx` – reusable multi-slider component used by onboarding
-- `RankedList.tsx` – drag-and-drop list; capture full order and top3 (recommended: `@hello-pangea/dnd`)
-- `TagsMulti.tsx` – chips with add/remove; accepts initial suggestions
+- `ChoiceList.tsx`, `MultiChoiceList.tsx`, `QuestionMultiChoice.tsx` – chips and list helpers
 
 Composition:
-- New page `src/app/onboarding/page.tsx` builds a `slides: Slide[]` array using new types and existing ones (`text`, `mc_multi`, `mc_single`, `scale`).
-- For dynamic suggestion calls, prefetch when a prior slide completes; show suggestions inline with a “Suggested” badge.
- - Add `src/app/onboarding/welcome/page.tsx` for the confirmation screen.
+- `src/app/onboarding/page.tsx` builds a `slides: Slide[]` array using `select_single`, `mc_multi`, `mc_single`, and `multi_slider`.
+- Suggestions are prefetched when a prior slide completes and shown inline.
+- `src/app/onboarding/welcome/page.tsx` renders the confirmation screen.
 
 ---
 
 ### Persistence rules
-- Save on each Continue click (PATCH), optimistic UI.
-- Headcount numeric validation (positive integer, max reasonable bound e.g., 100000).
-- Always store user edits over suggestions; suggestions are not required to persist.
-- Ranked list: allow fewer than 3 items; compute `top3` from available items (<= 3).
+- Persist on each change (optimistic) and on Continue.
+- Store user edits over suggestions; suggestions themselves are not persisted.
+- `reinvest` allows up to three selections; no ranking UI.
+- `headcount` is inferred from `headcount_range` on completion if not provided.
 
 ---
 
 ### Migration plan
 1) DB
-- Create `company_onboarding` as above.
-- Generate types via Supabase types pipeline.
+- Keep current storage in `companies.description` for v1.
+- Introduce `company_onboarding` and migrate existing JSON there.
+- Generate/update Supabase types.
 
 2) API
-- Add `/api/onboarding/start|save|complete|suggest` routes.
+- Continue using `/api/onboarding/start|save|complete|suggest` with `company_onboarding` once migration is done.
 - Remove `/api/company/register` after `/onboarding` is live.
 
 3) UI
-- Create `/onboarding/page.tsx`.
+- Keep `/onboarding/page.tsx`.
 - Delete `src/app/(dashboard)/company/register/*` and `CompanyOnboardingForm` after parity verification.
 
 4) Navigation
