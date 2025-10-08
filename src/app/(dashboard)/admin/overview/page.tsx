@@ -14,7 +14,22 @@ interface Onboarding {
   headcount_range?: string | null
   // buyer/user roles removed from onboarding
   change_enablers?: string[]
+  change_enablers_other?: string | null
   change_blockers?: string[]
+  change_blockers_other?: string | null
+  niches?: string[]
+  niches_other?: string | null
+  workflow_docs?: {
+    documented?: number
+    data_quality?: number
+    tool_integration?: number
+  }
+  biggest_slowdown_multi?: string[]
+  biggest_slowdown_other?: string | null
+  reinvest?: string[]
+  reinvest_other?: string | null
+  primary_outcome?: string | null
+  company_name?: string | null
   ai_readiness?: {
     ai_understanding?: number
     ai_usage_learning?: number
@@ -117,10 +132,16 @@ export default async function AdminOverviewPage() {
               <div className="space-y-1 md:col-span-2">
                 <div className="text-sm text-muted-foreground">Why now for AI-based workflows</div>
                 <div className="text-lg">{Array.isArray(onboarding?.change_enablers) ? onboarding.change_enablers.join(', ') : '—'}</div>
+                {onboarding?.change_enablers_other ? (
+                  <div className="text-sm text-neutral-600 mt-1">Other: {onboarding.change_enablers_other}</div>
+                ) : null}
               </div>
               <div className="space-y-1 md:col-span-2">
                 <div className="text-sm text-muted-foreground">Why not now for AI-based workflows</div>
                 <div className="text-lg">{Array.isArray(onboarding?.change_blockers) ? onboarding.change_blockers.join(', ') : '—'}</div>
+                {onboarding?.change_blockers_other ? (
+                  <div className="text-sm text-neutral-600 mt-1">Other: {onboarding.change_blockers_other}</div>
+                ) : null}
               </div>
               <div className="space-y-1 md:col-span-2">
                 <div className="text-sm text-muted-foreground">AI Readiness & Culture (sliders)</div>
@@ -131,6 +152,39 @@ export default async function AdminOverviewPage() {
                   <div>Leadership engagement: {onboarding?.ai_readiness?.ai_leadership_engagement ?? '—'}</div>
                   <div>Sharing rhythm: {onboarding?.ai_readiness?.ai_sharing_rhythm ?? '—'}</div>
                 </div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Niche / Segment</div>
+                <div className="text-lg">{Array.isArray(onboarding?.niches) ? onboarding.niches.join(', ') : '—'}</div>
+                {onboarding?.niches_other ? (
+                  <div className="text-sm text-neutral-600 mt-1">Other: {onboarding.niches_other}</div>
+                ) : null}
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Foundations & Workflows</div>
+                <div className="text-sm">
+                  <div>Documentation: {onboarding?.workflow_docs?.documented ?? '—'}</div>
+                  <div>Data quality: {onboarding?.workflow_docs?.data_quality ?? '—'}</div>
+                  <div>Tool integration: {onboarding?.workflow_docs?.tool_integration ?? '—'}</div>
+                </div>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">What slows teams down</div>
+                <div className="text-lg">{Array.isArray(onboarding?.biggest_slowdown_multi) ? onboarding.biggest_slowdown_multi.join(', ') : '—'}</div>
+                {onboarding?.biggest_slowdown_other ? (
+                  <div className="text-sm text-neutral-600 mt-1">Other: {onboarding.biggest_slowdown_other}</div>
+                ) : null}
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">If you got 10h/week back</div>
+                <div className="text-lg">{Array.isArray(onboarding?.reinvest) ? onboarding.reinvest.join(', ') : '—'}</div>
+                {onboarding?.reinvest_other ? (
+                  <div className="text-sm text-neutral-600 mt-1">Other: {onboarding.reinvest_other}</div>
+                ) : null}
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <div className="text-sm text-muted-foreground">Primary outcome</div>
+                <div className="text-lg">{onboarding?.primary_outcome || '—'}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Running</div>

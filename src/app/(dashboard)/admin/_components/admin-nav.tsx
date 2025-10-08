@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, BarChart3, Users, FileText } from "lucide-react"
+import { LayoutDashboard, BarChart3, Users, FileText, Sparkles } from "lucide-react"
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -11,9 +11,11 @@ import {
 
 const navItems = [
   { href: "/admin/overview", label: "Overview", Icon: LayoutDashboard },
+  { href: "/admin/summary", label: "Readiness Summary", Icon: Sparkles },
   { href: "/admin/answers", label: "Answers", Icon: BarChart3 },
   { href: "/admin/users", label: "Users", Icon: Users },
   { href: "/admin/report", label: "Report", Icon: FileText },
+
 ]
 
 export function AdminNav() {

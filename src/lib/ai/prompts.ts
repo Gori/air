@@ -236,3 +236,74 @@ ${responseText}
 
 Analyze these responses and generate a comprehensive AI readiness assessment report following the JSON structure specified in the system prompt.`
 } 
+
+/**
+ * System prompt for generating a one-time company onboarding readiness summary
+ * Keep this prompt minimal and easy to iterate on.
+ */
+export const COMPANY_ONBOARDING_SUMMARY_SYSTEM_PROMPT = `You are an AI transformation consultant.
+
+Using the company's onboarding inputs and context, write a concise readiness summary that a leadership team can act on immediately.
+
+Guidelines:
+- Use only the provided data; do not invent facts.
+- You must consider every onboarding field provided; do not omit categories.
+- Be direct, practical, and business-focused.
+- Highlight concrete risks and quick wins.
+- Keep it under ~250 words across sections.
+
+Return STRICT JSON with the following shape:
+{
+  "summary": string,            // 2-3 sentence executive overview
+  "readiness_score": number,   // 0-5 (0 very low, 5 very high)
+  "key_signals": string[],     // 3-6 bullets from the onboarding data
+  "recommended_actions": string[], // 5-8 specific actions
+  "tips": string[]             // 3-6 practical tips & tricks
+}`
+
+/**
+ * Build the prompt for the onboarding summary from company profile + onboarding data.
+ */
+export function buildCompanyOnboardingSummaryPrompt(
+  params: {
+    companyName: string
+    companyProfile: Record<string, unknown>
+    onboardingData: Record<string, unknown>
+    aggregates?: {
+      totalEmployees?: number
+      totalResponses?: number
+      completionRatePct?: number
+    }
+  }
+): string {
+  const { companyName, companyProfile, onboardingData, aggregates } = params
+  const normalized = {
+    industry: onboardingData['industry'] ?? null,
+    niches: Array.isArray(onboardingData['niches']) ? onboardingData['niches'] : null,
+    niches_other: onboardingData['niches_other'] ?? null,
+    workflow_docs: typeof onboardingData['workflow_docs'] === 'object' && onboardingData['workflow_docs'] !== null
+      ? onboardingData['workflow_docs']
+      : null,
+    ai_readiness: typeof onboardingData['ai_readiness'] === 'object' && onboardingData['ai_readiness'] !== null
+      ? onboardingData['ai_readiness']
+      : null,
+    biggest_slowdown_multi: Array.isArray(onboardingData['biggest_slowdown_multi']) ? onboardingData['biggest_slowdown_multi'] : null,
+    biggest_slowdown_other: onboardingData['biggest_slowdown_other'] ?? null,
+    reinvest: Array.isArray(onboardingData['reinvest']) ? onboardingData['reinvest'] : null,
+    reinvest_other: onboardingData['reinvest_other'] ?? null,
+    primary_outcome: onboardingData['primary_outcome'] ?? null,
+    change_enablers: Array.isArray(onboardingData['change_enablers']) ? onboardingData['change_enablers'] : null,
+    change_enablers_other: onboardingData['change_enablers_other'] ?? null,
+    change_blockers: Array.isArray(onboardingData['change_blockers']) ? onboardingData['change_blockers'] : null,
+    change_blockers_other: onboardingData['change_blockers_other'] ?? null,
+    company_name: onboardingData['company_name'] ?? null,
+    headcount_range: onboardingData['headcount_range'] ?? null,
+  }
+
+  return [
+    `Company: ${companyName}`,
+    `Profile: ${JSON.stringify(companyProfile)}`,
+    `Aggregates: ${JSON.stringify(aggregates || {})}`,
+    `Onboarding (normalized): ${JSON.stringify(normalized)}`,
+  ].join('\n')
+}
