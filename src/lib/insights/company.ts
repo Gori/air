@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateAIResponse } from '@/lib/ai/client'
 import { COMPANY_ONBOARDING_SUMMARY_SYSTEM_PROMPT, buildCompanyOnboardingSummaryPrompt } from '@/lib/ai/prompts'
+import { SummaryV2, CompanyOnboardingData } from '@/types/summary'
 
 type CompanyProfile = {
   name: string
@@ -110,6 +111,66 @@ export async function ensureCompanyOnboardingSummary(companyId: string): Promise
     } as never)
 
   return { created: true, summary }
+}
+
+export async function loadSummaryV2(companyId: string): Promise<SummaryV2 | null> {
+  const { data: company } = await supabaseAdmin
+    .from('companies')
+    .select('description')
+    .eq('id', companyId)
+    .single()
+
+  if (!company?.description) return null
+
+  try {
+    const parsed = JSON.parse(company.description) as Record<string, unknown>
+    return (parsed.summary_v2 as SummaryV2) || null
+  } catch {
+    return null
+  }
+}
+
+export async function saveSummaryV2(companyId: string, summary: SummaryV2): Promise<void> {
+  const { data: company } = await supabaseAdmin
+    .from('companies')
+    .select('description')
+    .eq('id', companyId)
+    .single()
+
+  let desc: Record<string, unknown> = {}
+  try {
+    if (company?.description) {
+      desc = JSON.parse(company.description) as Record<string, unknown>
+    }
+  } catch {}
+
+  desc.summary_v2 = summary
+  desc.summary_v2_generated_at = new Date().toISOString()
+
+  const { error } = await supabaseAdmin
+    .from('companies')
+    .update({ description: JSON.stringify(desc) } as never)
+    .eq('id', companyId)
+
+  if (error) {
+    throw new Error('Failed to save summary v2')
+  }
+}
+
+export async function loadOnboardingData(companyId: string): Promise<CompanyOnboardingData> {
+  const { data: company } = await supabaseAdmin
+    .from('companies')
+    .select('description')
+    .eq('id', companyId)
+    .single()
+
+  if (!company?.description) return {}
+
+  try {
+    return JSON.parse(company.description) as CompanyOnboardingData
+  } catch {
+    return {}
+  }
 }
 
 

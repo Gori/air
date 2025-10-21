@@ -1,6 +1,6 @@
-import { Briefcase, Banknote, HeartPulse, FlaskConical, ShoppingBag, Store, Factory, Truck, Megaphone, Gamepad2, GraduationCap, Sun, Building2, Plane, Wifi, Users } from 'lucide-react'
+import { Briefcase, Banknote, HeartPulse, FlaskConical, ShoppingBag, Store, Factory, Truck, Megaphone, Gamepad2, GraduationCap, Sun, Building2, Plane, Wifi, Users, Code2, Film, Zap, HelpCircle } from 'lucide-react'
 
-type IconName = 'briefcase' | 'bank' | 'health' | 'flask' | 'shop' | 'store' | 'factory' | 'truck' | 'megaphone' | 'game' | 'grad' | 'sun' | 'building' | 'plane' | 'wifi' | 'users'
+type IconName = 'briefcase' | 'bank' | 'health' | 'flask' | 'shop' | 'store' | 'factory' | 'truck' | 'megaphone' | 'game' | 'grad' | 'sun' | 'building' | 'plane' | 'wifi' | 'users' | 'code' | 'film' | 'zap' | 'help'
 
 const iconMap: Record<IconName, React.ComponentType<{ className?: string }>> = {
   briefcase: Briefcase,
@@ -19,6 +19,10 @@ const iconMap: Record<IconName, React.ComponentType<{ className?: string }>> = {
   plane: Plane,
   wifi: Wifi,
   users: Users,
+  code: Code2,
+  film: Film,
+  zap: Zap,
+  help: HelpCircle,
 }
 
 interface ChoiceItem {

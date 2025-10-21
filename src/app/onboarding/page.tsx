@@ -37,6 +37,26 @@ const INDUSTRY_OPTIONS = [
   'B2B SaaS & Developer Tools', 'Fintech', 'Healthtech & Digital Health', 'Biotech & Pharma', 'E-commerce & D2C', 'Retail & Omnichannel', 'Manufacturing & Industrial', 'Supply Chain, Logistics & Mobility', 'Media, Marketing & Entertainment', 'Gaming', 'Edtech', 'Energy & Climate (Cleantech)', 'PropTech & Real Estate', 'Travel & Hospitality', 'Telecommunications & Connectivity', 'Professional Services & Agencies', 'Other'
 ]
 
+const INDUSTRY_ICONS: Record<string, 'code' | 'bank' | 'health' | 'flask' | 'shop' | 'store' | 'factory' | 'truck' | 'film' | 'game' | 'grad' | 'zap' | 'building' | 'plane' | 'wifi' | 'users' | 'help'> = {
+  'B2B SaaS & Developer Tools': 'code',
+  'Fintech': 'bank',
+  'Healthtech & Digital Health': 'health',
+  'Biotech & Pharma': 'flask',
+  'E-commerce & D2C': 'shop',
+  'Retail & Omnichannel': 'store',
+  'Manufacturing & Industrial': 'factory',
+  'Supply Chain, Logistics & Mobility': 'truck',
+  'Media, Marketing & Entertainment': 'film',
+  'Gaming': 'game',
+  'Edtech': 'grad',
+  'Energy & Climate (Cleantech)': 'zap',
+  'PropTech & Real Estate': 'building',
+  'Travel & Hospitality': 'plane',
+  'Telecommunications & Connectivity': 'wifi',
+  'Professional Services & Agencies': 'users',
+  'Other': 'help',
+}
+
 const ensureOtherLast = (items: string[], includeOther: boolean) => {
   const cleaned = Array.from(new Set((items || []).map((s: string) => String(s || '').trim()).filter((s: string) => s.length > 0 && s.toLowerCase() !== 'other')))
   if (includeOther) cleaned.push('Other')
@@ -386,7 +406,7 @@ export default function OnboardingPage() {
 
       {slide?.dimension === 'industry' && (
         <ChoiceList
-          items={INDUSTRY_OPTIONS.map((t) => ({ id: t, title: t }))}
+          items={INDUSTRY_OPTIONS.map((t) => ({ id: t, title: t, icon: INDUSTRY_ICONS[t] }))}
           selectedId={typeof data.industry === 'string' ? data.industry : undefined}
           onSelect={async (id) => { await savePatch({ industry: id }); setActiveIdx(i => Math.min(i + 1, total - 1)) }}
         />
@@ -425,7 +445,7 @@ export default function OnboardingPage() {
           items={[
             {
               id: 'documented',
-              prompt: 'How documented are your workflows?',
+              prompt: '📋 Documentation — How documented are your workflows?',
               minLabel: '✋ Not at all',
               maxLabel: '📗 Perfectly documented',
               descriptions: [
@@ -483,7 +503,7 @@ export default function OnboardingPage() {
           items={[
             {
               id: 'ai_understanding',
-              prompt: 'Employees understand why AI matters to our strategy',
+              prompt: '🎯 Strategic alignment — Employees understand why AI matters to our strategy',
               minLabel: 'Not at all',
               maxLabel: 'Crystal clear',
               descriptions: [
@@ -497,7 +517,7 @@ export default function OnboardingPage() {
             },
             {
               id: 'ai_usage_learning',
-              prompt: 'Employees use AI tools and take learning opportunities',
+              prompt: '📚 Active learning — Employees use AI tools and take learning opportunities',
               minLabel: 'Not really',
               maxLabel: 'Active and ongoing',
               descriptions: [
@@ -511,7 +531,7 @@ export default function OnboardingPage() {
             },
             {
               id: 'ai_sharing_rhythm',
-              prompt: 'We share what works with AI on a regular rhythm',
+              prompt: '💬 Knowledge sharing — We share what works with AI on a regular rhythm',
               minLabel: 'No cadence',
               maxLabel: 'Tight, consistent cadence',
               descriptions: [
@@ -525,7 +545,7 @@ export default function OnboardingPage() {
             },
             {
               id: 'ai_tools_data_access',
-              prompt: 'Teams have fast, reliable access to tools and data',
+              prompt: '⚡ Resource access — Teams have fast, reliable access to tools and data',
               minLabel: 'Hard to access',
               maxLabel: 'Fast and reliable',
               descriptions: [
