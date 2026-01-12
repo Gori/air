@@ -92,7 +92,7 @@ export async function ensureCompanyOnboardingSummary(companyId: string): Promise
   const merged = { ...(onboardingData || {}), onboarding_summary: summary }
   const { error: saveErr } = await supabaseAdmin
     .from('companies')
-    .update({ description: JSON.stringify(merged) } as never)
+    .update({ description: JSON.stringify(merged) })
     .eq('id', companyId)
 
   if (saveErr) {
@@ -108,7 +108,7 @@ export async function ensureCompanyOnboardingSummary(companyId: string): Promise
       prompt,
       response: ai.content,
       model: ai.model,
-    } as never)
+    })
 
   return { created: true, summary }
 }
@@ -149,7 +149,7 @@ export async function saveSummaryV2(companyId: string, summary: SummaryV2): Prom
 
   const { error } = await supabaseAdmin
     .from('companies')
-    .update({ description: JSON.stringify(desc) } as never)
+    .update({ description: JSON.stringify(desc) })
     .eq('id', companyId)
 
   if (error) {

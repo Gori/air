@@ -6,13 +6,11 @@ export default async function PersonalInsightsPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const { data } = await supabaseAdmin
-    .from('personal_insights' as never)
+  const { data: insights } = await supabaseAdmin
+    .from('personal_insights')
     .select('user_id, survey_id, generated_at, scores_json, narrative_json')
     .eq('user_id', userId)
     .maybeSingle()
-  type PersonalInsightsRow = { user_id: string; survey_id: string | null; generated_at: string | null; scores_json: unknown; narrative_json: unknown }
-  const insights = (data ?? null) as unknown as PersonalInsightsRow | null
 
   if (!insights) {
     return (

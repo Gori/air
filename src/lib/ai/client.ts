@@ -4,7 +4,8 @@ export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 })
 
-export const AI_MODEL = 'gpt-4.1-mini-2025-04-14'
+export const AI_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini-2025-04-14'
+export const AI_MAX_TOKENS = parseInt(process.env.OPENAI_MAX_TOKENS || '1000', 10)
 
 export interface AIResponse {
   content: string
@@ -34,7 +35,7 @@ export async function generateAIResponse(
   const response = await openai.chat.completions.create({
     model: AI_MODEL,
     messages,
-    max_tokens: 1000,
+    max_tokens: AI_MAX_TOKENS,
     temperature: 0.7,
   })
 

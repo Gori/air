@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getCompanyId } from '@/lib/supabase/server'
 import { generateAIResponse } from '@/lib/ai/client'
-import { 
-  FOLLOW_UP_QUESTION_SYSTEM_PROMPT, 
-  buildFollowUpPrompt 
+import {
+  FOLLOW_UP_QUESTION_SYSTEM_PROMPT,
+  buildFollowUpPrompt
 } from '@/lib/ai/prompts'
-import { 
-  createQuestionInstance 
+import {
+  createQuestionInstance
 } from '@/lib/supabase/mutations'
 import { getUser, getCompany } from '@/lib/supabase/queries'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { z } from 'zod'
+import { ApiErrors } from '@/lib/utils/api-response'
 
 const followUpSchema = z.object({
   questionInstanceId: z.string().uuid(),
@@ -25,12 +26,12 @@ export async function POST(request: NextRequest) {
     // Get authentication details
     const { userId: clerkUserId } = await auth()
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return ApiErrors.unauthorized()
     }
 
     const companyId = await getCompanyId()
     if (!companyId) {
-      return NextResponse.json({ error: 'No company association found' }, { status: 400 })
+      return ApiErrors.noCompany()
     }
 
     // Parse and validate request body
@@ -103,9 +104,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Follow-up question generation error:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate follow-up question' }, 
-      { status: 500 }
-    )
+    return ApiErrors.internal('Failed to generate follow-up question')
   }
 } 

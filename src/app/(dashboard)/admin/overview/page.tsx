@@ -69,7 +69,7 @@ export default async function AdminOverviewPage() {
     supabaseAdmin.from('answers').select('id', { head: true, count: 'exact' }).eq('employee_id', userId),
     supabaseAdmin.from('question_instances').select('id', { head: true, count: 'exact' }).eq('employee_id', userId),
     supabaseAdmin.from('question_instances').select('id', { head: true, count: 'exact' }).eq('company_id', companyId),
-    supabaseAdmin.from('personal_insights' as never).select('user_id').eq('user_id', userId).maybeSingle()
+    supabaseAdmin.from('personal_insights').select('user_id').eq('user_id', userId).maybeSingle()
   ])
 
   const employees = empCountRes.count || 0

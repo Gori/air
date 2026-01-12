@@ -14,7 +14,7 @@ export async function GET() {
       .from('reports')
       .select('id, generated_at, scores_json, narrative_json, shared_slug')
       .eq('company_id', companyId)
-      .order('generated_at', { ascending: false } as never)
+      .order('generated_at', { ascending: false })
       .limit(1)
       .maybeSingle()
 

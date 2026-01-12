@@ -87,8 +87,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate invite code
-    const inviteCode = `INV-${randomBytes(3).toString('hex').toUpperCase()}`
+    // Generate invite code with 64 bits of entropy (8 bytes)
+    const inviteCode = `INV-${randomBytes(8).toString('hex').toUpperCase()}`
     
     // Update company with invite code
     const { error: updateError } = await supabase

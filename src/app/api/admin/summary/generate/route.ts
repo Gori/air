@@ -1,12 +1,12 @@
-import { auth } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
 import { streamObject } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { z } from 'zod'
-import { supabaseAdmin } from '@/lib/supabase/admin'
 import { SUMMARY_GENERATION_SYSTEM_PROMPT, buildSummaryPrompt } from '@/lib/ai/prompts-summary'
 import { loadOnboardingData, saveSummaryV2 } from '@/lib/insights/company'
 import { SummaryV2 } from '@/types/summary'
+import { verifyManagerAuth } from '@/lib/auth/api-auth'
+import { ApiErrors } from '@/lib/utils/api-response'
+import { AI_MODEL } from '@/lib/ai/client'
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -59,28 +59,18 @@ const summarySchema = z.object({
 })
 
 export async function POST() {
-  const { userId } = await auth()
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const authResult = await verifyManagerAuth()
+  if (!authResult.success) {
+    return authResult.response
   }
 
-  const { data: user } = await supabaseAdmin
-    .from('users')
-    .select('role, company_id')
-    .eq('id', userId)
-    .single()
-
-  if (!user || user.role !== 'manager' || !user.company_id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  const companyId = user.company_id
+  const { companyId } = authResult.context
 
   try {
     const onboardingData = await loadOnboardingData(companyId)
 
     const result = streamObject({
-      model: openai('gpt-4o'),
+      model: openai(process.env.OPENAI_SUMMARY_MODEL || AI_MODEL),
       system: SUMMARY_GENERATION_SYSTEM_PROMPT,
       prompt: buildSummaryPrompt(onboardingData),
       schema: summarySchema,
@@ -96,10 +86,7 @@ export async function POST() {
     return result.toTextStreamResponse()
   } catch (error) {
     console.error('[summary/generate] Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate summary' },
-      { status: 500 }
-    )
+    return ApiErrors.internal('Failed to generate summary')
   }
 }
 

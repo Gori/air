@@ -9,7 +9,7 @@ import { REPORT_GENERATION_SYSTEM_PROMPT, buildReportPrompt } from '@/lib/ai/pro
 export async function ensurePersonalInsightsForUser(userId: string): Promise<boolean> {
   // If insights already exist, no-op
   const { data: existing } = await supabaseAdmin
-    .from('personal_insights' as never)
+    .from('personal_insights')
     .select('user_id')
     .eq('user_id', userId)
     .maybeSingle()
@@ -18,18 +18,17 @@ export async function ensurePersonalInsightsForUser(userId: string): Promise<boo
   // Prefer personal survey answers; otherwise fall back to company answers for this user
   let answers: Array<{ question: string; dimension: string; answer: string }> = []
   const { data: personal } = await supabaseAdmin
-    .from('personal_surveys' as never)
+    .from('personal_surveys')
     .select('id')
     .eq('user_id', userId)
     .maybeSingle()
-  let surveyId: string | null = (personal as { id?: string } | null)?.id || null
+  let surveyId: string | null = personal?.id || null
   if (surveyId) {
     const { data: pa } = await supabaseAdmin
-      .from('personal_answers' as never)
+      .from('personal_answers')
       .select('dimension, answer_text')
       .eq('survey_id', surveyId)
-    type PersonalAnswerRow = { dimension: string; answer_text: string }
-    answers = ((pa as PersonalAnswerRow[] | null) || []).map(a => ({ question: a.dimension, dimension: a.dimension, answer: a.answer_text }))
+    answers = (pa || []).map(a => ({ question: a.dimension, dimension: a.dimension, answer: a.answer_text }))
   }
   if (!answers.length) {
     const { data: qi } = await supabaseAdmin
@@ -63,23 +62,23 @@ export async function ensurePersonalInsightsForUser(userId: string): Promise<boo
   // Ensure a surveyId for linkage
   if (!surveyId) {
     const { data: created } = await supabaseAdmin
-      .from('personal_surveys' as never)
-      .insert({ user_id: userId } as never)
+      .from('personal_surveys')
+      .insert({ user_id: userId })
       .select('id')
       .single()
-    surveyId = (created as { id: string } | null)?.id || null
+    surveyId = created?.id || null
   }
   if (!surveyId) throw new Error('Failed to create survey record')
 
   // Insert insights (one-time)
   const { error: insErr } = await supabaseAdmin
-    .from('personal_insights' as never)
+    .from('personal_insights')
     .insert({
       user_id: userId,
       survey_id: surveyId,
       scores_json: parsed.scores,
       narrative_json: parsed.narrative,
-    } as never)
+    })
   if (insErr) throw new Error('Failed to save insights')
   return true
 }

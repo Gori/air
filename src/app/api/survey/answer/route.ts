@@ -5,6 +5,7 @@ import { saveAnswer, updateAnswerById } from '@/lib/supabase/mutations'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { getAnswersForQuestionInstances } from '@/lib/supabase/queries'
 import { z } from 'zod'
+import { ApiErrors } from '@/lib/utils/api-response'
 
 const answerSchema = z.object({
   questionInstanceId: z.string().uuid(),
@@ -17,12 +18,12 @@ export async function POST(request: NextRequest) {
     // Get authentication details
     const { userId: clerkUserId } = await auth()
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return ApiErrors.unauthorized()
     }
 
     const companyId = await getCompanyId()
     if (!companyId) {
-      return NextResponse.json({ error: 'No company association found' }, { status: 400 })
+      return ApiErrors.noCompany()
     }
 
     // Parse and validate request body
@@ -74,9 +75,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Answer submission error:', error)
-    return NextResponse.json(
-      { error: 'Failed to save answer' }, 
-      { status: 500 }
-    )
+    return ApiErrors.internal('Failed to save answer')
   }
 } 

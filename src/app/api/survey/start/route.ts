@@ -1,31 +1,62 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getCompanyId, getUserId } from '@/lib/supabase/server'
-import { 
-  getEmployeeQuestionInstances 
+import {
+  getEmployeeQuestionInstances
 } from '@/lib/supabase/queries'
-import { 
+import {
   initializeEmployeeQuestions
 } from '@/lib/supabase/mutations'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { getCompany } from '@/lib/supabase/queries'
+import { ApiErrors } from '@/lib/utils/api-response'
+
+// Types for survey start operations
+interface QuestionDimension {
+  dimension: string | null
+}
+
+interface QuestionWithId {
+  id: number
+}
+
+interface QuestionInstanceOrdinal {
+  id: string
+  ordinal: number
+}
+
+interface QuestionInstanceWithQuestion {
+  question_id: number | null
+}
+
+interface InstanceWithAnswers {
+  id: string
+  ordinal: number
+  question_id: number | null
+  questions?: {
+    id: number
+    dimension: string | null
+    text: string
+  }
+  answers?: Array<{ answer_text: string }>
+}
 
 export async function POST() {
   try {
     // Get authentication details
     const { userId: clerkUserId } = await auth()
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return ApiErrors.unauthorized()
     }
 
     const companyId = await getCompanyId()
     if (!companyId) {
-      return NextResponse.json({ error: 'No company association found' }, { status: 400 })
+      return ApiErrors.noCompany()
     }
 
     const userId = await getUserId()
     if (!userId) {
-      return NextResponse.json({ error: 'User UUID not found' }, { status: 400 })
+      return ApiErrors.badRequest('User UUID not found')
     }
 
     // Ensure the 6 usage-matrix questions exist in the question bank (idempotent)
@@ -41,7 +72,7 @@ export async function POST() {
       .from('questions')
       .select('dimension')
       .in('dimension', requiredUsage.map(u => u.dimension))
-    const existingSet = new Set((existingUsage || []).map((q: { dimension: string | null }) => q.dimension || ''))
+    const existingSet = new Set((existingUsage || []).map((q: QuestionDimension) => q.dimension || ''))
     const missingUsage = requiredUsage.filter(u => !existingSet.has(u.dimension))
     if (missingUsage.length > 0) {
       await supabaseAdmin
@@ -88,7 +119,7 @@ export async function POST() {
       .from('questions')
       .select('dimension')
       .in('dimension', requiredCore.map(c => c.dimension))
-    const existingCoreSet = new Set((existingCore || []).map((q: { dimension: string | null }) => q.dimension || ''))
+    const existingCoreSet = new Set((existingCore || []).map((q: QuestionDimension) => q.dimension || ''))
     const missingCore = requiredCore.filter(c => !existingCoreSet.has(c.dimension))
     if (missingCore.length > 0) {
       await supabaseAdmin
@@ -119,9 +150,9 @@ export async function POST() {
 
       if (usageQuestions && usageQuestions.length > 0) {
         const existingQuestionIds = new Set(
-          (questionInstances || []).map((qi: { question_id: number | null }) => qi.question_id || -1)
+          (questionInstances || []).map((qi: QuestionInstanceWithQuestion) => qi.question_id || -1)
         )
-        const missing = usageQuestions.filter((q: { id: number }) => !existingQuestionIds.has(q.id))
+        const missing = usageQuestions.filter((q: QuestionWithId) => !existingQuestionIds.has(q.id))
 
         if (missing.length > 0) {
           const bumpBy = missing.length
@@ -134,16 +165,18 @@ export async function POST() {
             .order('ordinal')
 
           if (instancesToUpdate && instancesToUpdate.length > 0) {
-            for (const inst of instancesToUpdate as Array<{ id: string; ordinal: number }>) {
-              await supabaseAdmin
+            // Batch update ordinals using Promise.all for concurrent execution
+            const updatePromises = (instancesToUpdate as QuestionInstanceOrdinal[]).map(inst =>
+              supabaseAdmin
                 .from('question_instances')
                 .update({ ordinal: inst.ordinal + bumpBy })
                 .eq('id', inst.id)
-            }
+            )
+            await Promise.all(updatePromises)
           }
 
           // Insert missing usage questions at the beginning with ordinals 1..n
-          const newInstances = missing.map((q: { id: number }, idx: number) => ({
+          const newInstances = missing.map((q: QuestionWithId, idx: number) => ({
             employee_id: userId,
             company_id: companyId,
             question_id: q.id,
@@ -166,10 +199,10 @@ export async function POST() {
         .eq('active', true)
 
       const existingQuestionIds = new Set(
-        (questionInstances || []).map((qi: { question_id: number | null }) => qi.question_id || -1)
+        (questionInstances || []).map((qi: QuestionInstanceWithQuestion) => qi.question_id || -1)
       )
 
-      const missing = (allQuestions || []).filter((q: { id: number }) => !existingQuestionIds.has(q.id))
+      const missing = (allQuestions || []).filter((q: QuestionWithId) => !existingQuestionIds.has(q.id))
       if (missing.length > 0) {
         const { data: lastInst } = await supabaseAdmin
           .from('question_instances')
@@ -179,7 +212,7 @@ export async function POST() {
           .limit(1)
           .single()
         const start = (lastInst?.ordinal || 0) + 1
-        const newInstances = missing.map((q: { id: number }, idx: number) => ({
+        const newInstances = missing.map((q: QuestionWithId, idx: number) => ({
           employee_id: userId,
           company_id: companyId,
           question_id: q.id,
@@ -234,7 +267,7 @@ export async function POST() {
       .order('ordinal')
 
     const instanceMap: Record<string, { id: string, ordinal: number, question_id: number | null, answer_text?: string }> = {}
-    for (const row of (instancesWithAnswers || []) as Array<{ id: string; ordinal: number; question_id: number | null; questions?: { id: number; dimension: string | null; text: string }; answers?: Array<{ answer_text: string }> }>) {
+    for (const row of (instancesWithAnswers || []) as InstanceWithAnswers[]) {
       const dim = row.questions?.dimension || null
       if (dim) {
         instanceMap[dim] = {
@@ -266,9 +299,6 @@ export async function POST() {
 
   } catch (error) {
     console.error('Survey start error:', error)
-    return NextResponse.json(
-      { error: 'Failed to start survey' }, 
-      { status: 500 }
-    )
+    return ApiErrors.internal('Failed to start survey')
   }
 } 

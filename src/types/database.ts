@@ -420,6 +420,99 @@ export type Database = {
           },
         ]
       }
+      personal_insights: {
+        Row: {
+          user_id: string
+          survey_id: string
+          generated_at: string
+          scores_json: Json
+          narrative_json: Json
+        }
+        Insert: {
+          user_id: string
+          survey_id: string
+          generated_at?: string
+          scores_json: Json
+          narrative_json: Json
+        }
+        Update: {
+          user_id?: string
+          survey_id?: string
+          generated_at?: string
+          scores_json?: Json
+          narrative_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personal_surveys: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string | null
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_surveys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personal_answers: {
+        Row: {
+          id: string
+          survey_id: string
+          dimension: string
+          answer_text: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          survey_id: string
+          dimension: string
+          answer_text: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          survey_id?: string
+          dimension?: string
+          answer_text?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_answers_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "personal_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

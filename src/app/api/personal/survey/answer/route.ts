@@ -12,22 +12,22 @@ export async function POST(req: NextRequest) {
     }
     // Upsert answer by (survey_id, dimension)
     const { data: existing } = await supabaseAdmin
-      .from('personal_answers' as never)
+      .from('personal_answers')
       .select('id')
       .eq('survey_id', surveyId)
       .eq('dimension', dimension)
       .maybeSingle()
-    const existingRow = (existing ?? null) as { id: string } | null
-    if (existingRow?.id) {
+
+    if (existing?.id) {
       const { error: upErr } = await supabaseAdmin
-        .from('personal_answers' as never)
-        .update({ answer_text: answerText } as never)
-        .eq('id', existingRow.id)
+        .from('personal_answers')
+        .update({ answer_text: answerText })
+        .eq('id', existing.id)
       if (upErr) throw upErr
     } else {
       const { error: insErr } = await supabaseAdmin
-        .from('personal_answers' as never)
-        .insert({ survey_id: surveyId, dimension, answer_text: answerText } as never)
+        .from('personal_answers')
+        .insert({ survey_id: surveyId, dimension, answer_text: answerText })
       if (insErr) throw insErr
     }
     return NextResponse.json({ success: true })

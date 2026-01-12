@@ -21,7 +21,7 @@ export default async function WelcomePage() {
 
   // Check if personal insights exist
   const { data: insights } = await supabaseAdmin
-    .from('personal_insights' as never)
+    .from('personal_insights')
     .select('user_id')
     .eq('user_id', userId)
     .maybeSingle()
@@ -49,21 +49,18 @@ export default async function WelcomePage() {
   if (!companyId) {
     // Try to find a personal survey and count answers
     const { data: surveyRow } = await supabaseAdmin
-      .from('personal_surveys' as never)
+      .from('personal_surveys')
       .select('id, created_at')
       .eq('user_id', userId)
-      .order('created_at', { ascending: true } as never)
+      .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle()
-    let surveyId: string | undefined
-    if (surveyRow && typeof (surveyRow as { id?: unknown }).id === 'string') {
-      surveyId = (surveyRow as { id: string }).id
-    }
-    if (surveyId) {
+
+    if (surveyRow?.id) {
       const { data: ans } = await supabaseAdmin
-        .from('personal_answers' as never)
+        .from('personal_answers')
         .select('id')
-        .eq('survey_id', surveyId)
+        .eq('survey_id', surveyRow.id)
       personalAnswered = (ans || []).length
     }
   }

@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getCompanyId } from '@/lib/supabase/server'
 import { generateAIResponse } from '@/lib/ai/client'
-import { 
-  REPORT_GENERATION_SYSTEM_PROMPT, 
-  buildReportPrompt 
+import {
+  REPORT_GENERATION_SYSTEM_PROMPT,
+  buildReportPrompt
 } from '@/lib/ai/prompts'
 import { getCompany, getUser } from '@/lib/supabase/queries'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/email/client'
 import { z } from 'zod'
+import { ApiErrors } from '@/lib/utils/api-response'
 
 // Validation schema for report generation request
 const reportRequestSchema = z.object({
@@ -50,12 +51,12 @@ export async function POST(request: NextRequest) {
     // Get authentication details
     const { userId: clerkUserId } = await auth()
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return ApiErrors.unauthorized()
     }
 
     const companyId = await getCompanyId()
     if (!companyId) {
-      return NextResponse.json({ error: 'No company association found' }, { status: 400 })
+      return ApiErrors.noCompany()
     }
 
     // Verify user is a manager
@@ -308,9 +309,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Report generation error:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate report. Please try again.' }, 
-      { status: 500 }
-    )
+    return ApiErrors.internal('Failed to generate report. Please try again.')
   }
 } 

@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
     if (!surveyId) return NextResponse.json({ error: 'Missing surveyId' }, { status: 400 })
 
     await supabaseAdmin
-      .from('personal_surveys' as never)
-      .update({ completed_at: new Date().toISOString() } as never)
+      .from('personal_surveys')
+      .update({ completed_at: new Date().toISOString() })
       .eq('id', surveyId)
 
     // Ensure insights exist (inline, avoids extra network hop)

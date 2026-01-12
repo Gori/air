@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { rateLimit, getClientIdentifier, rateLimiters } from '@/lib/utils/rate-limit'
 
 interface RouteParams {
   params: Promise<{ slug: string }>
@@ -7,11 +8,38 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    // Apply rate limiting to prevent enumeration attacks
+    const clientId = getClientIdentifier(request)
+    const rateLimitResult = rateLimit(`shared-report:${clientId}`, rateLimiters.strict)
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+          },
+        }
+      )
+    }
+
     const { slug } = await params
-    
+
     if (!slug) {
       return NextResponse.json({ error: 'Missing slug parameter' }, { status: 400 })
     }
+
+    // Validate slug format (should be alphanumeric with hyphens, reasonable length)
+    if (!/^[a-zA-Z0-9-]{8,64}$/.test(slug)) {
+      return NextResponse.json({ error: 'Invalid slug format' }, { status: 400 })
+    }
+
+    // Log access attempt for monitoring
+    console.log(`[shared-report] Access attempt for slug: ${slug.substring(0, 8)}... from ${clientId}`)
 
     // Get the report by shared slug (no auth needed for public sharing)
     const { data: report, error: reportError } = await supabaseAdmin

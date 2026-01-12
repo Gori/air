@@ -51,7 +51,7 @@ export async function POST() {
 
   // Ensure user row is linked and role is manager
   if (!user || user.role !== 'manager' || !user.company_id) {
-    const up = await supabaseAdmin.from('users').upsert({ id: userId, company_id: companyId, role: 'manager' } as never, { onConflict: 'id' } as never).select('company_id, role').single()
+    const up = await supabaseAdmin.from('users').upsert({ id: userId, company_id: companyId, role: 'manager', email: '' }, { onConflict: 'id' }).select('company_id, role').single()
     if (up.error) console.error('[onboarding/complete] Failed to upsert user role/company', up.error)
     else console.log('[onboarding/complete] Ensured user role/company', up.data)
   }

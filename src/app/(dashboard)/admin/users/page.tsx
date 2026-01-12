@@ -23,11 +23,11 @@ export default async function AdminUsersPage() {
   const ids = (users || []).map((u) => u.id)
   // Batch fetch insights presence
   const { data: insightsRows } = await supabaseAdmin
-    .from('personal_insights' as never)
+    .from('personal_insights')
     .select('user_id')
-    .in('user_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'] as never)
+    .in('user_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
 
-  const hasInsightsSet = new Set<string>((insightsRows || []).map((r: { user_id: string }) => r.user_id))
+  const hasInsightsSet = new Set<string>((insightsRows || []).map((r) => r.user_id))
 
   // Progress per user (company survey)
   const progressList = await Promise.all(
